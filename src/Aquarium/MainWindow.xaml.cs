@@ -17,7 +17,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
-        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); };
+        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -27,10 +27,12 @@ public sealed partial class MainWindow : Window
         {
             appearance.Load(); appearance.Apply(Root);
             await store.LoadAsync();
+            installer = new PackageInstaller(store);
             ready = true;
             Navigation.SelectedItem = Navigation.MenuItems[0];
             Render();
             if (store.LoadWarning is not null) ShowNotice(store.LoadWarning, InfoBarSeverity.Warning);
+            if (store.CanSave) await InstallBundledAsync();
         }
         catch (Exception ex)
         {
@@ -63,13 +65,15 @@ public sealed partial class MainWindow : Window
     {
         PageTitle.Text = page;
         PageBody.Children.Clear();
+        downloadLabel = null;
         PageBody.Spacing = appearance.Compact ? 8 : 16;
         PageSubtitle.Text = page switch
         {
             "Home" => "A calmer home for your apps. One private collection, built around you.",
             "Store" => "Only Aquarium apps. Browse the local catalog and build your collection.",
-            "Library" => "Your saved apps. Saving an app does not install it.",
-            "Downloads" => "Package activity will appear here when installation is implemented.",
+            "Library" => "Your installed apps and saved catalog entries.",
+            "App install" => "Choose Aquarium apps from your public GitHub releases.",
+            "Downloads" => "Live package activity and installation results.",
             "Updates" => "Check Aquarium-family releases and supported outside apps.",
             _ => "Local storage and the current scope of Aquarium."
         };
@@ -84,7 +88,7 @@ public sealed partial class MainWindow : Window
                 browse.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems[1];
                 hero.Children.Add(browse);
                 PageBody.Children.Add(Panel(hero));
-                PageBody.Children.Add(Text($"{store.Catalog.Count} catalog entries   ·   {store.Registry.LibraryAppIds.Count} saved   ·   No installable packages", 14, true));
+                PageBody.Children.Add(Text($"{store.Catalog.Count} catalog entries   ·   {store.Registry.Installations.Count} installed   ·   {store.Registry.LibraryAppIds.Count} in Library", 14, true));
                 foreach (var app in store.Catalog) AddCard(PageBody, app);
                 break;
             case "Store":
@@ -104,12 +108,15 @@ public sealed partial class MainWindow : Window
                 Filter();
                 break;
             case "Library":
-                var saved = store.Catalog.Where(a => store.Registry.LibraryAppIds.Contains(a.Id)).ToList();
-                if (saved.Count == 0) Empty("Your collection starts here", "Visit Store and save an app to your library. There are no installed packages yet.");
+                var saved = store.Catalog.Where(a => store.Registry.LibraryAppIds.Contains(a.Id) || store.Registry.Installations.Any(i => i.AppId == a.Id)).ToList();
+                if (saved.Count == 0) Empty("Your collection starts here", "Visit App install to install an app, or save an entry from Store.");
                 foreach (var app in saved) AddCard(PageBody, app);
                 break;
             case "Downloads":
-                Empty("No downloads", "No package installer or download service is connected. Saving an app never creates a download.");
+                RenderDownloads();
+                break;
+            case "App install":
+                RenderInstallApps();
                 break;
             case "Updates":
                 RenderUpdates();
@@ -117,8 +124,8 @@ public sealed partial class MainWindow : Window
             case "Settings":
                 PageBody.Children.Add(appearance.Editor(Root, Render, message => ShowNotice(message, InfoBarSeverity.Error)));
                 Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
-                Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and future installation records use schema version 1. Library changes are saved immediately.");
-                Empty("Module status", "Security: inspection pending\nEmulation: inspection pending\nFishNet: standalone media player; Aquarium packaging pending\nNo existing app projects have been changed.");
+                Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
+                Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
                 break;
         }
     }
@@ -147,7 +154,7 @@ public sealed partial class MainWindow : Window
             var dialog = new ContentDialog
             {
                 XamlRoot = Root.XamlRoot, RequestedTheme = ElementTheme.Dark,
-                Title = app.Name, Content = app.Description + "\n\n" + store.Modules[app.ModuleId].Status,
+                Title = app.Name, Content = app.Description,
                 CloseButtonText = "Close"
             };
             await dialog.ShowAsync();
@@ -170,7 +177,11 @@ public sealed partial class MainWindow : Window
         actions.Children.Add(details);
         actions.Children.Add(save);
         content.Children.Add(actions);
-        content.Children.Add(Text("Installation and launch unavailable", 12, true));
+        var installed = store.Registry.Installations.FirstOrDefault(i => i.AppId == app.Id);
+        var open = new Button { Content = installed is null ? "Install options" : "Open " + app.Name };
+        open.Click += (_, _) => { if (installed is not null) LaunchInstalled(installed); else Navigation.SelectedItem = Navigation.MenuItems.Cast<NavigationViewItem>().Single(i => i.Tag?.ToString() == "App install"); };
+        content.Children.Add(open);
+        content.Children.Add(Text(installed is null ? "Not installed" : "Installed · " + installed.Version, 12, true));
         parent.Children.Add(Panel(content));
     }
 
@@ -181,5 +192,6 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
+
 
 

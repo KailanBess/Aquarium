@@ -14,6 +14,9 @@ public sealed partial class MainWindow
 
     private void RenderUpdates()
     {
+        var manage = new Button { Content = "Manage Aquarium app installs and updates" };
+        manage.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems.Cast<NavigationViewItem>().Single(i => i.Tag?.ToString() == "App install");
+        PageBody.Children.Add(manage);
         Empty("One home for updates", "Aquarium owns update management for the Aquarium family. FishNet has no updater. Outside-app checks use the WinGet community source; coverage is limited to apps it can match. Other apps may still update themselves.");
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         var check = new Button { Content = "Check outside apps", IsEnabled = updateCancellation is null };

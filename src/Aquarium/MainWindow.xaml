@@ -7,6 +7,7 @@
       <NavigationView.MenuItems>
         <NavigationViewItem Content="Home" Tag="Home" Icon="Home"/>
         <NavigationViewItem Content="Store" Tag="Store" Icon="Shop"/>
+        <NavigationViewItem Content="App install" Tag="App install" Icon="Add"/>
         <NavigationViewItem Content="Library" Tag="Library" Icon="Library"/>
         <NavigationViewItem Content="Downloads" Tag="Downloads" Icon="Download"/>
         <NavigationViewItem Content="Updates" Tag="Updates" Icon="Refresh"/>

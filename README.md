@@ -1,62 +1,55 @@
 # Aquarium
 
-Native C# / .NET 8 / WinUI 3 desktop hub. The private Store stays Aquarium-only. The separate Updates destination can check supported outside apps.
+Native C# / .NET 8 / WinUI 3 Windows desktop hub with a private Aquarium-only app catalog, GitHub release installation, local Library, Downloads, Updates and customization.
 
-## Build and run
+## Complete bundle
 
-Requires Windows 10 build 19041+ x64, .NET 8 SDK, Visual Studio 2022 17.8+ WinUI C# / Windows application development tooling, and Windows SDK 10.0.26100. NuGet access is required. Run these commands from Developer PowerShell for Visual Studio so its MSBuild and Windows packaging tools are available. The root global.json selects .NET 8 even if newer SDKs are installed. Windows App SDK 1.6.250205002 is pinned; this is not a claim it is the latest release.
+The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the entire folder and run `Aquarium.exe`. Keep every runtime and Bundled file together. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
+
+FishTank is the inspected public `preview-v0.15.5` release. FishNet is built from the pinned source commit in the workflow because no public FishNet release exists yet. This does not claim the separate FishTank/FishBowl UI pull requests have been released. These are development builds, not signed production installers.
+
+## App install and Library
+
+1. Open **App install** and choose **Look for published apps**.
+2. Aquarium reads public release metadata for `KailanBess/FishTank`, `KailanBess/FishNet` and `KailanBess/FishBowl` only. Draft releases are excluded. FishTank permits published previews because it has no stable release; the other apps use stable releases.
+3. Review the version/source and click Install. The confirmation describes the download and local install. GitHub's asset SHA-256 digest is used where available; otherwise a matching release `SHA256SUMS.txt` entry is required.
+4. Downloads shows real activity, cancel controls, failures and session history. An installation enters Library only after extraction and registry persistence succeed. Use **Open** to start it.
+
+Latest release checks require internet access and may fail due to GitHub rate limits. Missing releases, missing Windows packages and missing checksums are reported as unavailable. CI artifacts are not represented as public releases in the App install page. For future FishNet releases, publish `FishNet-windows-x64.zip` containing its complete publish directory, with a GitHub digest or matching `SHA256SUMS.txt`. No arbitrary outside repositories are executable store entries.
+
+App versions use separate managed folders under `%LOCALAPPDATA%\Aquarium\Apps`. Failed installs preserve the previous registry entry; successful replacements retain old program folders. Games, media, accounts and application profiles stay in their apps' existing locations. No destructive uninstall or old-version cleanup is implemented yet. Do not move or alter managed folders while apps are running. The initial bundle skips default apps that are already registered.
+
+The download checksum protects integrity from the trusted repository's metadata; it is not independent publisher-signature authentication. Install sources are explicitly allowlisted. Packages reject traversal paths, duplicates, symlinks and excessive sizes/counts; launch paths are contained within managed directories. Apps are started as standalone processes and run as the current Windows user.
+
+## Updates
+
+Aquarium owns the shared update UI. Its Updates page links to managed app installs/updates and can check public Aquarium-family releases. For outside apps it runs read-only `winget upgrade --source winget --disable-interactivity`, displays original output and offers an exact-ID interactive update after confirmation. Checks do not install anything or accept agreements. WinGet cannot cover every app, and vendor self-updaters are not disabled. FishNet has no separate updater. Existing released FishTank/FishBowl behavior is retained.
+
+## Appearance and scope
+
+Ocean/Midnight/Slate backgrounds, Mint/Blue/Coral accents and compact spacing persist in Settings. Store search and saved bookmarks remain available independently from installations. FishTank = Security, FishBowl = Emulation, FishNet = Media. No private VPN, network-management or Tailscale project integration is included.
+
+## Build
+
+Requires Windows 10 build 19041+ x64, .NET 8 SDK, Visual Studio 2022 17.8+ WinUI C# tooling and Windows SDK 10.0.26100. Use Developer PowerShell for Visual Studio. `global.json` selects .NET 8.
 
 ```powershell
 msbuild .\src\Aquarium\Aquarium.csproj /restore /p:Configuration=Debug /p:Platform=x64
 & .\src\Aquarium\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Aquarium.exe
 ```
 
-Or open the csproj in Visual Studio and run x64. Publish a self-contained, unpackaged folder:
+A source-only build has no Bundled folder; it still provides the App install page. The GitHub workflow publishes a complete self-contained hub, builds pinned FishNet source, downloads/verifies the inspected FishTank release, and generates its bundled-app hash manifest. It uploads the complete runnable folder. The bundle does not require a system .NET runtime or MSIX registration.
+
+## Architecture and validation
+
+`GitHubPackages`: approved app sources and published Windows package discovery. `PackageInstaller`: checksum verification, bounded extraction, standalone launching. `LocalStore`: serialized, atomic registry writes. `InstallUi`: install selection, included-app setup, download/cancel states. `UpdateService`: outside-app checks. `Preferences`: independent appearance storage.
+
+`registry.json` and `appearance.json` live under `%LOCALAPPDATA%\Aquarium`. Invalid registries are preserved with writes disabled. Editing assumes one Aquarium process; cross-process coordination and signed self-updating remain future work.
 
 ```powershell
-msbuild .\src\Aquarium\Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=..\..\publish\
-.\publish\Aquarium.exe
+dotnet run --project .\tests\Aquarium.PackageTests\Aquarium.PackageTests.csproj -c Release
 ```
 
-Keep all publish files together. No MSIX registration or installer is required. [Microsoft deployment guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/unpackage-winui-app?tabs=csharp).
+The tests use generated, never-executed fixture files and isolated temporary directories. They exercise package integrity, traversal/duplicate rejection, expected executables, registry persistence, failure rollback, previous-version retention and concurrent bookmarks. Check the current GitHub workflow result for actual build status.
 
-## Features
-
-- Home, searchable Store, Library bookmarks, Downloads, Updates, and Settings.
-- Aquatic dark UI retained, with saved Mint / Blue / Coral accents, Ocean / Midnight / Slate backgrounds, and compact collection spacing in Settings.
-- Atomic local registry and appearance writes. Invalid files are preserved and their writes disabled.
-- Security and Emulation adapters remain pending actual project inspection. FishNet is a separate standalone media player.
-
-Library bookmarks do not mean installed apps. Downloads and Aquarium package installation remain unavailable. No VPN, network-management, or Tailscale features are included. No external existing apps are modified by source authoring.
-
-## Central update ownership
-
-Aquarium is the Aquarium-family update hub. FishNet has no updater. These are the currently implemented providers:
-
-1. **Outside apps / WinGet**: on-demand `winget upgrade --source winget --disable-interactivity` checks. The unparsed report, exit code, and timestamp are displayed. Check failures never become an 'up to date' status. Checks are cancellable and time out after two minutes.
-2. **Selected outside-app upgrade**: copy an exact package ID from the report, review the confirmation, then start a visible interactive WinGet upgrade using that ID and exact matching. No bulk update, silent install, or automatic agreement acceptance is used. Aquarium does not track the separate installer's completion. Run another check afterward.
-3. **Aquarium / FishNet releases**: query the two allowlisted GitHub repositories for the latest stable release tag. Missing releases and HTTP failures are reported. Tags are release information only: verified package installation, version comparisons, rollback, and self-update replacement are not implemented.
-
-WinGet requires Microsoft App Installer and a usable `winget` community source. If source agreements need review, run `winget upgrade` in a terminal first. Source terms are not automatically accepted. Check output is intentionally not parsed using fragile localized table columns. Microsoft Store-only, portable, custom, unrecognized, or unknown-version apps may be absent. Spotify can be detected when WinGet matches the installed package. No provider can reliably update literally every Windows app. Vendor self-updaters are not disabled.
-
-The Store remains private to Aquarium apps; outside apps are only managed under Updates. User-requested checks contact WinGet's configured community source or GitHub. No background scans, telemetry, or scheduled checks exist. Catalog privacy is product scope, not authentication; repository source is public.
-
-References: [WinGet upgrade](https://learn.microsoft.com/en-us/windows/package-manager/winget/upgrade), [WinGet source agreements](https://learn.microsoft.com/en-us/windows/package-manager/winget/source).
-
-## Architecture and data
-
-- `MainWindow`: native navigation and catalog cards.
-- `LocalStore` / `Models`: bundled catalog, versioned local registry, module and installer contracts.
-- `UpdateService` / `UpdatesUi`: centralized release checks and WinGet bridge.
-- `Preferences`: appearance editor and persistence, independent from registry state.
-
-Data: `%LOCALAPPDATA%\Aquarium\registry.json` and `appearance.json`. Update results are session-only. Single-instance editing is assumed; cross-process coordination remains future work.
-
-Before connecting existing apps: inspect source/build outputs and privileges; retain standalone operation; define a signed package manifest, digest verification, staging, rollback, and uninstall; record installations only after success; validate entry points before launch. No unreviewed assemblies are loaded into Aquarium.
-
-## Verification
-
-The local authoring machine has no discoverable .NET SDK. XML/JSON structure is statically checked. The Windows build workflow compiles on GitHub Actions; consult its actual status before treating builds as verified. Playback, layout, and WinGet behavior require Windows smoke testing.
-
-Smoke checks: visit every destination, search and restart-test bookmarks; change all appearance options and restart; check updates with/without WinGet, cancel a check, test missing releases/offline failure, and verify no check installs anything. Test one exact outside-app upgrade on a disposable development machine, review the installer and recheck. Corrupt a backed-up registry/preferences file while closed and confirm it is preserved with writes disabled, then restore it.
-
+Windows smoke checks: extract the full bundle, launch Aquarium, confirm FishTank/FishNet are registered and FishBowl is absent, open each included app, check public packages and optionally install FishBowl. Verify cancel/error recovery and persistent Library after restart. Runtime visual/playback behavior requires a real Windows desktop.

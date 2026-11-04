@@ -4,8 +4,10 @@ namespace Aquarium;
 
 public sealed class LocalStore
 {
+    private readonly SemaphoreSlim writeGate = new(1, 1);
     private static readonly JsonSerializerOptions Json = new() { PropertyNameCaseInsensitive = true, WriteIndented = true };
-    public string RegistryPath { get; } = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "registry.json");
+    public string RegistryPath { get; }
+    public LocalStore(string? dataDirectory = null) => RegistryPath = Path.Combine(dataDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium"), "registry.json");
     public IReadOnlyList<CatalogApp> Catalog { get; private set; } = [];
     public LocalRegistry Registry { get; private set; } = new();
     public string? LoadWarning { get; private set; }
@@ -41,6 +43,9 @@ public sealed class LocalStore
 
     public async Task SetLibraryAsync(string id, bool include)
     {
+        await writeGate.WaitAsync();
+        try
+        {
         if (!CanSave) throw new InvalidOperationException("The registry is read-only after a load error.");
         if (!Catalog.Any(a => a.Id == id)) throw new ArgumentException("Unknown catalog app.");
         var next = new LocalRegistry
@@ -49,6 +54,28 @@ public sealed class LocalStore
             Installations = Registry.Installations.ToList()
         };
         if (include) next.LibraryAppIds.Add(id);
+        await CommitAsync(next);
+        }
+        finally { writeGate.Release(); }
+    }
+
+    public async Task RecordInstallationAsync(InstalledApp installation)
+    {
+        await writeGate.WaitAsync();
+        try
+        {
+            if (!CanSave) throw new InvalidOperationException("The registry is read-only after a load error.");
+            if (!Catalog.Any(a => a.Id == installation.AppId)) throw new InvalidOperationException("Unknown app.");
+            var next = new LocalRegistry { LibraryAppIds = Registry.LibraryAppIds.ToList(), Installations = Registry.Installations.Where(a => a.AppId != installation.AppId).ToList() };
+            next.Installations.Add(installation);
+            if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
+            await CommitAsync(next);
+        }
+        finally { writeGate.Release(); }
+    }
+
+    private async Task CommitAsync(LocalRegistry next)
+    {
         Directory.CreateDirectory(Path.GetDirectoryName(RegistryPath)!);
         var temporary = RegistryPath + ".tmp";
         await File.WriteAllTextAsync(temporary, JsonSerializer.Serialize(next, Json));

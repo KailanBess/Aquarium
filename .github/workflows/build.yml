@@ -1,4 +1,4 @@
-name: Windows build
+name: Windows build and complete app bundle
 on:
   push:
   pull_request:
@@ -14,13 +14,24 @@ jobs:
         with:
           dotnet-version: 8.0.x
       - uses: microsoft/setup-msbuild@v2
-      - name: Build native Windows shell
-        run: msbuild src/Aquarium/Aquarium.csproj /restore /p:Configuration=Release /p:Platform=x64
-      - name: Publish runnable Windows app
+      - name: Test package safety and registry persistence
+        run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
+      - name: Publish Aquarium
         run: msbuild src/Aquarium/Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/Aquarium/
+      - uses: actions/checkout@v4
+        with:
+          repository: KailanBess/FishNet
+          ref: 6bcebb45e0e9b37c16d4909e3242ad555e1be417
+          path: companion/FishNet
+      - name: Publish included FishNet build
+        run: msbuild companion/FishNet/src/FishNet/FishNet.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/FishNet/
+      - name: Include default apps from inspected sources
+        shell: pwsh
+        run: ./scripts/Bundle-Apps.ps1 -PublishDirectory "$PWD/artifacts/Aquarium" -FishNetDirectory "$PWD/artifacts/FishNet"
       - uses: actions/upload-artifact@v4
         with:
-          name: Aquarium-windows-x64
+          name: Aquarium-complete-windows-x64
           path: artifacts/Aquarium/
           if-no-files-found: error
           retention-days: 14
+
