@@ -1,0 +1,6 @@
+[
+  { "id": "aquarium.security", "name": "Security", "category": "Protection", "summary": "A dedicated home for your existing Security app.", "description": "Integration is pending inspection of the existing source, build output, launch requirements, and permissions. No security scans or protection services are implemented by Aquarium.", "moduleId": "security", "stage": "Integration pending" },
+  { "id": "aquarium.emulation", "name": "Emulation", "category": "Play & preservation", "summary": "Bring your existing Emulation app into your collection.", "description": "Integration is pending inspection of the existing app. Aquarium does not bundle emulators, firmware, games, or content downloads.", "moduleId": "emulation", "stage": "Integration pending" },
+  { "id": "aquarium.media", "name": "FishNet", "category": "Watch & listen", "summary": "A standalone local media player for the Aquarium family.", "description": "FishNet has an initial standalone WinUI local media player source project. Build verification, approved packaging, and the Aquarium launch adapter are pending.", "moduleId": "media", "stage": "Integration pending" }
+]
+

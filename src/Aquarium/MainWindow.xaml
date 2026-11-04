@@ -1,0 +1,26 @@
+<Window x:Class="Aquarium.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Aquarium">
+  <Grid x:Name="Root" RequestedTheme="Dark" Background="#09151D">
+    <NavigationView x:Name="Navigation" PaneDisplayMode="Left" IsBackButtonVisible="Collapsed" IsSettingsVisible="True" SelectionChanged="Navigate" OpenPaneLength="224" IsPaneToggleButtonVisible="True">
+      <NavigationView.PaneHeader>
+        <StackPanel Margin="20,24,12,28" Spacing="6"><TextBlock Text="◉  aquarium" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource AquariumAccent}"/><TextBlock Text="YOUR PRIVATE APP COLLECTION" FontSize="10" Foreground="#8CA9B5"/></StackPanel>
+      </NavigationView.PaneHeader>
+      <NavigationView.MenuItems>
+        <NavigationViewItem Content="Home" Tag="Home" Icon="Home"/>
+        <NavigationViewItem Content="Store" Tag="Store" Icon="Shop"/>
+        <NavigationViewItem Content="Library" Tag="Library" Icon="Library"/>
+        <NavigationViewItem Content="Downloads" Tag="Downloads" Icon="Download"/>
+        <NavigationViewItem Content="Updates" Tag="Updates" Icon="Refresh"/>
+      </NavigationView.MenuItems>
+      <NavigationView.PaneFooter><TextBlock Text="LOCAL CATALOG · PREVIEW 0.1" Foreground="#8CA9B5" FontSize="10" Margin="24"/></NavigationView.PaneFooter>
+      <ScrollViewer>
+        <StackPanel Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">
+          <TextBlock Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
+          <TextBlock x:Name="PageTitle" FontSize="36" FontWeight="SemiBold" Text="Home"/>
+          <TextBlock x:Name="PageSubtitle" Foreground="#A0B8C3" TextWrapping="Wrap"/>
+          <InfoBar x:Name="Notice" IsOpen="False" IsClosable="True" />
+          <StackPanel x:Name="PageBody" Spacing="16"/>
+        </StackPanel>
+      </ScrollViewer>
+    </NavigationView>
+  </Grid>
+</Window>
