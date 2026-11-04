@@ -14,6 +14,7 @@ public sealed partial class MainWindow
     private string downloadState = "No downloads or installations have run in this session.";
     private readonly List<string> downloadHistory = [];
     private TextBlock? downloadLabel;
+    private (CatalogApp App, AppPackage Package)? failedDownload;
 
     private void RenderInstallApps()
     {
@@ -43,6 +44,7 @@ public sealed partial class MainWindow
                 var launch = new Button { Content = "Open " + app.Name };
                 launch.Click += (_, _) => LaunchInstalled(installed);
                 panel.Children.Add(launch);
+                AddRollbackOptions(panel, app);
             }
             PageBody.Children.Add(Panel(panel));
         }
@@ -84,8 +86,8 @@ public sealed partial class MainWindow
         if (await confirmation.ShowAsync() != ContentDialogResult.Primary) return;
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         installCancellation = cancellation; ReportInstall("Starting " + app.Name + " installation…"); Render();
-        try { await installer.DownloadAndInstallAsync(package, new Progress<string>(ReportInstall), cancellation.Token); }
-        catch (Exception ex) { ReportInstall(ex is OperationCanceledException ? "Installation canceled. Previous installed version retained." : "Installation failed: " + ex.Message); }
+        try { await installer.DownloadAndInstallAsync(package, new Progress<string>(ReportInstall), cancellation.Token); failedDownload = null; }
+        catch (Exception ex) { failedDownload = (app, package); ReportInstall(ex is OperationCanceledException ? "Installation canceled. Previous installed version retained." : "Installation failed: " + ex.Message); }
         finally { downloadHistory.Add($"{DateTimeOffset.Now:g} · {downloadState}"); installCancellation = null; if (!isClosed) Render(); }
     }
     private void ReportInstall(string status)
@@ -97,6 +99,11 @@ public sealed partial class MainWindow
     {
         downloadLabel = Text(downloadState, 16);
         PageBody.Children.Add(downloadLabel);
+        if (failedDownload is { } failed && installCancellation is null)
+        {
+            var retry = new Button { Content = "Retry " + failed.App.Name + " download / install" };
+            retry.Click += async (_, _) => await InstallPublishedAsync(failed.App, failed.Package); PageBody.Children.Add(retry);
+        }
         if (installCancellation is not null)
         {
             PageBody.Children.Add(new ProgressBar { IsIndeterminate = true });

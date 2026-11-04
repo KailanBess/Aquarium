@@ -18,7 +18,7 @@ public sealed partial class MainWindow : Window
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Aquarium.ico"));
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
-        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); };
+        Closed += (_, _) => { isClosed = true; scheduleTimer?.Stop(); updateCancellation?.Cancel(); installCancellation?.Cancel(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -34,6 +34,7 @@ public sealed partial class MainWindow : Window
             Render();
             if (store.LoadWarning is not null) ShowNotice(store.LoadWarning, InfoBarSeverity.Warning);
             if (store.CanSave) await InstallBundledAsync();
+            StartUpdateSchedule();
         }
         catch (Exception ex)
         {
@@ -101,7 +102,7 @@ public sealed partial class MainWindow : Window
                 break;
             case "Settings":
                 PageBody.Children.Add(appearance.Editor(Root, Render, message => ShowNotice(message, InfoBarSeverity.Error)));
-                Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
+                Empty("Private by design", "The private store uses an Aquarium-only catalog. Update checks contact GitHub or WinGet when requested or when an enabled schedule is due. No accounts or telemetry are implemented.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
                 break;

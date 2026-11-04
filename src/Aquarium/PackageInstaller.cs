@@ -100,12 +100,23 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
     }
     public void Launch(InstalledApp app)
     {
+        ValidateInstallation(app);
+        var executable = Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
+        Process.Start(new ProcessStartInfo(executable) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable)! })?.Dispose();
+    }
+    public async Task RollbackAsync(InstalledApp previous)
+    {
+        if (!store.Registry.InstallationHistory.Contains(previous)) throw new InvalidDataException("This installation is not in retained history.");
+        ValidateInstallation(previous);
+        await store.RecordInstallationAsync(previous);
+    }
+    private void ValidateInstallation(InstalledApp app)
+    {
         var source = GitHubPackages.Sources.Single(s => s.AppId == app.AppId);
-        RequireWithin(AppRoot, app.InstallDirectory); RefuseLinks(app.InstallDirectory);
+        RequireWithin(Path.Combine(AppRoot, source.AppId), app.InstallDirectory); RefuseLinks(app.InstallDirectory);
         var executable = Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
         RequireWithin(app.InstallDirectory, executable); RefuseLinks(executable);
         if (!File.Exists(executable) || !Path.GetFileName(executable).Equals(source.Executable, StringComparison.OrdinalIgnoreCase)) throw new FileNotFoundException("The registered app executable is missing or invalid.");
-        Process.Start(new ProcessStartInfo(executable) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable)! })?.Dispose();
     }
     internal static void RequireWithin(string root, string path)
     {

@@ -61,3 +61,10 @@ Local verification: both native apps published successfully with the supported r
 
 This review branch adds a searchable app-tile catalog with a real installed-app summary, responsive layout, and matching Aquarium-family PNG/ICO assets. Installation, update management and customization remain in place. Preview builds do not replace the installed release bundle. Complete visual polish, grid/list preferences and broader accessibility checks remain follow-up work.
 
+
+## Update tools
+Updates offers an opt-in hourly/daily/weekly check schedule that runs while Aquarium is open. It checks GitHub releases and optionally supported WinGet apps; it never schedules installations or accepts source agreements. A missed occurrence runs once. Last attempted checks are throttled, including failures. Malformed scheduling data is preserved and scheduling stops with an error.
+
+Release notes are shown as plain text from all four public app repositories. Published managed packages remain on App install with repository, version, size and SHA-256 details. Outside-app detection keeps original WinGet results and only updates an explicitly reviewed exact package ID; unmatched apps are not claimed supported.
+
+Downloads offers retry after a failed or cancelled package install. Retries restart the download and verification. App install offers rollback when Aquarium has recorded a prior managed program version. Rollback changes the selected retained program folder; it does not downgrade user data, delete program folders or start the app. Close the app first and review older-version data compatibility. History is recorded starting with this version; existing untracked program folders are not guessed or adopted.

@@ -14,6 +14,7 @@ public sealed partial class MainWindow
 
     private void RenderUpdates()
     {
+        RenderSchedule();
         var manage = new Button { Content = "Manage Aquarium app installs and updates" };
         manage.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems.Cast<NavigationViewItem>().Single(i => i.Tag?.ToString() == "App install");
         PageBody.Children.Add(manage);
@@ -31,8 +32,9 @@ public sealed partial class MainWindow
         {
             var link = new HyperlinkButton { Content = $"{release.Name} · {release.Tag} · View releases", NavigateUri = new Uri(release.Url) };
             PageBody.Children.Add(link);
+            PageBody.Children.Add(new Expander { Header = release.Name + " release notes", Content = new TextBox { Text = string.IsNullOrWhiteSpace(release.Notes) ? "No release notes provided." : release.Notes, IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.Wrap, MaxHeight = 260 } });
         }
-        PageBody.Children.Add(Text("Release tags are shown for review; installed-version comparison and verified Aquarium package installation are pending. No release is silently downloaded or applied.", 13, true));
+        PageBody.Children.Add(Text("Release tags and notes are provided for review. Open App install for checksum-verified managed packages and installed-version details. No release is silently downloaded or applied.", 13, true));
         var report = new TextBox { Text = updateOutput, IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.NoWrap, MinHeight = 160, MaxHeight = 380, FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas") };
         ScrollViewer.SetHorizontalScrollBarVisibility(report, ScrollBarVisibility.Auto);
         ScrollViewer.SetVerticalScrollBarVisibility(report, ScrollBarVisibility.Auto);
@@ -62,7 +64,7 @@ public sealed partial class MainWindow
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         updateCancellation = cancellation;
         if (aquariumFamily) releaseStatus = "Checking published releases…"; else updateOutput = "Checking WinGet…";
-        Render();
+        if (page == "Updates") Render();
         try
         {
             if (aquariumFamily)

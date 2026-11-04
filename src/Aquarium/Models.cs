@@ -11,6 +11,7 @@ public sealed class LocalRegistry
     public int SchemaVersion { get; set; } = 1;
     public List<string> LibraryAppIds { get; set; } = [];
     public List<InstalledApp> Installations { get; set; } = [];
+    public List<InstalledApp> InstallationHistory { get; set; } = [];
 }
 
 public interface IAquariumModule
