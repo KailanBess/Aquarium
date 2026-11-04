@@ -43,6 +43,13 @@ try
     var newer = await installer.InstallZipAsync(source, "fixture-v2", valid, Hash(valid), progress, default);
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Previous version was removed");
     Check(store.Registry.Installations.Single().Version == "fixture-v2", "New version not activated");
+    using (var canceled = new CancellationTokenSource())
+    {
+        canceled.Cancel();
+        try { await installer.InstallZipAsync(source, "canceled", valid, Hash(valid), progress, canceled.Token); throw new Exception("Cancellation ignored"); }
+        catch (OperationCanceledException) { checks++; }
+        Check(store.Registry.Installations.Single() == newer, "Cancellation changed active installation");
+    }
     await Task.WhenAll(store.SetLibraryAsync("aquarium.emulation", true), store.RecordInstallationAsync(newer));
     Check(store.Registry.LibraryAppIds.Contains("aquarium.emulation"), "Concurrent library change lost");
     Check(GitHubPackages.Sources.Count(s => s.IncludedByDefault) == 2 && !GitHubPackages.Sources.Single(s => s.AppId == "aquarium.emulation").IncludedByDefault, "Default bundle must exclude FishBowl");

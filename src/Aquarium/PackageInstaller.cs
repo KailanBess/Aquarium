@@ -88,7 +88,14 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             await using var source = entry.Open();
             await using var output = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.None);
-            await source.CopyToAsync(output, token);
+            var buffer = new byte[81920]; long written = 0; int count;
+            while ((count = await source.ReadAsync(buffer, token)) > 0)
+            {
+                written += count;
+                if (written > entry.Length) throw new InvalidDataException("Expanded file exceeded its declared size.");
+                await output.WriteAsync(buffer.AsMemory(0, count), token);
+            }
+            if (written != entry.Length) throw new InvalidDataException("Package file is truncated.");
         }
     }
     public void Launch(InstalledApp app)
