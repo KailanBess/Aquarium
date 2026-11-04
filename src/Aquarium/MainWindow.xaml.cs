@@ -11,12 +11,13 @@ public sealed partial class MainWindow : Window
     private string page = "Home";
     private bool ready;
     private bool busy;
+    private bool isClosed;
     public MainWindow()
     {
         InitializeComponent();
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
-        Closed += (_, _) => updateCancellation?.Cancel();
+        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -180,4 +181,5 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
+
 

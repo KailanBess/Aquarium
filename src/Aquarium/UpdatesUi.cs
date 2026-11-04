@@ -81,7 +81,8 @@ public sealed partial class MainWindow
         finally
         {
             updateCancellation = null;
-            if (page == "Updates") Render();
+            if (!isClosed && page == "Updates") Render();
         }
     }
 }
+

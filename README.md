@@ -4,18 +4,17 @@ Native C# / .NET 8 / WinUI 3 desktop hub. The private Store stays Aquarium-only.
 
 ## Build and run
 
-Requires Windows 10 build 19041+ x64, .NET 8 SDK, Visual Studio 2022 17.8+ WinUI C# / Windows application development tooling, and Windows SDK 10.0.26100. NuGet access is required. Windows App SDK 1.6.250205002 is pinned; this is not a claim it is the latest release.
+Requires Windows 10 build 19041+ x64, .NET 8 SDK, Visual Studio 2022 17.8+ WinUI C# / Windows application development tooling, and Windows SDK 10.0.26100. NuGet access is required. Run these commands from Developer PowerShell for Visual Studio so its MSBuild and Windows packaging tools are available. The root global.json selects .NET 8 even if newer SDKs are installed. Windows App SDK 1.6.250205002 is pinned; this is not a claim it is the latest release.
 
 ```powershell
-dotnet restore .\src\Aquarium\Aquarium.csproj
-dotnet build .\src\Aquarium\Aquarium.csproj -c Debug -p:Platform=x64
-dotnet run --project .\src\Aquarium\Aquarium.csproj -c Debug -p:Platform=x64
+msbuild .\src\Aquarium\Aquarium.csproj /restore /p:Configuration=Debug /p:Platform=x64
+& .\src\Aquarium\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Aquarium.exe
 ```
 
 Or open the csproj in Visual Studio and run x64. Publish a self-contained, unpackaged folder:
 
 ```powershell
-dotnet publish .\src\Aquarium\Aquarium.csproj -c Release -r win-x64 --self-contained true -p:Platform=x64 -o .\publish
+msbuild .\src\Aquarium\Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=..\..\publish\
 .\publish\Aquarium.exe
 ```
 
@@ -60,3 +59,4 @@ Before connecting existing apps: inspect source/build outputs and privileges; re
 The local authoring machine has no discoverable .NET SDK. XML/JSON structure is statically checked. The Windows build workflow compiles on GitHub Actions; consult its actual status before treating builds as verified. Playback, layout, and WinGet behavior require Windows smoke testing.
 
 Smoke checks: visit every destination, search and restart-test bookmarks; change all appearance options and restart; check updates with/without WinGet, cancel a check, test missing releases/offline failure, and verify no check installs anything. Test one exact outside-app upgrade on a disposable development machine, review the installer and recheck. Corrupt a backed-up registry/preferences file while closed and confirm it is preserved with writes disabled, then restore it.
+
