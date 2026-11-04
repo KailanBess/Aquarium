@@ -23,14 +23,14 @@ jobs:
           dotnet build tests/Render/Render.csproj -c Release
           dotnet build tests/Color/Color.csproj -c Release
       - name: Publish Aquarium
-        run: msbuild src/Aquarium/Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/Aquarium/
+        run: dotnet publish src/Aquarium/Aquarium.csproj -c Release -o artifacts/Aquarium
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishNet
           ref: b02b61b4afcc1d4805168e936804419a86405b9c
           path: companion/FishNet
       - name: Publish included FishNet build
-        run: msbuild companion/FishNet/src/FishNet/FishNet.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/FishNet/
+        run: dotnet publish companion/FishNet/src/FishNet/FishNet.csproj -c Release -o artifacts/FishNet
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishTank
@@ -59,3 +59,39 @@ jobs:
 
 
 
+
+  release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: Aquarium-complete-windows-x64
+          path: app
+      - name: Publish Windows preview and checksum
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_BRANCH: ${{ github.ref_name }}
+          RELEASE_COMMIT: ${{ github.sha }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $tag = $env:RELEASE_BRANCH.Substring('release/'.Length)
+          if ($tag -notmatch '^v[0-9]+\.[0-9]+\.[0-9]+-preview\.[0-9]+$') { throw 'Release branches must name a preview version.' }
+          if (!(Test-Path app/Aquarium.exe) -or !(Test-Path app/Bundled/bundled.json)) { throw 'Incomplete app bundle.' }
+          Compress-Archive -Path app/* -DestinationPath Aquarium-complete-windows-x64.zip
+          $hash = (Get-FileHash Aquarium-complete-windows-x64.zip -Algorithm SHA256).Hash.ToLowerInvariant()
+          "$hash  Aquarium-complete-windows-x64.zip" | Set-Content SHA256SUMS.txt
+          @'
+          Aquarium Windows desktop preview with the private Aquarium app catalog and bundled FishTank/FishNet. FishBowl remains optional.
+
+          Extract the entire ZIP and run Aquarium.exe. Keep all resource/runtime files together. Includes the WinUI/WinForms rendering correction, Home/Resume hosting, appearance customization, managed installation history and reviewed update checks.
+
+          This is an unsigned preview. FishTank sign-in/security workflows, emulator graphics and mixed-DPI/full-screen behavior still need manual compatibility testing. Existing app data stays in each app's normal profile folder.
+          '@ | Set-Content release-notes.md
+          gh release create $tag Aquarium-complete-windows-x64.zip SHA256SUMS.txt --target $env:RELEASE_COMMIT --title "Aquarium $tag" --prerelease --notes-file release-notes.md
+          if ($LASTEXITCODE -ne 0) { throw 'GitHub release publication failed.' }
