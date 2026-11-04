@@ -27,6 +27,7 @@ Compress-Archive -Path (Join-Path $FishNetDirectory '*') -DestinationPath $net -
 $netHash = (Get-FileHash -LiteralPath $net -Algorithm SHA256).Hash.ToLowerInvariant()
 @(
     @{ appId = 'aquarium.security'; version = $release.tag_name; file = 'FishTank.zip'; sha256 = $tankHash },
-    @{ appId = 'aquarium.media'; version = '0.2.0-bundled'; file = 'FishNet.zip'; sha256 = $netHash }
+    @{ appId = 'aquarium.media'; version = '0.2.1-bundled'; file = 'FishNet.zip'; sha256 = $netHash }
 ) | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $bundle 'bundled.json') -Encoding utf8
 Write-Output 'Complete bundle includes FishTank and FishNet. FishBowl stays optional.'
+

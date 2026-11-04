@@ -4,9 +4,9 @@ Native C# / .NET 8 / WinUI 3 Windows desktop hub with a private Aquarium-only ap
 
 ## Complete bundle
 
-The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the entire folder and run `Aquarium.exe`. Keep every runtime and Bundled file together. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
+The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the entire folder and run `Aquarium.exe`. Keep every runtime and Bundled file together. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. A brand-new FishTank profile receives the Aquarium colors using its released custom-palette support; existing appearance and security preferences are never replaced. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
 
-FishTank is the inspected public `preview-v0.15.5` release. FishNet is built from the pinned source commit in the workflow because no public FishNet release exists yet. This does not claim the separate FishTank/FishBowl UI pull requests have been released. These are development builds, not signed production installers.
+FishTank is the inspected public `preview-v0.15.5` release. FishNet 0.2.1 is built from the pinned source commit in the workflow because no public FishNet release exists yet. This does not claim the separate FishTank/FishBowl UI pull requests have been released. These are development builds, not signed production installers.
 
 ## App install and Library
 
@@ -31,10 +31,10 @@ Ocean/Midnight/Slate backgrounds, Mint/Blue/Coral accents and compact spacing pe
 
 ## Build
 
-Requires Windows 10 build 19041+ x64, .NET 8 SDK, Visual Studio 2022 17.8+ WinUI C# tooling and Windows SDK 10.0.26100. Use Developer PowerShell for Visual Studio. `global.json` selects .NET 8.
+Requires Windows 10 build 19041+ x64 and the .NET 8 SDK. Microsoft Windows App SDK 1.8.260921001 and Windows build tools 10.0.26100.4654 are restored from NuGet; no system runtime is required for the complete bundle. Visual Studio is optional. `global.json` selects .NET 8.
 
 ```powershell
-msbuild .\src\Aquarium\Aquarium.csproj /restore /p:Configuration=Debug /p:Platform=x64
+dotnet build .\src\Aquarium\Aquarium.csproj -c Debug -p:Platform=x64
 & .\src\Aquarium\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Aquarium.exe
 ```
 
@@ -53,3 +53,6 @@ dotnet run --project .\tests\Aquarium.PackageTests\Aquarium.PackageTests.csproj 
 The tests use generated, never-executed fixture files and isolated temporary directories. They exercise package integrity, traversal/duplicate rejection, expected executables, registry persistence, failure rollback, previous-version retention and concurrent bookmarks. Check the current GitHub workflow result for actual build status.
 
 Windows smoke checks: extract the full bundle, launch Aquarium, confirm FishTank/FishNet are registered and FishBowl is absent, open each included app, check public packages and optionally install FishBowl. Verify cancel/error recovery and persistent Library after restart. Runtime visual/playback behavior requires a real Windows desktop.
+
+Local verification: both native apps published successfully with the supported runtime, Aquarium opened on Windows, and all 21 installer/persistence tests passed. Hosted builds may remain queued independently. See the installed bundle verification for the actual default-app registration state.
+

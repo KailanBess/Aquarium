@@ -65,6 +65,7 @@ public sealed partial class MainWindow : Window
     {
         PageTitle.Text = page;
         PageBody.Children.Clear();
+        PageScroll.ChangeView(null, 0, null, true);
         downloadLabel = null;
         PageBody.Spacing = appearance.Compact ? 8 : 16;
         PageSubtitle.Text = page switch

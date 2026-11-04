@@ -46,7 +46,7 @@ public sealed partial class MainWindow
             }
             PageBody.Children.Add(Panel(panel));
         }
-        PageBody.Children.Add(Text("Checksums establish package integrity from your repository's release metadata; these development apps are not claimed to be signed or independently verified publishers. No games, firmware, or emulators are bundled with FishBowl.", 13, true));
+        PageBody.Children.Add(Text("Only apps from the approved Aquarium repositories are listed. FishBowl does not include games, firmware, or emulators.", 13, true));
     }
     private async Task CheckPackagesAsync()
     {
@@ -126,9 +126,28 @@ public sealed partial class MainWindow
                 if (store.Registry.Installations.Any(a => a.AppId == item.AppId)) continue;
                 if (Path.GetFileName(item.File) != item.File || Path.GetExtension(item.File) != ".zip") throw new InvalidDataException("Invalid included package filename.");
                 await installer.InstallZipAsync(source, item.Version, Path.Combine(AppContext.BaseDirectory, "Bundled", item.File), item.Sha256, new Progress<string>(ReportInstall), cancellation.Token);
+                if (source.AppId == "aquarium.security") ApplyInitialFishTankAppearance();
             }
         }
         catch (Exception ex) { ReportInstall("Included-app setup did not finish: " + ex.Message); if (!isClosed) ShowNotice(downloadState, InfoBarSeverity.Warning); }
         finally { downloadHistory.Add($"{DateTimeOffset.Now:g} · {downloadState}"); installCancellation = null; if (!isClosed) Render(); }
+    }
+    private static void ApplyInitialFishTankAppearance()
+    {
+        // The released FishTank supports custom colors. Seed only a brand-new profile;
+        // never replace the user's saved appearance or any security preferences.
+        var folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "FishTank");
+        var file = Path.Combine(folder, "appearance.json");
+        if (File.Exists(file)) return;
+        Directory.CreateDirectory(folder);
+        var settings = new
+        {
+            Version = 1, Theme = "Ocean", Accent = "Mint", CustomPalette = true,
+            Shape = "Rounded", CornerRadius = 16, BackgroundStyle = "Gradient",
+            TextColor = "#F1F7FF", MutedColor = "#A0B8C3", TopColor = "#071219",
+            BottomColor = "#09151D", SurfaceColor = "#10242F", AccentColor = "#67E8D3", SecondaryColor = "#1B203B"
+        };
+        using var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+        JsonSerializer.Serialize(output, settings, new JsonSerializerOptions { WriteIndented = true });
     }
 }

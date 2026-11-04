@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishNet
-          ref: 6bcebb45e0e9b37c16d4909e3242ad555e1be417
+          ref: 106e5d5e7834486f2240606583cf63100e98461c
           path: companion/FishNet
       - name: Publish included FishNet build
         run: msbuild companion/FishNet/src/FishNet/FishNet.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/FishNet/
@@ -34,4 +34,6 @@ jobs:
           path: artifacts/Aquarium/
           if-no-files-found: error
           retention-days: 14
+
+
 
