@@ -16,6 +16,7 @@ public sealed partial class MainWindow : Window
         InitializeComponent();
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
+        Closed += (_, _) => updateCancellation?.Cancel();
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -23,6 +24,7 @@ public sealed partial class MainWindow : Window
         if (ready) return;
         try
         {
+            appearance.Load(); appearance.Apply(Root);
             await store.LoadAsync();
             ready = true;
             Navigation.SelectedItem = Navigation.MenuItems[0];
@@ -60,13 +62,14 @@ public sealed partial class MainWindow : Window
     {
         PageTitle.Text = page;
         PageBody.Children.Clear();
+        PageBody.Spacing = appearance.Compact ? 8 : 16;
         PageSubtitle.Text = page switch
         {
             "Home" => "A calmer home for your apps. One private collection, built around you.",
             "Store" => "Only Aquarium apps. Browse the local catalog and build your collection.",
             "Library" => "Your saved apps. Saving an app does not install it.",
             "Downloads" => "Package activity will appear here when installation is implemented.",
-            "Updates" => "A place for future verified package updates.",
+            "Updates" => "Check Aquarium-family releases and supported outside apps.",
             _ => "Local storage and the current scope of Aquarium."
         };
         switch (page)
@@ -75,7 +78,7 @@ public sealed partial class MainWindow : Window
                 var hero = new StackPanel { Spacing = 14 };
                 hero.Children.Add(Text("YOUR NEXT EXPLORATION", 11, true));
                 hero.Children.Add(Text("Everything in its own current.", 30));
-                hero.Children.Add(Text("Security, Emulation, and a future Media app — connected through a shared private hub.", 16, true));
+                hero.Children.Add(Text("Security, Emulation, and FishNet — connected through a shared private hub.", 16, true));
                 var browse = new Button { Content = "Explore the collection  →" };
                 browse.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems[1];
                 hero.Children.Add(browse);
@@ -108,12 +111,13 @@ public sealed partial class MainWindow : Window
                 Empty("No downloads", "No package installer or download service is connected. Saving an app never creates a download.");
                 break;
             case "Updates":
-                Empty("Update checks are unavailable", "Aquarium has no release feed or package version comparison yet. This page does not claim that your apps are up to date.");
+                RenderUpdates();
                 break;
             case "Settings":
-                Empty("Private by design", "Aquarium reads a bundled local catalog. No accounts, telemetry, public marketplace, or remote services are implemented.");
+                PageBody.Children.Add(appearance.Editor(Root, Render, message => ShowNotice(message, InfoBarSeverity.Error)));
+                Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and future installation records use schema version 1. Library changes are saved immediately.");
-                Empty("Module status", "Security: inspection pending\nEmulation: inspection pending\nMedia: planned\nNo existing app projects have been changed.");
+                Empty("Module status", "Security: inspection pending\nEmulation: inspection pending\nFishNet: standalone media player; Aquarium packaging pending\nNo existing app projects have been changed.");
                 break;
         }
     }
@@ -176,3 +180,4 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
+
