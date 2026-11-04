@@ -56,3 +56,8 @@ Windows smoke checks: extract the full bundle, launch Aquarium, confirm FishTank
 
 Local verification: both native apps published successfully with the supported runtime, Aquarium opened on Windows, and all 21 installer/persistence tests passed. Hosted builds may remain queued independently. See the installed bundle verification for the actual default-app registration state.
 
+
+## Reference layout preview
+
+This review branch adds a searchable app-tile catalog with a real installed-app summary, responsive layout, and matching Aquarium-family PNG/ICO assets. Installation, update management and customization remain in place. Preview builds do not replace the installed release bundle. Complete visual polish, grid/list preferences and broader accessibility checks remain follow-up work.
+

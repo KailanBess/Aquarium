@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishNet
-          ref: 106e5d5e7834486f2240606583cf63100e98461c
+          ref: 901714ad7a0e3187d49d208e6e6d9c9da4ccaf99
           path: companion/FishNet
       - name: Publish included FishNet build
         run: msbuild companion/FishNet/src/FishNet/FishNet.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/FishNet/

@@ -15,6 +15,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Aquarium.ico"));
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
         Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); };
@@ -55,8 +56,8 @@ public sealed partial class MainWindow : Window
 
     private static Border Panel(UIElement child) => new()
     {
-        Background = new SolidColorBrush(ColorHelper.FromArgb(255, 16, 36, 47)),
-        BorderBrush = new SolidColorBrush(ColorHelper.FromArgb(255, 34, 65, 78)),
+        Background = new SolidColorBrush(ColorHelper.FromArgb(255, 40, 40, 50)),
+        BorderBrush = new SolidColorBrush(ColorHelper.FromArgb(255, 61, 61, 76)),
         BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(16),
         Padding = new Thickness(24), Child = child
     };
@@ -81,32 +82,8 @@ public sealed partial class MainWindow : Window
         switch (page)
         {
             case "Home":
-                var hero = new StackPanel { Spacing = 14 };
-                hero.Children.Add(Text("YOUR NEXT EXPLORATION", 11, true));
-                hero.Children.Add(Text("Everything in its own current.", 30));
-                hero.Children.Add(Text("Security, Emulation, and FishNet — connected through a shared private hub.", 16, true));
-                var browse = new Button { Content = "Explore the collection  →" };
-                browse.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems[1];
-                hero.Children.Add(browse);
-                PageBody.Children.Add(Panel(hero));
-                PageBody.Children.Add(Text($"{store.Catalog.Count} catalog entries   ·   {store.Registry.Installations.Count} installed   ·   {store.Registry.LibraryAppIds.Count} in Library", 14, true));
-                foreach (var app in store.Catalog) AddCard(PageBody, app);
-                break;
             case "Store":
-                var search = new TextBox { PlaceholderText = "Search by app or category", MaxWidth = 560, HorizontalAlignment = HorizontalAlignment.Stretch };
-                AutomationPropertiesName(search, "Search catalog");
-                var results = new StackPanel { Spacing = 14 };
-                void Filter()
-                {
-                    results.Children.Clear();
-                    var matches = store.Catalog.Where(a => $"{a.Name} {a.Category}".Contains(search.Text, StringComparison.OrdinalIgnoreCase)).ToList();
-                    foreach (var app in matches) AddCard(results, app);
-                    if (matches.Count == 0) results.Children.Add(Text("No apps match your search.", 16, true));
-                }
-                search.TextChanged += (_, _) => Filter();
-                PageBody.Children.Add(search);
-                PageBody.Children.Add(results);
-                Filter();
+                RenderCatalogDashboard();
                 break;
             case "Library":
                 var saved = store.Catalog.Where(a => store.Registry.LibraryAppIds.Contains(a.Id) || store.Registry.Installations.Any(i => i.AppId == a.Id)).ToList();
@@ -193,6 +170,7 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
+
 
 
 
