@@ -30,10 +30,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishTank
-          ref: 5bdf25aeb7a19c5691f0022b9db0c73b4332675e
+          ref: ecc1bc46a0a28efdecdb89b34285f62c9810e77e
           path: companion/FishTank
       - name: Build included FishTank workspace
         run: dotnet build companion/FishTank/desktop/FishTank.csproj -c Release
+      - name: Test actual FishTank managed workspace visibility
+        run: |
+          dotnet build companion/FishTank/tests/ReferenceLayout/ReferenceLayout.csproj -c Release
+          dotnet run --project tests/Aquarium.HostingTests -c Release -- --fishtank-fixture "${{ github.workspace }}/companion/FishTank/tests/ReferenceLayout/bin/Release/net48/WindowsUi.exe"
       - name: Collect FishTank program files
         shell: pwsh
         run: |

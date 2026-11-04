@@ -64,3 +64,6 @@ Package checks use generated files and never run fixture executables. Hosting ch
 
 My apps uses a compact icon rail, app tiles and a genuine install/update summary. Store uses featured FishTank/FishNet cards and the private three-app collection. The explicit sidebar resizes a native clipping surface without an animated overlay. Hosted app readiness is published only after initial WinForms Show completes. The hosting fixture exercises twenty sidebar geometry changes while retaining the same child window and process.
 
+
+WinForms workspaces opt into cooperative visibility messages. Aquarium asks the app to restore its managed form and child controls; the app's own visibility/lock guard decides whether to show. Native visibility alone is insufficient for these apps. The complete workflow tests the actual FishTank Desktop with isolated generated data through attach, Home and same-window Resume.
+

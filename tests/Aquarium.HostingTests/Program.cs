@@ -28,7 +28,7 @@ internal static class Program
             try
             {
                 using var surface = new NativeWorkspaceSurface(host.Handle);
-                using var session = new HostedAppSession(Environment.ProcessPath!, surface.Handle, "--fixture");
+                using var session = new HostedAppSession(args.Length==2 && args[0]=="--fishtank-fixture" ? args[1] : Environment.ProcessPath!, surface.Handle, args.Length==2 && args[0]=="--fishtank-fixture" ? "--workspace-fixture="+Path.Combine(Path.GetTempPath(),"fishtank-host-paint.txt") : "--fixture");
                 Check(WorkspaceCapability.SupportsHosting(Environment.ProcessPath!), "Hosting capability attribute not read");
                 Check(!WorkspaceCapability.SupportsHosting(Path.Combine(Path.GetTempPath(), "nonexistent-fixture.exe")), "Unknown executable accepted");
                 try
@@ -40,6 +40,18 @@ internal static class Program
                     HostedAppSession.Native.GetWindowRect(session.Window, out var bounds);
                     var origin = host.PointToScreen(new System.Drawing.Point(30, 80));
                     Check(bounds.Left == origin.X && bounds.Top == origin.Y && bounds.Right - bounds.Left == 600 && bounds.Bottom - bounds.Top == 420, "Host rectangle not respected");
+                    if(args.Length==2 && args[0]=="--fishtank-fixture") {
+                        var file=Path.Combine(Path.GetTempPath(),"fishtank-host-paint.txt");
+                        await Task.Delay(600);var report=File.ReadAllText(file);
+                        Check(report.StartsWith("Visible=True") && !report.Contains("Visible=False"), "FishTank controls remained hidden: "+report);
+                        int originalPid=session.ProcessId;var originalWindow=session.Window;
+                        session.Hide();await Task.Delay(600);Check(File.ReadAllText(file).StartsWith("Visible=False"),"Home did not hide the managed form");
+                        session.Place(0,0,900,600);await Task.Delay(600);report=File.ReadAllText(file);
+                        Check(report.StartsWith("Visible=True") && !report.Contains("Visible=False"),"Resume left FishTank controls hidden: "+report);
+                        Check(session.ProcessId==originalPid && session.Window==originalWindow,"Resume replaced the FishTank workspace");
+                        Check(await session.RequestCloseAsync(TimeSpan.FromSeconds(3)),"Fixture did not close gracefully");
+                        Console.WriteLine("PASS: actual FishTank dashboard controls visible after parenting and Home/Resume, same HWND/process\n"+report);result=0;return;
+                    }
                     int pid = session.ProcessId; session.Hide();
                     Check(!HostedAppSession.Native.IsWindowVisible(session.Window) && session.IsAlive, "Home hide terminated the app or left it visible");
                     surface.Place(40,90,650,440); session.Place(0,0,650,440); session.Focus();

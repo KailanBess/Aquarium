@@ -71,11 +71,25 @@ public sealed class HostedAppSession : IDisposable
     {
         if (!IsAttached) return;
         if (width <= 0 || height <= 0) { Hide(); return; }
-        if (!Native.SetWindowPos(Window, 0, x, y, width, height, 0x0040 | 0x0010 | 0x0020))
+        bool managedVisibility = Native.GetProp(Window, "Aquarium.Workspace.ManagedVisibility.v1") == 1;
+        if (!Native.SetWindowPos(Window, 0, x, y, width, height, (managedVisibility ? 0u : 0x0040u) | 0x0010u | 0x0020u))
             throw new Win32Exception(Marshal.GetLastPInvokeError(), "Could not size the app workspace.");
-        Native.ShowWindow(Window, 5);
+        ShowWorkspace();
     }
-    public void Hide() { if (IsAttached) Native.ShowWindow(Window, 0); }
+    private static readonly uint VisibilityMessage = Native.RegisterWindowMessage("Aquarium.Workspace.Visibility.v1");
+    private void ShowWorkspace()
+    {
+        if (Native.GetProp(Window, "Aquarium.Workspace.ManagedVisibility.v1") == 1)
+            Native.PostMessage(Window, VisibilityMessage, 1, 0);
+        else Native.ShowWindow(Window, 5);
+    }
+    public void Hide()
+    {
+        if (!IsAttached) return;
+        Native.ShowWindow(Window, 0);
+        if (Native.GetProp(Window, "Aquarium.Workspace.ManagedVisibility.v1") == 1)
+            Native.PostMessage(Window, VisibilityMessage, 0, 0);
+    }
     public void Focus()
     {
         if (!IsAttached) return;
@@ -105,10 +119,11 @@ public sealed class HostedAppSession : IDisposable
     public void Detach()
     {
         if (Window == 0 || !Native.IsWindow(Window)) { Window = 0; return; }
+        bool wasVisible = Native.IsWindowVisible(Window);
         Native.ShowWindow(Window, 0); Native.SetParent(Window, originalParent);
         Native.SetStyle(Window, -16, originalStyle); Native.SetStyle(Window, -20, originalExStyle);
-        Native.SetWindowPos(Window, 0, originalBounds.Left, originalBounds.Top, Math.Max(400, originalBounds.Right - originalBounds.Left), Math.Max(300, originalBounds.Bottom - originalBounds.Top), 0x0020 | 0x0010 | 0x0040);
-        Native.ShowWindow(Window, 5); Window = 0;
+        Native.SetWindowPos(Window, 0, originalBounds.Left, originalBounds.Top, Math.Max(400, originalBounds.Right - originalBounds.Left), Math.Max(300, originalBounds.Bottom - originalBounds.Top), 0x0020 | 0x0010);
+        if (wasVisible) Native.ShowWindow(Window, 5); Window = 0;
     }
     public void Dispose() { Detach(); Process.Dispose(); }
 
@@ -135,6 +150,7 @@ public sealed class HostedAppSession : IDisposable
         [DllImport("user32.dll")] public static extern bool AttachThreadInput(uint first, uint second, bool attach);
         [DllImport("kernel32.dll")] public static extern uint GetCurrentThreadId();
         [DllImport("user32.dll")] public static extern nint SetFocus(nint window);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode)] public static extern uint RegisterWindowMessage(string name);
         [DllImport("user32.dll")] public static extern bool PostMessage(nint window, uint message, nint wParam, nint lParam);
     }
 }
