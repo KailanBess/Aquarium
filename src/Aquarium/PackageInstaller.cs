@@ -104,6 +104,11 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
         var executable = Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
         Process.Start(new ProcessStartInfo(executable) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable)! })?.Dispose();
     }
+    public string VerifiedExecutable(InstalledApp app)
+    {
+        ValidateInstallation(app);
+        return Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
+    }
     public async Task RollbackAsync(InstalledApp previous)
     {
         if (!store.Registry.InstallationHistory.Contains(previous)) throw new InvalidDataException("This installation is not in retained history.");

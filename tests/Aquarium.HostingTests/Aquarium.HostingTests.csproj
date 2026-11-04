@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net8.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable><PlatformTarget>x64</PlatformTarget></PropertyGroup>
+  <ItemGroup><Compile Include="../../src/Aquarium/HostedAppSession.cs" Link="HostedAppSession.cs"/><Compile Include="../../src/Aquarium/WorkspaceCapability.cs" Link="WorkspaceCapability.cs"/></ItemGroup>
+</Project>

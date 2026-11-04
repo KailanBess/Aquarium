@@ -31,6 +31,11 @@ public sealed partial class MainWindow
             panel.Children.Add(Text(app.Summary, 14, true));
             panel.Children.Add(new HyperlinkButton { Content = source.Repository + " · Public releases", NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
             panel.Children.Add(Text(installed is null ? source.IncludedByDefault ? "Included in the complete bundle; not installed in this copy yet." : "Optional · Not installed" : $"Installed · {installed.Version}", 13, true));
+            if (installed is not null)
+            {
+                try { panel.Children.Add(Text(WorkspaceCapability.SupportsHosting(installer.VerifiedExecutable(installed)) ? "Supports Aquarium workspaces" : "This older build cannot open inside Aquarium. Install a hosting-compatible build.", 13, true)); }
+                catch (Exception ex) { panel.Children.Add(Text("Workspace unavailable: " + ex.Message, 13, true)); }
+            }
             panel.Children.Add(Text(availability.GetValueOrDefault(app.Id, "Published packages have not been checked in this session."), 13, true));
             if (available.TryGetValue(app.Id, out var package))
             {
@@ -113,9 +118,9 @@ public sealed partial class MainWindow
         foreach (var item in downloadHistory.TakeLast(20).Reverse()) PageBody.Children.Add(Text(item, 13, true));
         PageBody.Children.Add(Text("Only one app install runs at a time. Downloads are verified before extraction. Failed attempts keep the previous installation registered.", 13, true));
     }
-    private void LaunchInstalled(InstalledApp app)
+    private async void LaunchInstalled(InstalledApp app)
     {
-        try { installer.Launch(app); }
+        try { await OpenHostedApp(app); }
         catch (Exception ex) { ShowNotice("Could not open the app: " + ex.Message, InfoBarSeverity.Error); }
     }
     private async Task InstallBundledAsync()

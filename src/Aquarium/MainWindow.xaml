@@ -13,6 +13,7 @@
         <NavigationViewItem Content="Updates" Tag="Updates" Icon="Refresh"/>
       </NavigationView.MenuItems>
       <NavigationView.PaneFooter><TextBlock Text="PRIVATE APP COLLECTION · DESIGN PREVIEW" Foreground="#8CA9B5" FontSize="10" Margin="24"/></NavigationView.PaneFooter>
+      <Grid>
       <ScrollViewer x:Name="PageScroll">
         <StackPanel Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">
           <TextBlock Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
@@ -22,6 +23,19 @@
           <StackPanel x:Name="PageBody" Spacing="16"/>
         </StackPanel>
       </ScrollViewer>
+      <Grid x:Name="AppWorkspace" Visibility="Collapsed" RowSpacing="12" Margin="16,12,16,16">
+        <Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+        <StackPanel Spacing="8">
+          <Grid ColumnSpacing="12"><Grid.ColumnDefinitions><ColumnDefinition Width="Auto"/><ColumnDefinition Width="*"/><ColumnDefinition Width="Auto"/></Grid.ColumnDefinitions>
+            <Button Content="Home" Click="WorkspaceHome" AutomationProperties.Name="Return to app page"/>
+            <TextBlock x:Name="WorkspaceTitle" Grid.Column="1" FontSize="22" VerticalAlignment="Center"/>
+            <Button x:Name="WorkspaceCloseButton" Grid.Column="2" Content="Close app" Click="WorkspaceClose"/>
+          </Grid>
+          <TextBlock x:Name="WorkspaceStatus" TextWrapping="Wrap" Foreground="#A0B8C3"/>
+        </StackPanel>
+        <Grid x:Name="AppSurface" Grid.Row="1" Background="#202020"><TextBlock x:Name="WorkspacePlaceholder" Text="Preparing app workspace…" HorizontalAlignment="Center" VerticalAlignment="Center"/></Grid>
+      </Grid>
+      </Grid>
     </NavigationView>
   </Grid>
 </Window>

@@ -16,18 +16,32 @@ jobs:
       - uses: microsoft/setup-msbuild@v2
       - name: Test package safety and registry persistence
         run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
+      - name: Test workspace process lifecycle
+        run: dotnet run --project tests/Aquarium.HostingTests/Aquarium.HostingTests.csproj -c Release
       - name: Publish Aquarium
         run: msbuild src/Aquarium/Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/Aquarium/
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishNet
-          ref: 901714ad7a0e3187d49d208e6e6d9c9da4ccaf99
+          ref: b02b61b4afcc1d4805168e936804419a86405b9c
           path: companion/FishNet
       - name: Publish included FishNet build
         run: msbuild companion/FishNet/src/FishNet/FishNet.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/FishNet/
+      - uses: actions/checkout@v4
+        with:
+          repository: KailanBess/FishTank
+          ref: 6ae799a982bdd5f3a5ec0de12bbc9f593b8a4e94
+          path: companion/FishTank
+      - name: Build included FishTank workspace
+        run: dotnet build companion/FishTank/desktop/FishTank.csproj -c Release
+      - name: Collect FishTank program files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force artifacts/FishTank | Out-Null
+          Copy-Item companion/FishTank/desktop/bin/Release/net48/* artifacts/FishTank/ -Recurse -Force
       - name: Include default apps from inspected sources
         shell: pwsh
-        run: ./scripts/Bundle-Apps.ps1 -PublishDirectory "$PWD/artifacts/Aquarium" -FishNetDirectory "$PWD/artifacts/FishNet"
+        run: ./scripts/Bundle-Apps.ps1 -PublishDirectory "$PWD/artifacts/Aquarium" -FishNetDirectory "$PWD/artifacts/FishNet" -FishTankDirectory "$PWD/artifacts/FishTank"
       - uses: actions/upload-artifact@v4
         with:
           name: Aquarium-complete-windows-x64

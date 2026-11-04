@@ -15,10 +15,11 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        InitializeWorkspaces();
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Aquarium.ico"));
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
-        Closed += (_, _) => { isClosed = true; scheduleTimer?.Stop(); updateCancellation?.Cancel(); installCancellation?.Cancel(); };
+        Closed += (_, _) => { isClosed = true; scheduleTimer?.Stop(); workspaceMonitor?.Stop(); updateCancellation?.Cancel(); installCancellation?.Cancel(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -46,6 +47,8 @@ public sealed partial class MainWindow : Window
     private void Navigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         page = args.IsSettingsSelected ? "Settings" : (args.SelectedItem as NavigationViewItem)?.Tag?.ToString() ?? "Home";
+        hostingCancellation?.Cancel();
+        HideWorkspace();
         if (ready) Render();
     }
 

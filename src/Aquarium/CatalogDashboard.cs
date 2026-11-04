@@ -73,7 +73,7 @@ public sealed partial class MainWindow
         if (File.Exists(iconPath)) { var icon = new Image { Source = new BitmapImage(new Uri(iconPath)), Width = 56, Height = 56 }; Grid.SetColumn(icon, 1); heading.Children.Add(icon); }
         panel.Children.Add(heading); panel.Children.Add(Text(app.Summary, 14, true));
         panel.Children.Add(Text(installed is null ? "Not installed · Optional" : "Installed · " + installed.Version, 12, true));
-        var open = new Button { Content = installed is null ? "View install options" : "Open app" };
+        var open = new Button { Content = installed is null ? "View install options" : hostedApps.TryGetValue(app.Id, out var session) && session.IsAlive ? "Resume app" : "Open inside Aquarium" };
         open.Click += (_, _) => { if (installed is not null) LaunchInstalled(installed); else SelectPage("App install"); };
         panel.Children.Add(open);
         return Panel(panel);
