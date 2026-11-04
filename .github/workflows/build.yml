@@ -16,4 +16,11 @@ jobs:
       - uses: microsoft/setup-msbuild@v2
       - name: Build native Windows shell
         run: msbuild src/Aquarium/Aquarium.csproj /restore /p:Configuration=Release /p:Platform=x64
-
+      - name: Publish runnable Windows app
+        run: msbuild src/Aquarium/Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/Aquarium/
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Aquarium-windows-x64
+          path: artifacts/Aquarium/
+          if-no-files-found: error
+          retention-days: 14
