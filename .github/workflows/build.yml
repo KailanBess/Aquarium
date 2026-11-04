@@ -18,6 +18,10 @@ jobs:
         run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
       - name: Test workspace process lifecycle
         run: dotnet run --project tests/Aquarium.HostingTests/Aquarium.HostingTests.csproj -c Release
+      - name: Build interactive WinUI paint regression
+        run: |
+          dotnet build tests/Render/Render.csproj -c Release
+          dotnet build tests/Color/Color.csproj -c Release
       - name: Publish Aquarium
         run: msbuild src/Aquarium/Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/Aquarium/
       - uses: actions/checkout@v4

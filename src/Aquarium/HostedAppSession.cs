@@ -19,6 +19,7 @@ public sealed class HostedAppSession : IDisposable
     public bool IsAlive { get { try { return !Process.HasExited; } catch { return false; } } }
     public bool IsAttached => Window != 0 && Native.IsWindow(Window) && Native.GetParent(Window) == parent;
     public int ProcessId => Process.Id;
+    public bool UsesManagedVisibility => Window != 0 && Native.GetProp(Window, "Aquarium.Workspace.ManagedVisibility.v1") == 1;
 
     public HostedAppSession(string executable, nint parent, string? fixtureArgument = null)
     {
@@ -139,7 +140,7 @@ public sealed class HostedAppSession : IDisposable
         [DllImport("user32.dll", SetLastError = true)] public static extern nint SetParent(nint window, nint parent);
         [DllImport("user32.dll", EntryPoint = "GetWindowLongPtrW")] public static extern nint GetWindowLongPtr(nint window, int index);
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtrW", SetLastError = true)] private static extern nint SetWindowLongPtr(nint window, int index, nint value);
-        public static void SetStyle(nint window, int index, long value) { Marshal.SetLastPInvokeError(0); var previous = SetWindowLongPtr(window, index, (nint)value); if (previous == 0 && Marshal.GetLastPInvokeError() != 0) throw new Win32Exception(Marshal.GetLastPInvokeError()); }
+        public static void SetStyle(nint window, int index, long value) { Marshal.SetLastPInvokeError(0); var previous = SetWindowLongPtr(window, index, (nint)value); int error = Marshal.GetLastPInvokeError(); if (previous == 0 && error != 0 && (!IsWindow(window) || GetWindowLongPtr(window, index).ToInt64() != value)) throw new Win32Exception(error); }
         [DllImport("user32.dll")] public static extern bool IsWindow(nint window);
         [DllImport("user32.dll")] public static extern bool IsWindowVisible(nint window);
         [DllImport("user32.dll")] public static extern bool ShowWindow(nint window, int show);

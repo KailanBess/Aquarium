@@ -110,7 +110,8 @@ public sealed partial class MainWindow
             var scale = Root.XamlRoot?.RasterizationScale ?? 1;
             var bounds = ((int)Math.Round(point.X * scale), (int)Math.Round(point.Y * scale), (int)Math.Round(AppSurface.ActualWidth * scale), (int)Math.Round(AppSurface.ActualHeight * scale));
             if (workspaceBounds == bounds) return;
-            nativeSurface!.Place(bounds.Item1, bounds.Item2, bounds.Item3, bounds.Item4);
+            nativeSurface!.SetLegacyRendering(activeWorkspace.UsesManagedVisibility);
+            nativeSurface.Place(bounds.Item1, bounds.Item2, bounds.Item3, bounds.Item4);
             activeWorkspace.Place(0, 0, bounds.Item3, bounds.Item4);
             workspaceBounds = bounds;
         }

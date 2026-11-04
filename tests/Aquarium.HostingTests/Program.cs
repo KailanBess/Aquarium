@@ -16,7 +16,7 @@ internal static class Program
         Application.SetHighDpiMode(HighDpiMode.PerMonitorV2);
         if (args.Length == 1 && args[0].StartsWith("--fixture"))
         {
-            using var fixture = new FixtureForm { Text = "Generated hosting fixture", Width = 800, Height = 600 };
+            using var fixture = new FixtureForm() { Text = "Generated hosting fixture", Width = 800, Height = 600 };
             fixture.HandleCreated += (_, _) => { if (args[0] != "--fixture-unmarked") HostedAppSession.Native.SetProp(fixture.Handle, HostedAppSession.WorkspaceMarker, 1); };
             Application.Run(fixture); return 0;
         }
@@ -28,6 +28,9 @@ internal static class Program
             try
             {
                 using var surface = new NativeWorkspaceSurface(host.Handle);
+                surface.SetLegacyRendering(true);Check((HostedAppSession.Native.GetWindowLongPtr(surface.Handle,-20).ToInt64() & 0x00080000)!=0,"GDI surface not layered");
+                surface.SetLegacyRendering(false);Check((HostedAppSession.Native.GetWindowLongPtr(surface.Handle,-20).ToInt64() & 0x00080000)==0,"WinUI surface still layered");
+                Console.WriteLine("PASS: GDI composition can be enabled and cleared for WinUI workspaces");
                 using var session = new HostedAppSession(args.Length==2 && args[0]=="--fishtank-fixture" ? args[1] : Environment.ProcessPath!, surface.Handle, args.Length==2 && args[0]=="--fishtank-fixture" ? "--workspace-fixture="+Path.Combine(Path.GetTempPath(),"fishtank-host-paint.txt") : "--fixture");
                 Check(WorkspaceCapability.SupportsHosting(Environment.ProcessPath!), "Hosting capability attribute not read");
                 Check(!WorkspaceCapability.SupportsHosting(Path.Combine(Path.GetTempPath(), "nonexistent-fixture.exe")), "Unknown executable accepted");
@@ -36,6 +39,7 @@ internal static class Program
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15)); await session.AttachAsync(timeout.Token);
                     Check(session.IsAttached && HostedAppSession.Native.GetParent(session.Window) == surface.Handle, "Exact process workspace not attached");
                     Check((HostedAppSession.Native.GetWindowLongPtr(session.Window, -16).ToInt64() & 0x40000000) != 0, "Hosted window is not a native child");
+                    surface.SetLegacyRendering(session.UsesManagedVisibility);
                     surface.Place(30, 80, 600, 420); session.Place(0, 0, 600, 420);
                     HostedAppSession.Native.GetWindowRect(session.Window, out var bounds);
                     var origin = host.PointToScreen(new System.Drawing.Point(30, 80));

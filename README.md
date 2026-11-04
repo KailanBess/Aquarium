@@ -67,3 +67,9 @@ My apps uses a compact icon rail, app tiles and a genuine install/update summary
 
 WinForms workspaces opt into cooperative visibility messages. Aquarium asks the app to restore its managed form and child controls; the app's own visibility/lock guard decides whether to show. Native visibility alone is insufficient for these apps. The complete workflow tests the actual FishTank Desktop with isolated generated data through attach, Home and same-window Resume.
 
+
+### WinUI paint regression
+
+WinForms workspaces use a fully opaque layered clipping surface so GDI controls are actually composed above WinUI content. FishNet keeps the ordinary WinUI surface. Native visibility and HWND geometry alone do not prove a hosted UI is visible.
+
+An interactive regression lives in tests/Render. Publish it, build tests/Color, then run Render.exe with Color.exe and an output report path. Bring its generated test window to the foreground. It verifies the actual lime/magenta pixels of a generated WinForms child inside WinUI, sidebar resize, Home hide and same-window Resume. It fails when the drawing is obscured or no unobscured interactive desktop is available. It never opens a user profile or runs security tools.
