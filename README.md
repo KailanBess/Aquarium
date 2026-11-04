@@ -59,3 +59,8 @@ dotnet run --project .\tests\Aquarium.HostingTests -c Release
 ```
 
 Package checks use generated files and never run fixture executables. Hosting checks run only their own generated fixture process: capability detection, exact PID/window marker, native child styles, bounds/resize, Home hide, same-session resume, close refusal and graceful close, and refusal of unmarked startup windows. Live FishNet hosting, Converter navigation, picker open/cancel, Home/Resume with the same process and normal close were checked. Full FishTank/FishBowl interaction, security prompts, physical emulators/controllers and mixed-DPI/full-screen behavior remain manual release checks.
+
+## Reference layouts and sidebar stability
+
+My apps uses a compact icon rail, app tiles and a genuine install/update summary. Store uses featured FishTank/FishNet cards and the private three-app collection. The explicit sidebar resizes a native clipping surface without an animated overlay. Hosted app readiness is published only after initial WinForms Show completes. The hosting fixture exercises twenty sidebar geometry changes while retaining the same child window and process.
+

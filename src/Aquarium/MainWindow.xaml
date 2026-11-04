@@ -1,6 +1,6 @@
 <Window x:Class="Aquarium.MainWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Aquarium">
-  <Grid x:Name="Root" RequestedTheme="Dark" Background="#09151D">
-    <NavigationView x:Name="Navigation" PaneDisplayMode="Left" IsBackButtonVisible="Collapsed" IsSettingsVisible="True" SelectionChanged="Navigate" OpenPaneLength="200" CompactPaneLength="64" IsPaneToggleButtonVisible="True">
+  <Grid x:Name="Root" RequestedTheme="Dark" Background="#12121F"><Grid.ColumnDefinitions><ColumnDefinition x:Name="RailColumn" Width="88"/><ColumnDefinition Width="*"/></Grid.ColumnDefinitions><Border Grid.Column="0" Background="#171724" BorderBrush="#30303F" BorderThickness="0,0,1,0"><Grid RowSpacing="8"><Grid.RowDefinitions><RowDefinition Height="Auto"/><RowDefinition Height="*"/><RowDefinition Height="Auto"/></Grid.RowDefinitions><StackPanel Spacing="12" Margin="8,12,8,8"><Button Content="&#xE700;" FontFamily="Segoe Fluent Icons" FontSize="20" Height="38" HorizontalAlignment="Stretch" Background="Transparent" BorderThickness="0" Click="ToggleSidebar" AutomationProperties.Name="Expand or collapse sidebar"/><Image Source="Assets/Aquarium.png" Width="42" Height="42"/></StackPanel><ScrollViewer Grid.Row="1"><StackPanel x:Name="RailButtons" Spacing="4"/></ScrollViewer><StackPanel x:Name="RailFooter" Grid.Row="2" Margin="0,0,0,12"/></Grid></Border>
+    <NavigationView x:Name="Navigation" Grid.Column="1" IsPaneVisible="False" PaneDisplayMode="LeftMinimal" IsBackButtonVisible="Collapsed" IsSettingsVisible="True" SelectionChanged="Navigate" OpenPaneLength="200" CompactPaneLength="64" IsPaneToggleButtonVisible="False">
       <NavigationView.PaneHeader>
         <StackPanel Margin="20,24,12,28" Spacing="6"><TextBlock Text="aquarium" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource AquariumAccent}"/><TextBlock Text="YOUR PRIVATE APP COLLECTION" FontSize="10" Foreground="#8CA9B5"/></StackPanel>
       </NavigationView.PaneHeader>
@@ -15,9 +15,9 @@
       <NavigationView.PaneFooter><TextBlock Text="PRIVATE APP COLLECTION · DESIGN PREVIEW" Foreground="#8CA9B5" FontSize="10" Margin="24"/></NavigationView.PaneFooter>
       <Grid>
       <ScrollViewer x:Name="PageScroll">
-        <StackPanel Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">
-          <TextBlock Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
-          <TextBlock x:Name="PageTitle" FontSize="36" FontWeight="SemiBold" Text="Home"/>
+        <StackPanel Margin="24,24,24,28" Spacing="18" MaxWidth="1800" HorizontalAlignment="Stretch">
+          <TextBlock Visibility="Collapsed" Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
+          <TextBlock x:Name="PageTitle" FontSize="30" FontWeight="SemiBold" Text="Home"/>
           <TextBlock x:Name="PageSubtitle" Foreground="#A0B8C3" TextWrapping="Wrap"/>
           <InfoBar x:Name="Notice" IsOpen="False" IsClosable="True" />
           <StackPanel x:Name="PageBody" Spacing="16"/>
@@ -39,5 +39,6 @@
     </NavigationView>
   </Grid>
 </Window>
+
 
 

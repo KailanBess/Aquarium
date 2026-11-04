@@ -43,7 +43,7 @@ public sealed class Appearance
         root.Resources["SystemControlHighlightAccentBrush"] = new SolidColorBrush(color);
         if (root is Panel panel) panel.Background = new SolidColorBrush(current.Background switch
         {
-            "Charcoal" => ColorHelper.FromArgb(255, 26, 26, 31),
+            "Charcoal" => ColorHelper.FromArgb(255, 18, 18, 31),
             "Midnight" => ColorHelper.FromArgb(255, 12, 14, 22),
             "Slate" => ColorHelper.FromArgb(255, 27, 35, 43),
             _ => ColorHelper.FromArgb(255, 9, 21, 29)
@@ -77,5 +77,6 @@ public sealed class Appearance
         return panel;
     }
 }
+
 
 

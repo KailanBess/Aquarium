@@ -14,9 +14,12 @@ public sealed partial class MainWindow
     private string? activeAppId;
     private (int X, int Y, int Width, int Height)? workspaceBounds;
     private Microsoft.UI.Dispatching.DispatcherQueueTimer? workspaceMonitor;
+    private NativeWorkspaceSurface? nativeSurface;
     private void InitializeWorkspaces()
     {
         AppSurface.LayoutUpdated += (_, _) => PositionWorkspace();
+        Microsoft.UI.Xaml.Media.CompositionTarget.Rendering += TrackWorkspaceFrame;
+        nativeSurface = new NativeWorkspaceSurface(WinRT.Interop.WindowNative.GetWindowHandle(this));
         workspaceMonitor = DispatcherQueue.CreateTimer(); workspaceMonitor.Interval = TimeSpan.FromSeconds(1);
         workspaceMonitor.Tick += (_, _) =>
         {
@@ -54,7 +57,7 @@ public sealed partial class MainWindow
     {
         if (hostingCancellation is not null || closingWorkspaces) return;
         var executable = installer.VerifiedExecutable(app);
-        var window = WinRT.Interop.WindowNative.GetWindowHandle(this);
+        var window = nativeSurface!.Handle;
         if (hostedApps.TryGetValue(app.AppId, out var old) && !old.IsAlive) { old.Dispose(); hostedApps.Remove(app.AppId); }
         if (!hostedApps.TryGetValue(app.AppId, out var session))
         {
@@ -107,14 +110,24 @@ public sealed partial class MainWindow
             var scale = Root.XamlRoot?.RasterizationScale ?? 1;
             var bounds = ((int)Math.Round(point.X * scale), (int)Math.Round(point.Y * scale), (int)Math.Round(AppSurface.ActualWidth * scale), (int)Math.Round(AppSurface.ActualHeight * scale));
             if (workspaceBounds == bounds) return;
-            workspaceBounds = bounds; activeWorkspace.Place(bounds.Item1, bounds.Item2, bounds.Item3, bounds.Item4);
+            nativeSurface!.Place(bounds.Item1, bounds.Item2, bounds.Item3, bounds.Item4);
+            activeWorkspace.Place(0, 0, bounds.Item3, bounds.Item4);
+            workspaceBounds = bounds;
         }
         catch (Exception ex) { WorkspaceStatus.Text = "Workspace layout needs attention: " + ex.Message; }
     }
     private void HideWorkspace()
     {
         activeWorkspace?.Hide(); workspaceBounds = null; activeWorkspace = null; activeAppId = null;
+        nativeSurface?.Hide();
         AppWorkspace.Visibility = Visibility.Collapsed; PageScroll.Visibility = Visibility.Visible;
+    }
+    private void TrackWorkspaceFrame(object? sender, object args) => PositionWorkspace();
+    private void DisposeWorkspaces()
+    {
+        Microsoft.UI.Xaml.Media.CompositionTarget.Rendering -= TrackWorkspaceFrame;
+        foreach (var session in hostedApps.Values) session.Dispose(); hostedApps.Clear();
+        nativeSurface?.Dispose(); nativeSurface = null;
     }
     private void WorkspaceHome(object sender, RoutedEventArgs e)
     {

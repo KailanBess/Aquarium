@@ -27,21 +27,24 @@ internal static class Program
         {
             try
             {
-                using var session = new HostedAppSession(Environment.ProcessPath!, host.Handle, "--fixture");
+                using var surface = new NativeWorkspaceSurface(host.Handle);
+                using var session = new HostedAppSession(Environment.ProcessPath!, surface.Handle, "--fixture");
                 Check(WorkspaceCapability.SupportsHosting(Environment.ProcessPath!), "Hosting capability attribute not read");
                 Check(!WorkspaceCapability.SupportsHosting(Path.Combine(Path.GetTempPath(), "nonexistent-fixture.exe")), "Unknown executable accepted");
                 try
                 {
                     using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(15)); await session.AttachAsync(timeout.Token);
-                    Check(session.IsAttached && HostedAppSession.Native.GetParent(session.Window) == host.Handle, "Exact process workspace not attached");
+                    Check(session.IsAttached && HostedAppSession.Native.GetParent(session.Window) == surface.Handle, "Exact process workspace not attached");
                     Check((HostedAppSession.Native.GetWindowLongPtr(session.Window, -16).ToInt64() & 0x40000000) != 0, "Hosted window is not a native child");
-                    session.Place(30, 80, 600, 420);
+                    surface.Place(30, 80, 600, 420); session.Place(0, 0, 600, 420);
                     HostedAppSession.Native.GetWindowRect(session.Window, out var bounds);
                     var origin = host.PointToScreen(new System.Drawing.Point(30, 80));
                     Check(bounds.Left == origin.X && bounds.Top == origin.Y && bounds.Right - bounds.Left == 600 && bounds.Bottom - bounds.Top == 420, "Host rectangle not respected");
                     int pid = session.ProcessId; session.Hide();
                     Check(!HostedAppSession.Native.IsWindowVisible(session.Window) && session.IsAlive, "Home hide terminated the app or left it visible");
-                    session.Place(40, 90, 650, 440); session.Focus();
+                    surface.Place(40,90,650,440); session.Place(0,0,650,440); session.Focus();
+                    for(int toggle=0;toggle<20;toggle++) { int x=toggle%2==0?40:180; surface.Place(x,90,650,440);session.Place(0,0,650,440);if(HostedAppSession.Native.GetParent(session.Window)!=surface.Handle || session.ProcessId!=pid)throw new Exception("Sidebar resize detached or replaced the session"); }
+                    Console.WriteLine("PASS: 20 sidebar geometry changes retain one child/process in the native clipping surface");
                     Check(session.ProcessId == pid && HostedAppSession.Native.IsWindowVisible(session.Window), "Resume created a new session");
                     Check(!await session.RequestCloseAsync(TimeSpan.FromMilliseconds(500)) && session.IsAlive, "Close ignored the app's refusal");
                     HostedAppSession.Native.PostMessage(session.Window, 0x8001, 0, 0);
@@ -74,3 +77,4 @@ internal static class Program
         protected override void WndProc(ref Message message) { if (message.Msg == 0x8001) mayClose = true; base.WndProc(ref message); }
     }
 }
+

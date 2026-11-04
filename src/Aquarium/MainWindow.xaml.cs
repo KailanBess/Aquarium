@@ -15,11 +15,12 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        InitializeRail();
         InitializeWorkspaces();
         AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Aquarium.ico"));
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
-        Closed += (_, _) => { isClosed = true; scheduleTimer?.Stop(); workspaceMonitor?.Stop(); updateCancellation?.Cancel(); installCancellation?.Cancel(); };
+        Closed += (_, _) => { isClosed = true; scheduleTimer?.Stop(); workspaceMonitor?.Stop(); updateCancellation?.Cancel(); installCancellation?.Cancel(); DisposeWorkspaces(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -69,6 +70,9 @@ public sealed partial class MainWindow : Window
     private void Render()
     {
         PageTitle.Text = page;
+        PageTitle.Visibility = page is "Home" or "Store" or "Library" ? Visibility.Collapsed : Visibility.Visible;
+        PageSubtitle.Visibility = page is "Home" or "Store" or "Library" ? Visibility.Collapsed : Visibility.Visible;
+        RefreshRail();
         PageBody.Children.Clear();
         PageScroll.ChangeView(null, 0, null, true);
         downloadLabel = null;
@@ -86,13 +90,13 @@ public sealed partial class MainWindow : Window
         switch (page)
         {
             case "Home":
-            case "Store":
                 RenderCatalogDashboard();
                 break;
+            case "Store":
+                RenderStorefront();
+                break;
             case "Library":
-                var saved = store.Catalog.Where(a => store.Registry.LibraryAppIds.Contains(a.Id) || store.Registry.Installations.Any(i => i.AppId == a.Id)).ToList();
-                if (saved.Count == 0) Empty("Your collection starts here", "Visit App install to install an app, or save an entry from Store.");
-                foreach (var app in saved) AddCard(PageBody, app);
+                RenderCatalogDashboard();
                 break;
             case "Downloads":
                 RenderDownloads();
@@ -174,6 +178,9 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
+
+
+
 
 
 

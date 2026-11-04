@@ -154,7 +154,7 @@ public sealed partial class MainWindow
         Directory.CreateDirectory(folder);
         var settings = new
         {
-            Version = 1, Theme = "Ocean", Accent = "Mint", CustomPalette = true,
+            Version = 1, Theme = "Aquarium Violet", Accent = "Violet", CustomPalette = false,
             Shape = "Rounded", CornerRadius = 16, BackgroundStyle = "Gradient",
             TextColor = "#F1F7FF", MutedColor = "#A0B8C3", TopColor = "#071219",
             BottomColor = "#09151D", SurfaceColor = "#10242F", AccentColor = "#67E8D3", SecondaryColor = "#1B203B"
@@ -163,3 +163,4 @@ public sealed partial class MainWindow
         JsonSerializer.Serialize(output, settings, new JsonSerializerOptions { WriteIndented = true });
     }
 }
+

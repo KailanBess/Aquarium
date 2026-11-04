@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishTank
-          ref: 6ae799a982bdd5f3a5ec0de12bbc9f593b8a4e94
+          ref: 5bdf25aeb7a19c5691f0022b9db0c73b4332675e
           path: companion/FishTank
       - name: Build included FishTank workspace
         run: dotnet build companion/FishTank/desktop/FishTank.csproj -c Release
