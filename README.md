@@ -2,9 +2,9 @@
 
 Native C# / .NET 8 / WinUI 3 Windows desktop hub with a private Aquarium-only app catalog, GitHub release installation, local Library, Downloads, Updates and customization.
 
-## Release 0.4.0
+## Release 0.4.1
 
-The tagged release workflow publishes `Aquarium-complete-windows-x64.zip`, SHA-256 checksums and build metadata after native Windows publishing and package tests pass. The complete unsigned folder includes Aquarium, FishTank 0.16.0 and FishNet 0.3.0 from pinned source revisions. FishBowl 1.29.5 is released separately for Windows/Linux and remains optional in App install. Native playback, app interaction and physical display acceptance still require manual verification.
+The tagged release workflow publishes `Aquarium-complete-windows-x64.zip`, SHA-256 checksums and build metadata after native Windows publishing and package tests pass. The complete unsigned folder includes Aquarium, FishTank 0.16.0 and FishNet 0.3.1 from pinned source revisions. FishBowl 1.29.5 is released separately for Windows/Linux and remains optional in App install. Native playback, app interaction and physical display acceptance still require manual verification.
 
 ## Complete bundle
 
