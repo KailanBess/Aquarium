@@ -27,14 +27,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishNet
-          ref: b02b61b4afcc1d4805168e936804419a86405b9c
+          ref: 859e89c2a1feba539045e5b67e405808abf98ec5
           path: companion/FishNet
       - name: Publish included FishNet build
         run: dotnet publish companion/FishNet/src/FishNet/FishNet.csproj -c Release -o artifacts/FishNet
       - uses: actions/checkout@v4
         with:
           repository: KailanBess/FishTank
-          ref: ecc1bc46a0a28efdecdb89b34285f62c9810e77e
+          ref: fe6cc3951cd3ad2dff96b91111eefafb0cfc3dbd
           path: companion/FishTank
       - name: Build included FishTank workspace
         run: dotnet build companion/FishTank/desktop/FishTank.csproj -c Release

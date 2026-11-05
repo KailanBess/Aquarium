@@ -23,7 +23,24 @@ public sealed partial class MainWindow
         workspaceMonitor = DispatcherQueue.CreateTimer(); workspaceMonitor.Interval = TimeSpan.FromSeconds(1);
         workspaceMonitor.Tick += (_, _) =>
         {
-            if (closingWorkspaces || activeWorkspace is null || activeWorkspace.IsAlive) return;
+            if (closingWorkspaces || activeWorkspace is null) return;
+            if (activeWorkspace.IsAlive)
+            {
+                if (hostingCancellation is not null && !activeWorkspace.IsAttached)
+                {
+                    WorkspacePlaceholder.Text = activeWorkspace.HasVisibleStartupWindow()
+                        ? "The app opened a separate window. Complete its sign-in or setup to continue."
+                        : "Waiting for the app to prepare its workspace…";
+                }
+                if (hostingCancellation is null && !activeWorkspace.IsAttached)
+                {
+                    nativeSurface?.Hide();
+                    WorkspacePlaceholder.Text = "The app workspace disconnected. Reconnect to the running session.";
+                    WorkspaceRetry.Visibility = Visibility.Visible;
+                    WorkspacePlaceholder.Visibility = Visibility.Visible;
+                }
+                return;
+            }
             var ended = activeWorkspace; var id = activeAppId;
             HideWorkspace(); if (id is not null) hostedApps.Remove(id); ended.Dispose(); Render();
             ShowNotice("The app workspace closed. You can open it again from the app page.", InfoBarSeverity.Informational);
@@ -76,8 +93,8 @@ public sealed partial class MainWindow
             WorkspacePlaceholder.Visibility = Visibility.Collapsed;
             if (activeWorkspace == session && AppWorkspace.Visibility == Visibility.Visible)
             {
-                workspaceBounds = null; PositionWorkspace(); session.Focus();
                 WorkspaceStatus.Text = "Home returns to your app page and keeps this session running.";
+                workspaceBounds = null; PositionWorkspace(); session.Focus();
             }
             else session.Hide();
         }
@@ -96,6 +113,18 @@ public sealed partial class MainWindow
     {
         activeWorkspace?.Hide(); activeWorkspace = session; activeAppId = appId; workspaceBounds = null;
         WorkspaceTitle.Text = store.Catalog.FirstOrDefault(a => a.Id == appId)?.Name ?? "App workspace";
+        WorkspaceRetry.Visibility = Visibility.Collapsed;
+        WorkspaceTabs.Children.Clear();
+        foreach (var pair in hostedApps.Where(pair => pair.Value.IsAlive))
+        {
+            var app = store.Registry.Installations.FirstOrDefault(entry => entry.AppId == pair.Key);
+            if (app is null) continue;
+            var name = store.Catalog.FirstOrDefault(entry => entry.Id == pair.Key)?.Name ?? pair.Key;
+            var tab = new Button { Content = name, IsEnabled = pair.Key != appId };
+            tab.Click += (_, _) => LaunchInstalled(app);
+            WorkspaceTabs.Children.Add(tab);
+        }
+        WorkspaceTabs.Visibility = WorkspaceTabs.Children.Count > 1 ? Visibility.Visible : Visibility.Collapsed;
         WorkspacePlaceholder.Text = "Preparing app workspace…";
         WorkspacePlaceholder.Visibility = session.IsAttached ? Visibility.Collapsed : Visibility.Visible;
         PageScroll.Visibility = Visibility.Collapsed; AppWorkspace.Visibility = Visibility.Visible;
@@ -115,7 +144,14 @@ public sealed partial class MainWindow
             activeWorkspace.Place(0, 0, bounds.Item3, bounds.Item4);
             workspaceBounds = bounds;
         }
-        catch (Exception ex) { WorkspaceStatus.Text = "Workspace layout needs attention: " + ex.Message; }
+        catch (Exception ex)
+        {
+            nativeSurface?.Hide();
+            WorkspaceStatus.Text = "Workspace layout needs attention: " + ex.Message;
+            WorkspacePlaceholder.Text = "Aquarium could not display the app in this workspace.";
+            WorkspacePlaceholder.Visibility = Visibility.Visible;
+            WorkspaceRetry.Visibility = Visibility.Visible;
+        }
     }
     private void HideWorkspace()
     {
@@ -130,6 +166,12 @@ public sealed partial class MainWindow
         foreach (var session in hostedApps.Values) session.Dispose(); hostedApps.Clear();
         nativeSurface?.Dispose(); nativeSurface = null;
     }
+    private void RetryWorkspace(object sender, RoutedEventArgs e)
+    {
+        var app = store.Registry.Installations.FirstOrDefault(entry => entry.AppId == activeAppId);
+        if (app is not null) LaunchInstalled(app);
+    }
+
     private void WorkspaceHome(object sender, RoutedEventArgs e)
     {
         hostingCancellation?.Cancel(); HideWorkspace(); SelectPage(appPage); Render();
@@ -150,3 +192,6 @@ public sealed partial class MainWindow
         finally { closingWorkspaces = false; WorkspaceCloseButton.IsEnabled = true; }
     }
 }
+
+
+

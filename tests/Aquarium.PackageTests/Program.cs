@@ -30,6 +30,16 @@ try
     var progress = new Progress<string>();
     var valid = Zip("valid", "FishTank.exe", "FishTank.exe.config");
     var installed = await installer.InstallZipAsync(source, "fixture-v1", valid, Hash(valid), progress, default);
+    var clean = await installer.VerifyInstalledFilesAsync(installed, valid, default);
+    Check(clean.Checked > 0 && clean.Damaged == 0, "Clean installed package failed file verification");
+    var installedFile = Path.Combine(installed.InstallDirectory, installed.EntryPoint);
+    var originalBytes = await File.ReadAllBytesAsync(installedFile);
+    var changedBytes = originalBytes.ToArray();
+    changedBytes[0] ^= 1;
+    await File.WriteAllBytesAsync(installedFile, changedBytes);
+    var fileCheck = await installer.VerifyInstalledFilesAsync(installed, valid, default);
+    Check(fileCheck.Damaged == 1, "Same-length file damage was not detected");
+    await File.WriteAllBytesAsync(installedFile, originalBytes);
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Expected entry point missing");
     Check(store.Registry.Installations.Single() == installed, "Installation not registered");
     Check(store.Registry.LibraryAppIds.Contains(source.AppId), "Installed app not added to Library");
@@ -75,4 +85,6 @@ finally
     if (!Path.GetFullPath(root).StartsWith(expected, StringComparison.OrdinalIgnoreCase) || !Path.GetFileName(root).StartsWith("Aquarium-package-tests-")) throw new Exception("Unsafe fixture cleanup path.");
     Directory.Delete(root, true);
 }
+
+
 

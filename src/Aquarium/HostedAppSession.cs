@@ -21,6 +21,19 @@ public sealed class HostedAppSession : IDisposable
     public int ProcessId => Process.Id;
     public bool UsesManagedVisibility => Window != 0 && Native.GetProp(Window, "Aquarium.Workspace.ManagedVisibility.v1") == 1;
 
+    public bool HasVisibleStartupWindow()
+    {
+        if (!IsAlive) return false;
+        bool found = false;
+        Native.EnumWindows((window, _) =>
+        {
+            Native.GetWindowThreadProcessId(window, out var pid);
+            if (pid != ProcessId || !Native.IsWindowVisible(window) || Native.GetProp(window, WorkspaceMarker) != 0) return true;
+            found = true;
+            return false;
+        }, 0);
+        return found;
+    }
     public HostedAppSession(string executable, nint parent, string? fixtureArgument = null)
     {
         this.parent = parent;
@@ -155,3 +168,4 @@ public sealed class HostedAppSession : IDisposable
         [DllImport("user32.dll")] public static extern bool PostMessage(nint window, uint message, nint wParam, nint lParam);
     }
 }
+

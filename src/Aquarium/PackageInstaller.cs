@@ -98,6 +98,42 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             if (written != entry.Length) throw new InvalidDataException("Package file is truncated.");
         }
     }
+    public async Task<(int Checked, int Damaged)> VerifyInstalledFilesAsync(InstalledApp app, string zipPath, CancellationToken token)
+    {
+        RequireWithin(Path.Combine(AppRoot, app.AppId), app.InstallDirectory);
+        RefuseLinks(app.InstallDirectory);
+        await using var package = new FileStream(zipPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        var checksum = Convert.ToHexString(await SHA256.HashDataAsync(package, token));
+        if (!checksum.Equals(app.PackageSha256, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidDataException("The available package differs from the registered build.");
+        package.Position = 0;
+        using var archive = new ZipArchive(package, ZipArchiveMode.Read, leaveOpen: true);
+        if (archive.Entries.Count > 20000) throw new InvalidDataException("Too many package entries.");
+        int files = 0, damaged = 0;
+        long expanded = 0;
+        foreach (var entry in archive.Entries)
+        {
+            token.ThrowIfCancellationRequested();
+            if (string.IsNullOrEmpty(entry.Name)) continue;
+            var target = Path.GetFullPath(Path.Combine(app.InstallDirectory, entry.FullName));
+            RequireWithin(app.InstallDirectory, target);
+            RefuseLinks(target);
+            expanded += entry.Length;
+            if (expanded > 1024L * 1024 * 1024) throw new InvalidDataException("Package exceeds the verification limit.");
+            files++;
+            if (!File.Exists(target) || new FileInfo(target).Length != entry.Length)
+            {
+                damaged++;
+                continue;
+            }
+            await using var original = entry.Open();
+            await using var installed = new FileStream(target, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var originalHash = await SHA256.HashDataAsync(original, token);
+            var installedHash = await SHA256.HashDataAsync(installed, token);
+            if (!originalHash.AsSpan().SequenceEqual(installedHash)) damaged++;
+        }
+        return (files, damaged);
+    }
     public void Launch(InstalledApp app)
     {
         ValidateInstallation(app);
@@ -133,3 +169,4 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             if ((Directory.Exists(current) || File.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) throw new InvalidDataException("Linked installation paths are not supported.");
     }
 }
+
