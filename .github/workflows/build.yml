@@ -1,4 +1,4 @@
-name: Windows build and complete app bundle
+name: Windows build and complete app release
 on:
   push:
   pull_request:
@@ -8,9 +8,10 @@ permissions:
 jobs:
   build:
     runs-on: windows-latest
+    timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
         with:
           dotnet-version: 8.0.x
       - uses: microsoft/setup-msbuild@v2
@@ -18,22 +19,81 @@ jobs:
         run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
       - name: Publish Aquarium
         run: msbuild src/Aquarium/Aquarium.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/Aquarium/
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: 106e5d5e7834486f2240606583cf63100e98461c
+          ref: 80da3705a544c6f795faf849650dec985408157b
           path: companion/FishNet
-      - name: Publish included FishNet build
+      - name: Publish included FishNet 0.3.0 runtime
         run: msbuild companion/FishNet/src/FishNet/FishNet.csproj /restore /t:Publish /p:Configuration=Release /p:Platform=x64 /p:PublishDir=${{ github.workspace }}/artifacts/FishNet/
-      - name: Include default apps from inspected sources
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: KailanBess/FishTank
+          ref: 08ce4fa8b9a5467308b392b8e8602b50967304cc
+          path: companion/FishTank
+      - name: Validate included FishTank 0.16.0 Windows source
         shell: pwsh
-        run: ./scripts/Bundle-Apps.ps1 -PublishDirectory "$PWD/artifacts/Aquarium" -FishNetDirectory "$PWD/artifacts/FishNet"
-      - uses: actions/upload-artifact@v4
+        run: |
+          $root=Join-Path $PWD 'companion/FishTank'
+          dotnet run --project "$root/tests/Logic/Logic.csproj"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project "$root/tests/Appearance/Appearance.csproj"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          foreach($suite in @('WindowsSecurity','WindowsUi','Resilience','Expansion')) {
+            dotnet build "$root/tests/$suite/$suite.csproj" -c Release
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            $program=Join-Path $root "tests/$suite/bin/Release/net48/$suite.exe"
+            if($suite -eq 'WindowsUi'){& $program "$PWD/artifacts/tank-ui"}else{& $program}
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          & "$root/scripts/Package-Preview.ps1"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Verify and include companion packages
+        shell: pwsh
+        run: |
+          ./scripts/Test-Bundle.ps1 -FishNetDirectory artifacts/FishNet -FishTankArchive companion/FishTank/packages/FishTank-desktop-preview.zip
+          ./scripts/Bundle-Apps.ps1 -PublishDirectory artifacts/Aquarium -FishNetDirectory artifacts/FishNet -FishTankArchive companion/FishTank/packages/FishTank-desktop-preview.zip
+          [xml]$project=Get-Content src/Aquarium/Aquarium.csproj
+          $tag='v'+[string]$project.Project.PropertyGroup.Version
+          if($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag){throw 'Release tag/source mismatch.'}
+          ./scripts/Package-Release.ps1 -PublishDirectory artifacts/Aquarium -OutputDirectory artifacts/release -Tag $tag
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: Aquarium-complete-windows-x64
           path: artifacts/Aquarium/
           if-no-files-found: error
-          retention-days: 14
-
-
-
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: Aquarium-release
+          path: artifacts/release/
+          if-no-files-found: error
+  publish:
+    if: github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    needs: build
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+      - name: Require reviewed release source on main
+        run: git merge-base --is-ancestor HEAD origin/main
+      - uses: actions/download-artifact@v4
+        with:
+          name: Aquarium-release
+          path: release
+      - name: Verify and publish the complete Aquarium bundle
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          $line=(Get-Content release/SHA256SUMS.txt).Trim()
+          if($line -notmatch '^([a-f0-9]{64})  Aquarium-complete-windows-x64.zip$'){throw 'Invalid release manifest.'}
+          if((Get-FileHash release/Aquarium-complete-windows-x64.zip -Algorithm SHA256).Hash -ne $Matches[1]){throw 'Release archive digest mismatch.'}
+          $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.0 and FishNet 0.3.0 built from pinned source revisions. Extract the whole ZIP and run Aquarium.exe. Keep all runtime and Bundled files together. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
+          $notes | Set-Content release/notes.txt -Encoding utf8
+          gh release create $env:GITHUB_REF_NAME ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json --verify-tag --draft --title "Aquarium $env:GITHUB_REF_NAME" --notes-file release/notes.txt
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          gh release edit $env:GITHUB_REF_NAME --draft=false --latest
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}

@@ -1,33 +1,44 @@
-param([Parameter(Mandatory)][string]$PublishDirectory, [Parameter(Mandatory)][string]$FishNetDirectory)
-$ErrorActionPreference = 'Stop'
-$bundle = Join-Path $PublishDirectory 'Bundled'
+param([Parameter(Mandatory)][string]$PublishDirectory,[Parameter(Mandatory)][string]$FishNetDirectory,[Parameter(Mandatory)][string]$FishTankArchive,[string]$FishTankVersion='0.16.0',[string]$FishNetVersion='0.3.0')
+$ErrorActionPreference='Stop'
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+$bundle=Join-Path $PublishDirectory 'Bundled'
 New-Item -ItemType Directory -Path $bundle -Force | Out-Null
-$headers = @{ 'User-Agent' = 'Aquarium-build/0.3' }
-$release = Invoke-RestMethod -Headers $headers -Uri 'https://api.github.com/repos/KailanBess/FishTank/releases/tags/preview-v0.15.5'
-if ($release.draft) { throw 'Draft releases cannot be bundled.' }
-$asset = @($release.assets | Where-Object name -eq 'FishTank-desktop-preview.zip')
-if ($asset.Count -ne 1 -or $asset[0].browser_download_url -notlike 'https://github.com/KailanBess/FishTank/releases/download/*') { throw 'No approved FishTank package.' }
-$tank = Join-Path $bundle 'FishTank.zip'
-Invoke-WebRequest -Headers $headers -Uri $asset[0].browser_download_url -OutFile $tank
-$expected = [string]$asset[0].digest
-if ($expected -match '^sha256:([a-fA-F0-9]{64})$') { $expected = $Matches[1] }
-else {
-    $sumAsset = @($release.assets | Where-Object name -eq 'SHA256SUMS.txt')
-    if ($sumAsset.Count -ne 1 -or $sumAsset[0].browser_download_url -notlike 'https://github.com/KailanBess/FishTank/releases/download/*') { throw 'No published checksums.' }
-    $manifest = (Invoke-WebRequest -Headers $headers -Uri $sumAsset[0].browser_download_url).Content
-    $match = [regex]::Match($manifest, '(?m)^([a-fA-F0-9]{64})\s+\*?FishTank-desktop-preview\.zip\s*$')
-    if (!$match.Success) { throw 'No package checksum.' }
-    $expected = $match.Groups[1].Value
-}
-$tankHash = (Get-FileHash -LiteralPath $tank -Algorithm SHA256).Hash.ToLowerInvariant()
-if ($tankHash -ne $expected) { throw 'FishTank package checksum mismatch.' }
-if (!(Test-Path -LiteralPath (Join-Path $FishNetDirectory 'FishNet.exe'))) { throw 'Publish FishNet before bundling.' }
-$net = Join-Path $bundle 'FishNet.zip'
-Compress-Archive -Path (Join-Path $FishNetDirectory '*') -DestinationPath $net -Force
-$netHash = (Get-FileHash -LiteralPath $net -Algorithm SHA256).Hash.ToLowerInvariant()
-@(
-    @{ appId = 'aquarium.security'; version = $release.tag_name; file = 'FishTank.zip'; sha256 = $tankHash },
-    @{ appId = 'aquarium.media'; version = '0.2.1-bundled'; file = 'FishNet.zip'; sha256 = $netHash }
-) | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $bundle 'bundled.json') -Encoding utf8
-Write-Output 'Complete bundle includes FishTank and FishNet. FishBowl stays optional.'
+$netAssembly=Join-Path $FishNetDirectory 'FishNet.dll'
+$netIdentity=[Reflection.AssemblyName]::GetAssemblyName($netAssembly)
+if(!(Test-Path -LiteralPath (Join-Path $FishNetDirectory 'FishNet.exe')) -or $netIdentity.Name -ne 'FishNet' -or $netIdentity.Version -ne [Version]($FishNetVersion+'.0')){throw 'Publish the matching complete FishNet runtime before bundling.'}
+$zip=[IO.Compression.ZipFile]::OpenRead([IO.Path]::GetFullPath($FishTankArchive))
+try {
+ if(@($zip.Entries | Where-Object {$_.FullName -match '[/\\]' -or $_.FullName.Contains('..') -or $_.Length -gt 128MB}).Count){throw 'Unsafe FishTank package paths or size.'}
+ $names=@($zip.Entries | ForEach-Object FullName)
+ if(@($names | Sort-Object -Unique).Count -ne $names.Count -or $names -notcontains 'FishTank.exe' -or $names -notcontains 'FishTank.Cli.exe' -or $names -notcontains 'SHA256SUMS.txt'){throw 'Incomplete FishTank package.'}
+ $reader=New-Object IO.StreamReader($zip.GetEntry('SHA256SUMS.txt').Open())
+ try{$manifest=$reader.ReadToEnd()}finally{$reader.Dispose()}
+ $hashes=@{}
+ foreach($line in ($manifest -split '\r?\n')){
+  if(!$line.Trim()){continue}
+  if($line -notmatch '^([a-fA-F0-9]{64})  ([A-Za-z0-9_. -]+)$' -or $hashes.ContainsKey($Matches[2])){throw 'Invalid FishTank manifest.'}
+  $hashes[$Matches[2]]=$Matches[1]
+ }
+ if($hashes.Count -ne $names.Count-1){throw 'Incomplete FishTank manifest.'}
+ foreach($entry in $zip.Entries){
+  if($entry.FullName -eq 'SHA256SUMS.txt'){continue}
+  $sha=[Security.Cryptography.SHA256]::Create();$stream=$entry.Open()
+  try{$hash=([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-','')}finally{$sha.Dispose();$stream.Dispose()}
+  if($hash -ne $hashes[$entry.FullName]){throw 'FishTank package checksum mismatch.'}
+ }
+ $temporary=[IO.Path]::GetTempFileName()
+ try {
+  $inputStream=$zip.GetEntry('FishTank.exe').Open();$outputStream=[IO.File]::Open($temporary,[IO.FileMode]::Create,[IO.FileAccess]::Write)
+  try{$inputStream.CopyTo($outputStream)}finally{$inputStream.Dispose();$outputStream.Dispose()}
+  $identity=[Reflection.AssemblyName]::GetAssemblyName($temporary)
+  if($identity.Name -ne 'FishTank' -or $identity.Version -ne [Version]($FishTankVersion+'.0')){throw 'FishTank version/identity differs from the bundle manifest.'}
+ }finally{Remove-Item -LiteralPath $temporary -Force}
 
+}finally{$zip.Dispose()}
+$tank=Join-Path $bundle 'FishTank.zip';Copy-Item -LiteralPath $FishTankArchive -Destination $tank
+$net=Join-Path $bundle 'FishNet.zip';Compress-Archive -Path (Join-Path $FishNetDirectory '*') -DestinationPath $net -Force
+@(
+ @{appId='aquarium.security';version=('preview-v'+$FishTankVersion);file='FishTank.zip';sha256=(Get-FileHash $tank -Algorithm SHA256).Hash.ToLowerInvariant()},
+ @{appId='aquarium.media';version=('v'+$FishNetVersion);file='FishNet.zip';sha256=(Get-FileHash $net -Algorithm SHA256).Hash.ToLowerInvariant()}
+) | ConvertTo-Json | Set-Content (Join-Path $bundle 'bundled.json') -Encoding utf8
+Write-Output 'Verified local builds of FishTank and FishNet are included. FishBowl remains an optional release installation.'

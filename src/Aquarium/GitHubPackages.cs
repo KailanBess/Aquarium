@@ -19,7 +19,7 @@ public sealed class GitHubPackages
     internal static HttpClient Client()
     {
         var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.3");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.4");
         return client;
     }
     public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token)
