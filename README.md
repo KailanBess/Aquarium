@@ -73,3 +73,9 @@ WinForms workspaces opt into cooperative visibility messages. Aquarium asks the 
 WinForms workspaces use a fully opaque layered clipping surface so GDI controls are actually composed above WinUI content. FishNet keeps the ordinary WinUI surface. Native visibility and HWND geometry alone do not prove a hosted UI is visible.
 
 An interactive regression lives in tests/Render. Publish it, build tests/Color, then run Render.exe with Color.exe and an output report path. Bring its generated test window to the foreground. It verifies the actual lime/magenta pixels of a generated WinForms child inside WinUI, sidebar resize, Home hide and same-window Resume. It fails when the drawing is obscured or no unobscured interactive desktop is available. It never opens a user profile or runs security tools.
+
+## Release channels and resumable downloads
+
+App install offers a session-only release channel for each app: Stable only or Stable and preview. Changing channels clears the package result; run Look for published apps again. Draft releases are always excluded.
+
+Canceled or interrupted downloads retain a checksum-keyed partial archive. Retrying the same package requests the remaining bytes; a server that ignores Range starts a clean download. Aquarium verifies the full SHA-256 before extraction and removes invalid archives. Space checks reserve the archive plus the maximum permitted extraction and a 64 MiB margin; ZIP installation also checks declared expanded size.

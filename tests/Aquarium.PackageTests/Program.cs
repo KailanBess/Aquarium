@@ -54,6 +54,14 @@ try
     var newer = await installer.InstallZipAsync(source, "fixture-v2", valid, Hash(valid), progress, default);
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Previous version was removed");
     Check(store.Registry.Installations.Single().Version == "fixture-v2", "New version not activated");
+    var retainedExe = Path.Combine(installed.InstallDirectory, installed.EntryPoint);
+    File.Move(retainedExe, retainedExe + ".saved");
+    try { await installer.RollbackAsync(installed); throw new Exception("Missing rollback executable accepted"); }
+    catch (FileNotFoundException) { checks++; }
+    Check(store.Registry.Installations.Single() == newer, "Failed rollback changed active version");
+    File.Move(retainedExe + ".saved", retainedExe);
+    try { PackageInstaller.RequireSpace(root, long.MaxValue - 64L * 1024 * 1024); throw new Exception("Insufficient space accepted"); }
+    catch (IOException) { checks++; }
     using (var canceled = new CancellationTokenSource())
     {
         canceled.Cancel();
@@ -64,11 +72,25 @@ try
     await Task.WhenAll(store.SetLibraryAsync("aquarium.emulation", true), store.RecordInstallationAsync(newer));
     Check(store.Registry.LibraryAppIds.Contains("aquarium.emulation"), "Concurrent library change lost");
     Check(GitHubPackages.Sources.Count(s => s.IncludedByDefault) == 2 && !GitHubPackages.Sources.Single(s => s.AppId == "aquarium.emulation").IncludedByDefault, "Default bundle must exclude FishBowl");
+    var bytes = File.ReadAllBytes(valid);
+    var package = new AppPackage(source, "resumed", "fixture.zip", "https://github.com/" + source.Repository + "/releases/download/fixture/fixture.zip", Hash(valid), bytes.Length);
+    var cache = Path.Combine(installer.AppRoot, ".downloads"); Directory.CreateDirectory(cache);
+    var partial = Path.Combine(cache, package.Sha256.ToLowerInvariant() + ".part");
+    foreach (var honorsRange in new[] { true, false })
+    {
+        File.WriteAllBytes(partial, bytes.Take(bytes.Length / 2).ToArray());
+        var handler = new DownloadFixture(bytes, honorsRange);
+        var resumedInstaller = new PackageInstaller(store, installer.AppRoot, () => new System.Net.Http.HttpClient(handler));
+        await resumedInstaller.DownloadAndInstallAsync(package, progress, default);
+        Check(handler.RequestedOffset == bytes.Length / 2, "Existing download was not requested by range");
+        Check(!File.Exists(partial), "Successful download cache not cleared");
+    }
     await File.WriteAllTextAsync(store.RegistryPath, "invalid JSON");
     var damaged = new LocalStore(Path.Combine(root, "registry")); await damaged.LoadAsync();
     Check(!damaged.CanSave && await File.ReadAllTextAsync(store.RegistryPath) == "invalid JSON", "Invalid registry was overwritten");
     Console.WriteLine($"PASS: {checks} package and persistence checks. No fixture executable was run.");
 }
+
 finally
 {
     var expected = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
@@ -76,3 +98,16 @@ finally
     Directory.Delete(root, true);
 }
 
+sealed class DownloadFixture(byte[] bytes, bool honorsRange) : System.Net.Http.HttpMessageHandler
+{
+    public long? RequestedOffset { get; private set; }
+    protected override Task<System.Net.Http.HttpResponseMessage> SendAsync(System.Net.Http.HttpRequestMessage request, CancellationToken cancellationToken)
+    {
+        RequestedOffset = request.Headers.Range?.Ranges.Single().From;
+        var offset = honorsRange ? (int)(RequestedOffset ?? 0) : 0;
+        var response = new System.Net.Http.HttpResponseMessage(honorsRange ? System.Net.HttpStatusCode.PartialContent : System.Net.HttpStatusCode.OK)
+        { Content = new System.Net.Http.ByteArrayContent(bytes.Skip(offset).ToArray()) };
+        if (honorsRange) response.Content.Headers.ContentRange = new System.Net.Http.Headers.ContentRangeHeaderValue(offset, bytes.Length - 1, bytes.Length);
+        return Task.FromResult(response);
+    }
+}
