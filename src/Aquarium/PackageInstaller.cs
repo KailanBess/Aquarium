@@ -4,37 +4,57 @@ using System.Security.Cryptography;
 
 namespace Aquarium;
 
-public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
+public sealed class PackageInstaller(LocalStore store, string? appRoot = null, Func<System.Net.Http.HttpClient>? clientFactory = null)
 {
     public string AppRoot { get; } = Path.GetFullPath(appRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Apps"));
     public async Task<InstalledApp> DownloadAndInstallAsync(AppPackage package, IProgress<string> progress, CancellationToken token)
     {
         GitHubPackages.ValidateAssetUrl(package.Source, package.DownloadUrl);
         if (!GitHubPackages.IsHash(package.Sha256)) throw new InvalidDataException("Invalid checksum.");
+        if (!GitHubPackages.Sources.Contains(package.Source) || package.Size <= 0 || package.Size > 512L * 1024 * 1024) throw new InvalidDataException("Unknown app or unsupported package size.");
         var cache = Path.Combine(AppRoot, ".downloads");
         RefuseLinks(cache); Directory.CreateDirectory(cache);
-        var file = Path.Combine(cache, Guid.NewGuid().ToString("N") + ".zip");
+        RequireSpace(cache, checked(package.Size + 1024L * 1024 * 1024));
+        var file = Path.Combine(cache, package.Sha256.ToLowerInvariant() + ".part");
+        RefuseLinks(file);
         try
         {
-            using var client = GitHubPackages.Client();
-            using var response = await client.GetAsync(package.DownloadUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, token);
-            response.EnsureSuccessStatusCode();
-            await using (var input = await response.Content.ReadAsStreamAsync(token))
-            await using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            var offset = File.Exists(file) ? new FileInfo(file).Length : 0;
+            if (offset > package.Size) { File.Delete(file); offset = 0; }
+            if (offset < package.Size)
             {
-                var buffer = new byte[81920]; long received = 0; int count;
-                while ((count = await input.ReadAsync(buffer, token)) > 0)
+                using var client = clientFactory?.Invoke() ?? GitHubPackages.Client();
+                using var request = new System.Net.Http.HttpRequestMessage(System.Net.Http.HttpMethod.Get, package.DownloadUrl);
+                if (offset > 0) request.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(offset, null);
+                using var response = await client.SendAsync(request, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, token);
+                response.EnsureSuccessStatusCode();
+                if (response.StatusCode == System.Net.HttpStatusCode.PartialContent)
                 {
-                    received += count;
-                    if (received > package.Size || received > 512L * 1024 * 1024) throw new InvalidDataException("Package exceeded its declared size.");
-                    await output.WriteAsync(buffer.AsMemory(0, count), token);
-                    progress.Report($"Downloading {package.Source.Repository}: {received / 1048576d:F1} / {package.Size / 1048576d:F1} MB");
+                    var range = response.Content.Headers.ContentRange;
+                    if (range?.From != offset || range.To != package.Size - 1 || range.Length != package.Size)
+                        throw new InvalidDataException("Server returned an unexpected download range. Retry the installation.");
                 }
-                if (received != package.Size) throw new InvalidDataException("The package download is incomplete.");
+                else if (response.StatusCode == System.Net.HttpStatusCode.OK) offset = 0; // Server ignored Range; restart cleanly.
+                else throw new InvalidDataException("Unsupported download response.");
+                await using (var input = await response.Content.ReadAsStreamAsync(token))
+                await using (var output = new FileStream(file, offset > 0 ? FileMode.Append : FileMode.Create, FileAccess.Write, FileShare.None))
+                {
+                    var buffer = new byte[81920]; long received = offset; int count;
+                    while ((count = await input.ReadAsync(buffer, token)) > 0)
+                    {
+                        received += count;
+                        if (received > package.Size || received > 512L * 1024 * 1024) throw new InvalidDataException("Package exceeded its declared size.");
+                        await output.WriteAsync(buffer.AsMemory(0, count), token);
+                        progress.Report($"Downloading {package.Source.Repository}: {received / 1048576d:F1} / {package.Size / 1048576d:F1} MB");
+                    }
+                    if (received != package.Size) throw new InvalidDataException("The package download is incomplete.");
+                }
             }
-            return await InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token);
+            var installed = await InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token);
+            File.Delete(file);
+            return installed;
         }
-        finally { if (File.Exists(file)) File.Delete(file); }
+        catch (InvalidDataException) { if (File.Exists(file)) File.Delete(file); throw; }
     }
     public async Task<InstalledApp> InstallZipAsync(AppSource source, string version, string zipPath, string expectedHash, IProgress<string> progress, CancellationToken token)
     {
@@ -51,6 +71,9 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
         try
         {
             using var archive = new ZipArchive(input, ZipArchiveMode.Read, leaveOpen: true);
+            var expandedSize = archive.Entries.Aggregate(0L, (size, entry) => checked(size + entry.Length));
+            if (expandedSize > 1024L * 1024 * 1024) throw new InvalidDataException("Expanded package is too large.");
+            RequireSpace(install, expandedSize);
             await ExtractAsync(archive, install, token);
             var executables = Directory.GetFiles(install, source.Executable, SearchOption.AllDirectories);
             if (executables.Length != 1) throw new InvalidDataException("Package must contain exactly one expected app executable.");
@@ -122,6 +145,12 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
         var executable = Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
         RequireWithin(app.InstallDirectory, executable); RefuseLinks(executable);
         if (!File.Exists(executable) || !Path.GetFileName(executable).Equals(source.Executable, StringComparison.OrdinalIgnoreCase)) throw new FileNotFoundException("The registered app executable is missing or invalid.");
+    }
+    internal static void RequireSpace(string directory, long bytes)
+    {
+        var drive = new DriveInfo(Path.GetPathRoot(Path.GetFullPath(directory))!);
+        if (drive.AvailableFreeSpace < checked(bytes + 64L * 1024 * 1024))
+            throw new IOException("Not enough free disk space for this package and its extracted files. Free space and try again.");
     }
     internal static void RequireWithin(string root, string path)
     {

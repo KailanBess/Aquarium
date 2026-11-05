@@ -22,14 +22,14 @@ public sealed class GitHubPackages
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.3");
         return client;
     }
-    public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token)
+    public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token, bool? includePreview = null)
     {
         if (!Sources.Contains(source)) throw new InvalidOperationException("This repository is not in the Aquarium catalog.");
         using var client = Client();
         using var response = await client.GetAsync($"https://api.github.com/repos/{source.Repository}/releases?per_page=20", token);
         response.EnsureSuccessStatusCode();
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-        var release = json.RootElement.EnumerateArray().FirstOrDefault(r => !r.GetProperty("draft").GetBoolean() && (source.IncludePreview || !r.GetProperty("prerelease").GetBoolean()));
+        var release = json.RootElement.EnumerateArray().FirstOrDefault(r => !r.GetProperty("draft").GetBoolean() && ((includePreview ?? source.IncludePreview) || !r.GetProperty("prerelease").GetBoolean()));
         if (release.ValueKind == JsonValueKind.Undefined) throw new InvalidOperationException("No published release is available yet.");
         var version = release.GetProperty("tag_name").GetString() ?? throw new InvalidDataException("Missing release tag.");
         var assets = release.GetProperty("assets").EnumerateArray().ToArray();

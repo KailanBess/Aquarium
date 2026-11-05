@@ -10,6 +10,7 @@ public sealed partial class MainWindow
     private PackageInstaller installer = null!;
     private readonly Dictionary<string, AppPackage> available = new();
     private readonly Dictionary<string, string> availability = new();
+    private readonly Dictionary<string, bool> previewChannels = new();
     private CancellationTokenSource? installCancellation;
     private string downloadState = "No downloads or installations have run in this session.";
     private readonly List<string> downloadHistory = [];
@@ -30,6 +31,13 @@ public sealed partial class MainWindow
             panel.Children.Add(Text(app.Name, 24));
             panel.Children.Add(Text(app.Summary, 14, true));
             panel.Children.Add(new HyperlinkButton { Content = source.Repository + " · Public releases", NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
+            var channel = new ComboBox { Header = "Release channel (this session)", ItemsSource = new[] { "Stable only", "Stable and preview" }, SelectedIndex = previewChannels.GetValueOrDefault(app.Id, source.IncludePreview) ? 1 : 0, IsEnabled = installCancellation is null };
+            channel.SelectionChanged += (_, _) =>
+            {
+                previewChannels[app.Id] = channel.SelectedIndex == 1;
+                available.Remove(app.Id); availability.Remove(app.Id); Render();
+            };
+            panel.Children.Add(channel);
             panel.Children.Add(Text(installed is null ? source.IncludedByDefault ? "Included in the complete bundle; not installed in this copy yet." : "Optional · Not installed" : $"Installed · {installed.Version}", 13, true));
             if (installed is not null)
             {
@@ -67,7 +75,7 @@ public sealed partial class MainWindow
             {
                 try
                 {
-                    var package = await feeds.FindAsync(source, cancellation.Token);
+                    var package = await feeds.FindAsync(source, cancellation.Token, previewChannels.GetValueOrDefault(source.AppId, source.IncludePreview));
                     available[source.AppId] = package;
                     availability[source.AppId] = $"Published {package.Version} · {package.Size / 1048576d:F1} MB · SHA-256 available";
                 }
@@ -163,4 +171,3 @@ public sealed partial class MainWindow
         JsonSerializer.Serialize(output, settings, new JsonSerializerOptions { WriteIndented = true });
     }
 }
-
