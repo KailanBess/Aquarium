@@ -15,9 +15,12 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        InitializeRail();
+        InitializeWorkspaces();
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Assets", "Aquarium.ico"));
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
-        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); };
+        Closed += (_, _) => { isClosed = true; scheduleTimer?.Stop(); workspaceMonitor?.Stop(); updateCancellation?.Cancel(); installCancellation?.Cancel(); DisposeWorkspaces(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -33,6 +36,7 @@ public sealed partial class MainWindow : Window
             Render();
             if (store.LoadWarning is not null) ShowNotice(store.LoadWarning, InfoBarSeverity.Warning);
             if (store.CanSave) await InstallBundledAsync();
+            StartUpdateSchedule();
         }
         catch (Exception ex)
         {
@@ -44,6 +48,8 @@ public sealed partial class MainWindow : Window
     private void Navigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
         page = args.IsSettingsSelected ? "Settings" : (args.SelectedItem as NavigationViewItem)?.Tag?.ToString() ?? "Home";
+        hostingCancellation?.Cancel();
+        HideWorkspace();
         if (ready) Render();
     }
 
@@ -55,8 +61,8 @@ public sealed partial class MainWindow : Window
 
     private static Border Panel(UIElement child) => new()
     {
-        Background = new SolidColorBrush(ColorHelper.FromArgb(255, 16, 36, 47)),
-        BorderBrush = new SolidColorBrush(ColorHelper.FromArgb(255, 34, 65, 78)),
+        Background = new SolidColorBrush(ColorHelper.FromArgb(255, 40, 40, 50)),
+        BorderBrush = new SolidColorBrush(ColorHelper.FromArgb(255, 61, 61, 76)),
         BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(16),
         Padding = new Thickness(24), Child = child
     };
@@ -64,6 +70,9 @@ public sealed partial class MainWindow : Window
     private void Render()
     {
         PageTitle.Text = page;
+        PageTitle.Visibility = page is "Home" or "Store" or "Library" ? Visibility.Collapsed : Visibility.Visible;
+        PageSubtitle.Visibility = page is "Home" or "Store" or "Library" ? Visibility.Collapsed : Visibility.Visible;
+        RefreshRail();
         PageBody.Children.Clear();
         PageScroll.ChangeView(null, 0, null, true);
         downloadLabel = null;
@@ -81,37 +90,13 @@ public sealed partial class MainWindow : Window
         switch (page)
         {
             case "Home":
-                var hero = new StackPanel { Spacing = 14 };
-                hero.Children.Add(Text("YOUR NEXT EXPLORATION", 11, true));
-                hero.Children.Add(Text("Everything in its own current.", 30));
-                hero.Children.Add(Text("Security, Emulation, and FishNet — connected through a shared private hub.", 16, true));
-                var browse = new Button { Content = "Explore the collection  →" };
-                browse.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems[1];
-                hero.Children.Add(browse);
-                PageBody.Children.Add(Panel(hero));
-                PageBody.Children.Add(Text($"{store.Catalog.Count} catalog entries   ·   {store.Registry.Installations.Count} installed   ·   {store.Registry.LibraryAppIds.Count} in Library", 14, true));
-                foreach (var app in store.Catalog) AddCard(PageBody, app);
+                RenderCatalogDashboard();
                 break;
             case "Store":
-                var search = new TextBox { PlaceholderText = "Search by app or category", MaxWidth = 560, HorizontalAlignment = HorizontalAlignment.Stretch };
-                AutomationPropertiesName(search, "Search catalog");
-                var results = new StackPanel { Spacing = 14 };
-                void Filter()
-                {
-                    results.Children.Clear();
-                    var matches = store.Catalog.Where(a => $"{a.Name} {a.Category}".Contains(search.Text, StringComparison.OrdinalIgnoreCase)).ToList();
-                    foreach (var app in matches) AddCard(results, app);
-                    if (matches.Count == 0) results.Children.Add(Text("No apps match your search.", 16, true));
-                }
-                search.TextChanged += (_, _) => Filter();
-                PageBody.Children.Add(search);
-                PageBody.Children.Add(results);
-                Filter();
+                RenderStorefront();
                 break;
             case "Library":
-                var saved = store.Catalog.Where(a => store.Registry.LibraryAppIds.Contains(a.Id) || store.Registry.Installations.Any(i => i.AppId == a.Id)).ToList();
-                if (saved.Count == 0) Empty("Your collection starts here", "Visit App install to install an app, or save an entry from Store.");
-                foreach (var app in saved) AddCard(PageBody, app);
+                RenderCatalogDashboard();
                 break;
             case "Downloads":
                 RenderDownloads();
@@ -124,7 +109,7 @@ public sealed partial class MainWindow : Window
                 break;
             case "Settings":
                 PageBody.Children.Add(appearance.Editor(Root, Render, message => ShowNotice(message, InfoBarSeverity.Error)));
-                Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
+                Empty("Private by design", "The private store uses an Aquarium-only catalog. Update checks contact GitHub or WinGet when requested or when an enabled schedule is due. No accounts or telemetry are implemented.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
                 break;
@@ -193,6 +178,10 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
+
+
+
+
 
 
 

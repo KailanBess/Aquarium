@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 namespace Aquarium;
 
 public sealed record UpdateReport(string Output, int ExitCode, DateTimeOffset CheckedAt);
-public sealed record ReleaseInfo(string Name, string Tag, string Url);
+public sealed record ReleaseInfo(string Name, string Tag, string Url, string Notes = "");
 
 public sealed class UpdateService
 {
@@ -50,7 +50,7 @@ public sealed class UpdateService
         using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.2");
         var releases = new List<ReleaseInfo>();
-        foreach (var app in new[] { "Aquarium", "FishNet" })
+        foreach (var app in new[] { "Aquarium", "FishNet", "FishTank", "FishBowl" })
         {
             using var response = await client.GetAsync($"https://api.github.com/repos/KailanBess/{app}/releases/latest", token);
             if (response.StatusCode == HttpStatusCode.NotFound)
@@ -60,7 +60,7 @@ public sealed class UpdateService
             }
             response.EnsureSuccessStatusCode();
             using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-            releases.Add(new(app, json.RootElement.GetProperty("tag_name").GetString() ?? "Unknown tag", $"https://github.com/KailanBess/{app}/releases"));
+            releases.Add(new(app, json.RootElement.GetProperty("tag_name").GetString() ?? "Unknown tag", $"https://github.com/KailanBess/{app}/releases", json.RootElement.TryGetProperty("body", out var body) ? body.GetString() ?? "" : ""));
         }
         return releases;
     }

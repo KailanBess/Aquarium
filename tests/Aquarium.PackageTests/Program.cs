@@ -21,17 +21,38 @@ string Zip(string name, params string[] paths)
 string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
 try
 {
+    Check(!new UpdateSchedule().IsDue(DateTimeOffset.UtcNow), "Update checks default on");
+    Check(new UpdateSchedule { Hours = 24, LastAttempt = DateTimeOffset.UtcNow.AddDays(-2) }.IsDue(DateTimeOffset.UtcNow), "Missed scheduled check not due");
+    Check(!new UpdateSchedule { Hours = 24, LastAttempt = DateTimeOffset.UtcNow.AddHours(-1) }.IsDue(DateTimeOffset.UtcNow), "Schedule repeats too soon");
     var store = new LocalStore(Path.Combine(root, "registry")); await store.LoadAsync();
     var installer = new PackageInstaller(store, Path.Combine(root, "Apps"));
     var source = GitHubPackages.Sources.Single(s => s.AppId == "aquarium.security");
     var progress = new Progress<string>();
     var valid = Zip("valid", "FishTank.exe", "FishTank.exe.config");
     var installed = await installer.InstallZipAsync(source, "fixture-v1", valid, Hash(valid), progress, default);
+    var clean = await installer.VerifyInstalledFilesAsync(installed, valid, default);
+    Check(clean.Checked > 0 && clean.Damaged == 0, "Clean installed package failed file verification");
+    var installedFile = Path.Combine(installed.InstallDirectory, installed.EntryPoint);
+    var originalBytes = await File.ReadAllBytesAsync(installedFile);
+    var changedBytes = originalBytes.ToArray();
+    changedBytes[0] ^= 1;
+    await File.WriteAllBytesAsync(installedFile, changedBytes);
+    var fileCheck = await installer.VerifyInstalledFilesAsync(installed, valid, default);
+    Check(fileCheck.Damaged == 1, "Same-length file damage was not detected");
+    await File.WriteAllBytesAsync(installedFile, originalBytes);
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Expected entry point missing");
     Check(store.Registry.Installations.Single() == installed, "Installation not registered");
     Check(store.Registry.LibraryAppIds.Contains(source.AppId), "Installed app not added to Library");
     var reload = new LocalStore(Path.Combine(root, "registry")); await reload.LoadAsync();
     Check(reload.Registry.Installations.Single().EntryPoint == installed.EntryPoint, "Entry point not persisted");
+    var upgraded = await installer.InstallZipAsync(source, "fixture-v2", valid, Hash(valid), progress, default);
+    Check(store.Registry.InstallationHistory.Single() == installed, "Previous installation not retained for rollback");
+    await installer.RollbackAsync(installed);
+    Check(store.Registry.Installations.Single() == installed && store.Registry.InstallationHistory.Contains(upgraded), "Rollback lost the newer version");
+    await store.SetLibraryAsync(source.AppId, true);
+    var historyReload = new LocalStore(Path.Combine(root, "registry")); await historyReload.LoadAsync();
+    Check(historyReload.Registry.InstallationHistory.Contains(upgraded), "Library save lost rollback history");
+    await Refuses(() => installer.RollbackAsync(installed with { InstallDirectory = Path.Combine(root, "outside") }), "untracked rollback path");
     await Refuses(() => installer.InstallZipAsync(source, "bad", valid, new string('0', 64), progress, default), "checksum mismatch");
     foreach (var paths in new[] { new[] { "../escape.exe", "FishTank.exe" }, new[] { "FishTank.exe", "fishtank.EXE" }, new[] { "other.exe" }, new[] { "folder/../../escape.exe" } })
     {
@@ -64,3 +85,6 @@ finally
     if (!Path.GetFullPath(root).StartsWith(expected, StringComparison.OrdinalIgnoreCase) || !Path.GetFileName(root).StartsWith("Aquarium-package-tests-")) throw new Exception("Unsafe fixture cleanup path.");
     Directory.Delete(root, true);
 }
+
+
+

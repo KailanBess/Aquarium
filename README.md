@@ -1,58 +1,75 @@
 # Aquarium
 
-Native C# / .NET 8 / WinUI 3 Windows desktop hub with a private Aquarium-only app catalog, GitHub release installation, local Library, Downloads, Updates and customization.
+Native C#/.NET 8/WinUI 3 Windows desktop hub with a private Aquarium-only catalog, app installation, hosted workspaces, Library, Downloads, Updates and saved customization. FishTank is security, FishBowl is emulation, and FishNet is media. No private VPN/network/Tailscale projects are catalog entries.
 
-## Complete bundle
+## Open an app inside Aquarium
 
-The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the entire folder and run `Aquarium.exe`. Keep every runtime and Bundled file together. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. A brand-new FishTank profile receives the Aquarium colors using its released custom-palette support; existing appearance and security preferences are never replaced. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
+Choose **Open inside Aquarium** on an installed app's catalog tile. Its main workspace fills Aquarium's content area. Aquarium's sidebar and the workspace's **Home** button remain outside the app. Home returns to the app page and keeps the process and its current state running. **Resume app** returns to that same session. **Close app** asks the app to close normally.
 
-FishTank is the inspected public `preview-v0.15.5` release. FishNet 0.2.1 is built from the pinned source commit in the workflow because no public FishNet release exists yet. This does not claim the separate FishTank/FishBowl UI pull requests have been released. These are development builds, not signed production installers.
+Aquarium hosts only approved, verified installation paths and main windows explicitly marked by the exact process it started. A build must declare Aquarium workspace protocol 1 before Aquarium launches it. Older public releases without hosting support are rejected before a separate app is started. App install shows compatibility. Separately opened copies are not adopted or replaced.
 
-## App install and Library
+Each app runs independently as the current Windows user; hosting is a presentation boundary, not a security sandbox. File pickers, sign-in, permission and other dialogs can still appear separately. Aquarium never captures an unmarked sign-in/startup window or bypasses an app's authentication. Matching DPI modes are required. Mixed monitors, full screen, emulator rendering, elevated windows and all dialogs still need compatibility testing.
 
-1. Open **App install** and choose **Look for published apps**.
-2. Aquarium reads public release metadata for `KailanBess/FishTank`, `KailanBess/FishNet` and `KailanBess/FishBowl` only. Draft releases are excluded. FishTank permits published previews because it has no stable release; the other apps use stable releases.
-3. Review the version/source and click Install. The confirmation describes the download and local install. GitHub's asset SHA-256 digest is used where available; otherwise a matching release `SHA256SUMS.txt` entry is required.
-4. Downloads shows real activity, cancel controls, failures and session history. An installation enters Library only after extraction and registry persistence succeed. Use **Open** to start it.
+Closing Aquarium asks each owned app to close. If an app refuses, has an unfinished dialog or is still signing in, Aquarium remains open. Processes are never force-terminated by the host. Save work normally: an unexpected shell/Windows failure can still affect hosted windows. Standalone app launch remains supported by each app itself.
 
-Latest release checks require internet access and may fail due to GitHub rate limits. Missing releases, missing Windows packages and missing checksums are reported as unavailable. CI artifacts are not represented as public releases in the App install page. For future FishNet releases, publish `FishNet-windows-x64.zip` containing its complete publish directory, with a GitHub digest or matching `SHA256SUMS.txt`. No arbitrary outside repositories are executable store entries.
+## Build and run
 
-App versions use separate managed folders under `%LOCALAPPDATA%\Aquarium\Apps`. Failed installs preserve the previous registry entry; successful replacements retain old program folders. Games, media, accounts and application profiles stay in their apps' existing locations. No destructive uninstall or old-version cleanup is implemented yet. Do not move or alter managed folders while apps are running. The initial bundle skips default apps that are already registered.
-
-The download checksum protects integrity from the trusted repository's metadata; it is not independent publisher-signature authentication. Install sources are explicitly allowlisted. Packages reject traversal paths, duplicates, symlinks and excessive sizes/counts; launch paths are contained within managed directories. Apps are started as standalone processes and run as the current Windows user.
-
-## Updates
-
-Aquarium owns the shared update UI. Its Updates page links to managed app installs/updates and can check public Aquarium-family releases. For outside apps it runs read-only `winget upgrade --source winget --disable-interactivity`, displays original output and offers an exact-ID interactive update after confirmation. Checks do not install anything or accept agreements. WinGet cannot cover every app, and vendor self-updaters are not disabled. FishNet has no separate updater. Existing released FishTank/FishBowl behavior is retained.
-
-## Appearance and scope
-
-Ocean/Midnight/Slate backgrounds, Mint/Blue/Coral accents and compact spacing persist in Settings. Store search and saved bookmarks remain available independently from installations. FishTank = Security, FishBowl = Emulation, FishNet = Media. No private VPN, network-management or Tailscale project integration is included.
-
-## Build
-
-Requires Windows 10 build 19041+ x64 and the .NET 8 SDK. Microsoft Windows App SDK 1.8.260921001 and Windows build tools 10.0.26100.4654 are restored from NuGet; no system runtime is required for the complete bundle. Visual Studio is optional. `global.json` selects .NET 8.
+On Windows with the .NET 8 SDK and Windows build tools:
 
 ```powershell
-dotnet build .\src\Aquarium\Aquarium.csproj -c Debug -p:Platform=x64
-& .\src\Aquarium\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Aquarium.exe
+dotnet publish .\src\Aquarium\Aquarium.csproj -c Release -p:Platform=x64 -o .\artifacts\Aquarium
+.\artifacts\Aquarium\Aquarium.exe
 ```
 
-A source-only build has no Bundled folder; it still provides the App install page. The GitHub workflow publishes a complete self-contained hub, builds pinned FishNet source, downloads/verifies the inspected FishTank release, and generates its bundled-app hash manifest. It uploads the complete runnable folder. The bundle does not require a system .NET runtime or MSIX registration.
+Keep the complete publish directory, including resource PRI/runtime/assets. The app is unpackaged and self-contained; it does not require MSIX registration. A source-only build has no included app packages.
 
-## Architecture and validation
-
-`GitHubPackages`: approved app sources and published Windows package discovery. `PackageInstaller`: checksum verification, bounded extraction, standalone launching. `LocalStore`: serialized, atomic registry writes. `InstallUi`: install selection, included-app setup, download/cancel states. `UpdateService`: outside-app checks. `Preferences`: independent appearance storage.
-
-`registry.json` and `appearance.json` live under `%LOCALAPPDATA%\Aquarium`. Invalid registries are preserved with writes disabled. Editing assumes one Aquarium process; cross-process coordination and signed self-updating remain future work.
+The complete GitHub artifact builds pinned hosting-compatible FishNet and FishTank source and bundles their full program folders. FishBowl remains optional. To assemble the same bundle locally, build/publish each compatible app and run:
 
 ```powershell
-dotnet run --project .\tests\Aquarium.PackageTests\Aquarium.PackageTests.csproj -c Release
+.\scripts\Bundle-Apps.ps1 -PublishDirectory .\artifacts\Aquarium -FishNetDirectory .\artifacts\FishNet -FishTankDirectory .\artifacts\FishTank
 ```
 
-The tests use generated, never-executed fixture files and isolated temporary directories. They exercise package integrity, traversal/duplicate rejection, expected executables, registry persistence, failure rollback, previous-version retention and concurrent bookmarks. Check the current GitHub workflow result for actual build status.
+The bundle checksum-verifies and installs FishTank/FishNet once on first run, skipping already-registered apps. It does not launch them automatically or replace existing appearance/security preferences. These are unsigned review builds, not a published production release.
 
-Windows smoke checks: extract the full bundle, launch Aquarium, confirm FishTank/FishNet are registered and FishBowl is absent, open each included app, check public packages and optionally install FishBowl. Verify cancel/error recovery and persistent Library after restart. Runtime visual/playback behavior requires a real Windows desktop.
+## Install, update and recover
 
-Local verification: both native apps published successfully with the supported runtime, Aquarium opened on Windows, and all 21 installer/persistence tests passed. Hosted builds may remain queued independently. See the installed bundle verification for the actual default-app registration state.
+App install reads public releases from KailanBess/FishTank, KailanBess/FishNet and KailanBess/FishBowl only. Draft releases are excluded. FishTank permits previews; the others use stable releases. Review source/version/size before installation. A GitHub asset SHA-256 digest or matching SHA256SUMS.txt is required. Missing releases/checksums/compatible builds are reported honestly. CI artifacts are not treated as public releases.
 
+Managed app folders are versioned under %LOCALAPPDATA%\Aquarium\Apps. Downloads shows real progress, cancellation, errors and retry. Failed installs keep the previous registration; successful ones retain old folders. App install offers rollback to tracked retained program versions. Rollback does not downgrade user data or reverify retained binaries; close the app first and review data compatibility. Untracked old folders are not adopted automatically.
+
+Updates offers optional hourly/daily/weekly checks while Aquarium is open, plain-text release notes for all four repos and original WinGet outside-app results. Checks never install or accept source agreements. Outside updates require an explicitly reviewed exact package ID. WinGet coverage is limited to matched apps; no universal update claim is made. Vendor self-updaters and legacy standalone app update tools are not disabled by the shell.
+
+## Data and architecture
+
+Registry/bookmarks and appearance live under %LOCALAPPDATA%\Aquarium. Invalid registries are preserved with writes disabled. Media, saves, accounts and security profiles stay in each app's normal location. Use one Aquarium instance at a time.
+
+- GitHubPackages: approved sources and published package discovery.
+- PackageInstaller: checksum verification, bounded extraction and contained executable paths.
+- WorkspaceCapability: read-only assembly metadata capability check before launch; no code is loaded to inspect it.
+- HostedAppSession: exact-process marked-window discovery, native child parenting, DPI validation, resize, hide/resume and graceful close.
+- WorkspaceUi: Home/workspace navigation and close handling.
+- LocalStore: serialized atomic registry writes and retained-version history.
+- UpdateService/UpdateSchedule: user-requested and opt-in scheduled checks.
+
+## Checks
+
+```powershell
+dotnet run --project .\tests\Aquarium.PackageTests -c Release
+dotnet run --project .\tests\Aquarium.HostingTests -c Release
+```
+
+Package checks use generated files and never run fixture executables. Hosting checks run only their own generated fixture process: capability detection, exact PID/window marker, native child styles, bounds/resize, Home hide, same-session resume, close refusal and graceful close, and refusal of unmarked startup windows. Live FishNet hosting, Converter navigation, picker open/cancel, Home/Resume with the same process and normal close were checked. Full FishTank/FishBowl interaction, security prompts, physical emulators/controllers and mixed-DPI/full-screen behavior remain manual release checks.
+
+## Reference layouts and sidebar stability
+
+My apps uses a compact icon rail, app tiles and a genuine install/update summary. Store uses featured FishTank/FishNet cards and the private three-app collection. The explicit sidebar resizes a native clipping surface without an animated overlay. Hosted app readiness is published only after initial WinForms Show completes. The hosting fixture exercises twenty sidebar geometry changes while retaining the same child window and process.
+
+
+WinForms workspaces opt into cooperative visibility messages. Aquarium asks the app to restore its managed form and child controls; the app's own visibility/lock guard decides whether to show. Native visibility alone is insufficient for these apps. The complete workflow tests the actual FishTank Desktop with isolated generated data through attach, Home and same-window Resume.
+
+
+### WinUI paint regression
+
+WinForms workspaces use a fully opaque layered clipping surface so GDI controls are actually composed above WinUI content. FishNet keeps the ordinary WinUI surface. Native visibility and HWND geometry alone do not prove a hosted UI is visible.
+
+An interactive regression lives in tests/Render. Publish it, build tests/Color, then run Render.exe with Color.exe and an output report path. Bring its generated test window to the foreground. It verifies the actual lime/magenta pixels of a generated WinForms child inside WinUI, sidebar resize, Home hide and same-window Resume. It fails when the drawing is obscured or no unobscured interactive desktop is available. It never opens a user profile or runs security tools.

@@ -14,6 +14,7 @@ public sealed partial class MainWindow
     private string downloadState = "No downloads or installations have run in this session.";
     private readonly List<string> downloadHistory = [];
     private TextBlock? downloadLabel;
+    private (CatalogApp App, AppPackage Package)? failedDownload;
 
     private void RenderInstallApps()
     {
@@ -30,11 +31,16 @@ public sealed partial class MainWindow
             panel.Children.Add(Text(app.Summary, 14, true));
             panel.Children.Add(new HyperlinkButton { Content = source.Repository + " · Public releases", NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
             panel.Children.Add(Text(installed is null ? source.IncludedByDefault ? "Included in the complete bundle; not installed in this copy yet." : "Optional · Not installed" : $"Installed · {installed.Version}", 13, true));
+            if (installed is not null)
+            {
+                try { panel.Children.Add(Text(WorkspaceCapability.SupportsHosting(installer.VerifiedExecutable(installed)) ? "Supports Aquarium workspaces" : "This older build cannot open inside Aquarium. Install a hosting-compatible build.", 13, true)); }
+                catch (Exception ex) { panel.Children.Add(Text("Workspace unavailable: " + ex.Message, 13, true)); }
+            }
             panel.Children.Add(Text(availability.GetValueOrDefault(app.Id, "Published packages have not been checked in this session."), 13, true));
             if (available.TryGetValue(app.Id, out var package))
             {
                 var same = installed?.Version == package.Version && installed.PackageSha256.Equals(package.Sha256, StringComparison.OrdinalIgnoreCase);
-                var button = new Button { Content = same ? "Installed" : installed is null ? $"Install {package.Version}" : $"Install published {package.Version}", IsEnabled = !same && store.CanSave && installCancellation is null };
+                var button = new Button { Content = same ? "Repair from published package" : installed is null ? $"Install {package.Version}" : $"Install published {package.Version}", IsEnabled = store.CanSave && installCancellation is null };
                 button.Click += async (_, _) => await InstallPublishedAsync(app, package);
                 panel.Children.Add(button);
             }
@@ -43,6 +49,25 @@ public sealed partial class MainWindow
                 var launch = new Button { Content = "Open " + app.Name };
                 launch.Click += (_, _) => LaunchInstalled(installed);
                 panel.Children.Add(launch);
+                if (source.IncludedByDefault && File.Exists(Path.Combine(AppContext.BaseDirectory, "Bundled", "bundled.json")))
+                {
+                    var verify = new Button { Content = "Check installed files", IsEnabled = installCancellation is null };
+                    verify.Click += async (_, _) => await VerifyBundledInstallationAsync(installed);
+                    panel.Children.Add(verify);
+                    var repair = new Button { Content = "Reinstall bundled build…", IsEnabled = store.CanSave && installCancellation is null };
+                    repair.Click += async (_, _) =>
+                    {
+                        var confirm = new ContentDialog
+                        {
+                            XamlRoot = Root.XamlRoot, Title = "Reinstall bundled " + app.Name + "?",
+                            Content = "Aquarium will check the bundled package checksum and install a fresh copy. The bundled build may be older than your current version. Your current program folder remains available for rollback.",
+                            PrimaryButtonText = "Reinstall bundled build", CloseButtonText = "Cancel"
+                        };
+                        if (await confirm.ShowAsync() == ContentDialogResult.Primary) await InstallBundledAsync(app.Id);
+                    };
+                    panel.Children.Add(repair);
+                }
+                AddRollbackOptions(panel, app);
             }
             PageBody.Children.Add(Panel(panel));
         }
@@ -84,8 +109,8 @@ public sealed partial class MainWindow
         if (await confirmation.ShowAsync() != ContentDialogResult.Primary) return;
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         installCancellation = cancellation; ReportInstall("Starting " + app.Name + " installation…"); Render();
-        try { await installer.DownloadAndInstallAsync(package, new Progress<string>(ReportInstall), cancellation.Token); }
-        catch (Exception ex) { ReportInstall(ex is OperationCanceledException ? "Installation canceled. Previous installed version retained." : "Installation failed: " + ex.Message); }
+        try { await installer.DownloadAndInstallAsync(package, new Progress<string>(ReportInstall), cancellation.Token); failedDownload = null; }
+        catch (Exception ex) { failedDownload = (app, package); ReportInstall(ex is OperationCanceledException ? "Installation canceled. Previous installed version retained." : "Installation failed: " + ex.Message); }
         finally { downloadHistory.Add($"{DateTimeOffset.Now:g} · {downloadState}"); installCancellation = null; if (!isClosed) Render(); }
     }
     private void ReportInstall(string status)
@@ -97,6 +122,11 @@ public sealed partial class MainWindow
     {
         downloadLabel = Text(downloadState, 16);
         PageBody.Children.Add(downloadLabel);
+        if (failedDownload is { } failed && installCancellation is null)
+        {
+            var retry = new Button { Content = "Retry " + failed.App.Name + " download / install" };
+            retry.Click += async (_, _) => await InstallPublishedAsync(failed.App, failed.Package); PageBody.Children.Add(retry);
+        }
         if (installCancellation is not null)
         {
             PageBody.Children.Add(new ProgressBar { IsIndeterminate = true });
@@ -106,13 +136,47 @@ public sealed partial class MainWindow
         foreach (var item in downloadHistory.TakeLast(20).Reverse()) PageBody.Children.Add(Text(item, 13, true));
         PageBody.Children.Add(Text("Only one app install runs at a time. Downloads are verified before extraction. Failed attempts keep the previous installation registered.", 13, true));
     }
-    private void LaunchInstalled(InstalledApp app)
+    private async void LaunchInstalled(InstalledApp app)
     {
-        try { installer.Launch(app); }
+        try { await OpenHostedApp(app); }
         catch (Exception ex) { ShowNotice("Could not open the app: " + ex.Message, InfoBarSeverity.Error); }
     }
-    private async Task InstallBundledAsync()
+    private async Task VerifyBundledInstallationAsync(InstalledApp app)
     {
+        if (installCancellation is not null) return;
+        using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(3));
+        installCancellation = cancellation;
+        ReportInstall("Checking installed files…");
+        Render();
+        try
+        {
+            var directory = Path.Combine(AppContext.BaseDirectory, "Bundled");
+            var manifest = await File.ReadAllTextAsync(Path.Combine(directory, "bundled.json"), cancellation.Token);
+            var packages = JsonSerializer.Deserialize<List<BundledPackage>>(manifest, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var package = packages?.SingleOrDefault(item => item.AppId == app.AppId &&
+                string.Equals(item.Sha256, app.PackageSha256, StringComparison.OrdinalIgnoreCase));
+            if (package is null) throw new InvalidOperationException("The bundle does not contain this exact installed build.");
+            if (Path.GetFileName(package.File) != package.File || Path.GetExtension(package.File) != ".zip")
+                throw new InvalidDataException("Invalid bundled package filename.");
+            var result = await installer.VerifyInstalledFilesAsync(app, Path.Combine(directory, package.File), cancellation.Token);
+            ReportInstall(result.Damaged == 0
+                ? $"All {result.Checked} packaged files match."
+                : $"{result.Damaged} of {result.Checked} packaged files are missing or changed. Reinstall the bundled build to repair.");
+        }
+        catch (Exception ex) { ReportInstall("File check did not finish: " + ex.Message); }
+        finally
+        {
+            installCancellation = null;
+            if (!isClosed)
+            {
+                Render();
+                ShowNotice(downloadState, InfoBarSeverity.Informational);
+            }
+        }
+    }
+    private async Task InstallBundledAsync(string? repairAppId = null)
+    {
+        if (installCancellation is not null) return;
         var manifest = Path.Combine(AppContext.BaseDirectory, "Bundled", "bundled.json");
         if (!File.Exists(manifest)) return; // A source-only build has no default app bundle.
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(10));
@@ -123,10 +187,13 @@ public sealed partial class MainWindow
             foreach (var item in bundled)
             {
                 var source = GitHubPackages.Sources.Single(s => s.AppId == item.AppId && s.IncludedByDefault);
-                if (store.Registry.Installations.Any(a => a.AppId == item.AppId)) continue;
+                if (repairAppId is null && store.Registry.Installations.Any(a => a.AppId == item.AppId)) continue;
+                if (repairAppId is not null && item.AppId != repairAppId) continue;
+                if (hostedApps.TryGetValue(item.AppId, out var running) && running.IsAlive)
+                    throw new InvalidOperationException("Close the running workspace before reinstalling this app.");
                 if (Path.GetFileName(item.File) != item.File || Path.GetExtension(item.File) != ".zip") throw new InvalidDataException("Invalid included package filename.");
                 await installer.InstallZipAsync(source, item.Version, Path.Combine(AppContext.BaseDirectory, "Bundled", item.File), item.Sha256, new Progress<string>(ReportInstall), cancellation.Token);
-                if (source.AppId == "aquarium.security") ApplyInitialFishTankAppearance();
+                if (repairAppId is null && source.AppId == "aquarium.security") ApplyInitialFishTankAppearance();
             }
         }
         catch (Exception ex) { ReportInstall("Included-app setup did not finish: " + ex.Message); if (!isClosed) ShowNotice(downloadState, InfoBarSeverity.Warning); }
@@ -142,7 +209,7 @@ public sealed partial class MainWindow
         Directory.CreateDirectory(folder);
         var settings = new
         {
-            Version = 1, Theme = "Ocean", Accent = "Mint", CustomPalette = true,
+            Version = 1, Theme = "Aquarium Violet", Accent = "Violet", CustomPalette = false,
             Shape = "Rounded", CornerRadius = 16, BackgroundStyle = "Gradient",
             TextColor = "#F1F7FF", MutedColor = "#A0B8C3", TopColor = "#071219",
             BottomColor = "#09151D", SurfaceColor = "#10242F", AccentColor = "#67E8D3", SecondaryColor = "#1B203B"
@@ -151,3 +218,6 @@ public sealed partial class MainWindow
         JsonSerializer.Serialize(output, settings, new JsonSerializerOptions { WriteIndented = true });
     }
 }
+
+
+

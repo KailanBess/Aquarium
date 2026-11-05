@@ -30,7 +30,7 @@ public sealed class LocalStore
         {
             var registry = JsonSerializer.Deserialize<LocalRegistry>(await File.ReadAllTextAsync(RegistryPath), Json)
                 ?? throw new InvalidDataException("Registry is empty.");
-            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null)
+            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.InstallationHistory is null)
                 throw new InvalidDataException("Unsupported or invalid registry schema.");
             Registry = registry;
         }
@@ -51,7 +51,7 @@ public sealed class LocalStore
         var next = new LocalRegistry
         {
             LibraryAppIds = Registry.LibraryAppIds.Where(x => x != id).ToList(),
-            Installations = Registry.Installations.ToList()
+            Installations = Registry.Installations.ToList(), InstallationHistory = Registry.InstallationHistory.ToList()
         };
         if (include) next.LibraryAppIds.Add(id);
         await CommitAsync(next);
@@ -68,6 +68,7 @@ public sealed class LocalStore
             if (!Catalog.Any(a => a.Id == installation.AppId)) throw new InvalidOperationException("Unknown app.");
             var next = new LocalRegistry { LibraryAppIds = Registry.LibraryAppIds.ToList(), Installations = Registry.Installations.Where(a => a.AppId != installation.AppId).ToList() };
             next.Installations.Add(installation);
+            next.InstallationHistory = Registry.InstallationHistory.Concat(Registry.Installations.Where(a => a.AppId == installation.AppId)).Where(a => a.InstallDirectory != installation.InstallDirectory).DistinctBy(a => a.InstallDirectory, StringComparer.OrdinalIgnoreCase).ToList();
             if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
             await CommitAsync(next);
         }
