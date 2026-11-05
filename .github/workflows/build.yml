@@ -17,6 +17,8 @@ jobs:
       - uses: microsoft/setup-msbuild@v2
       - name: Test package safety and registry persistence
         run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
+      - name: Test single-app extraction and integrity
+        run: dotnet run --project tests/Aquarium.LauncherTests/Aquarium.LauncherTests.csproj -c Release
       - name: Publish Aquarium
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project src/Aquarium/Aquarium.csproj -PublishDirectory artifacts/Aquarium -LogName aquarium-build
@@ -59,10 +61,13 @@ jobs:
           $tag='v'+[string]$project.Project.PropertyGroup.Version
           if($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag){throw 'Release tag/source mismatch.'}
           ./scripts/Package-Release.ps1 -PublishDirectory artifacts/Aquarium -OutputDirectory artifacts/release -Tag $tag
+      - name: Verify clean download and native startup
+        shell: pwsh
+        run: ./scripts/Test-SingleApp.ps1
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: Aquarium-complete-windows-x64
-          path: artifacts/Aquarium/
+          path: artifacts/Aquarium-single-app/
           if-no-files-found: error
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
@@ -93,7 +98,7 @@ jobs:
           $line=(Get-Content release/SHA256SUMS.txt).Trim()
           if($line -notmatch '^([a-f0-9]{64})  Aquarium-complete-windows-x64.zip$'){throw 'Invalid release manifest.'}
           if((Get-FileHash release/Aquarium-complete-windows-x64.zip -Algorithm SHA256).Hash -ne $Matches[1]){throw 'Release archive digest mismatch.'}
-          $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.0 and FishNet 0.3.1 built from pinned source revisions. Extract the whole ZIP and run Aquarium.exe. Keep all runtime and Bundled files together. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
+          $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.0 and FishNet 0.3.1 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
           $notes | Set-Content release/notes.txt -Encoding utf8
           gh release create $env:GITHUB_REF_NAME ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json --verify-tag --draft --title "Aquarium $env:GITHUB_REF_NAME" --notes-file release/notes.txt
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}

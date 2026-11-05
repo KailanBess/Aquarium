@@ -2,13 +2,13 @@
 
 Native C# / .NET 8 / WinUI 3 Windows desktop hub with a private Aquarium-only app catalog, GitHub release installation, local Library, Downloads, Updates and customization.
 
-## Release 0.4.1
+## Release 0.4.2
 
-The tagged release workflow publishes `Aquarium-complete-windows-x64.zip`, SHA-256 checksums and build metadata after native Windows publishing and package tests pass. The complete unsigned folder includes Aquarium, FishTank 0.16.0 and FishNet 0.3.1 from pinned source revisions. FishBowl 1.29.5 is released separately for Windows/Linux and remains optional in App install. Native playback, app interaction and physical display acceptance still require manual verification.
+The tagged release workflow publishes `Aquarium-complete-windows-x64.zip`, SHA-256 checksums and build metadata after native Windows publishing and package tests pass. The single-app unsigned download includes Aquarium, FishTank 0.16.0 and FishNet 0.3.1 from pinned source revisions. FishBowl 1.29.5 is released separately for Windows/Linux and remains optional in App install. Native playback, app interaction and physical display acceptance still require manual verification.
 
 ## Complete bundle
 
-The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the entire folder and run `Aquarium.exe`. Keep every runtime and Bundled file together. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. A brand-new FishTank profile receives the Aquarium colors using its released custom-palette support; existing appearance and security preferences are never replaced. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
+The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the ZIP and run its only file, `Aquarium.exe`. The launcher prepares the full runtime automatically under `%LOCALAPPDATA%\Aquarium\Runtime` and checks its SHA-256 file hashes before every launch. A small preparation window shows while this runs. No support files are created beside the downloaded app. Damaged runtime caches are preserved and replaced; your settings and installed apps are kept separately. Moving the launcher to another folder works without moving runtime files. Old runtime versions are retained; this release does not remove them automatically. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. A brand-new FishTank profile receives the Aquarium colors using its released custom-palette support; existing appearance and security preferences are never replaced. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
 
 The companion apps are built from the immutable source revisions pinned in the workflow. The bundle records their actual versions and SHA-256 hashes; it does not depend on an older downloaded preview. Windows builds are unsigned.
 
@@ -42,7 +42,7 @@ dotnet build .\src\Aquarium\Aquarium.csproj -c Debug -p:Platform=x64
 & .\src\Aquarium\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Aquarium.exe
 ```
 
-A source-only build has no Bundled folder; it still provides the App install page. The GitHub workflow publishes a complete self-contained hub, builds pinned FishNet source, downloads/verifies the inspected FishTank release, and generates its bundled-app hash manifest. It uploads the complete runnable folder. The bundle does not require a system .NET runtime or MSIX registration.
+A source-only build has no Bundled folder; it still provides the App install page. The GitHub workflow publishes a complete self-contained hub, builds pinned FishNet source, downloads/verifies the inspected FishTank release, and generates its bundled-app hash manifest. It embeds the complete runtime in a self-contained single-file launcher and uploads only that app. The bundle does not require a system .NET runtime or MSIX registration.
 
 ## Architecture and validation
 
@@ -56,7 +56,7 @@ dotnet run --project .\tests\Aquarium.PackageTests\Aquarium.PackageTests.csproj 
 
 The tests use generated, never-executed fixture files and isolated temporary directories. They exercise package integrity, traversal/duplicate rejection, expected executables, registry persistence, failure rollback, previous-version retention and concurrent bookmarks. Check the current GitHub workflow result for actual build status.
 
-Windows smoke checks: extract the full bundle, launch Aquarium, confirm FishTank/FishNet are registered and FishBowl is absent, open each included app, check public packages and optionally install FishBowl. Verify cancel/error recovery and persistent Library after restart. Runtime visual/playback behavior requires a real Windows desktop.
+Windows smoke checks: extract the single-app bundle, launch Aquarium, confirm FishTank/FishNet are registered and FishBowl is absent, open each included app, check public packages and optionally install FishBowl. Verify cancel/error recovery and persistent Library after restart. Runtime visual/playback behavior requires a real Windows desktop.
 
-Local verification: both native apps published successfully with the supported runtime, Aquarium opened on Windows, and all 21 installer/persistence tests passed. Hosted builds may remain queued independently. See the installed bundle verification for the actual default-app registration state.
+CI checks cold and repeat launcher startup, launch after moving the file, runtime integrity and bundled-app availability. Visual interaction and physical-device acceptance remain manual checks.
 

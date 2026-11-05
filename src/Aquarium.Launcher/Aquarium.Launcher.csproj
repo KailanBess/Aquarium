@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+    <AssemblyName>Aquarium</AssemblyName><Version>0.4.2</Version>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier><SelfContained>true</SelfContained>
+    <PublishSingleFile>true</PublishSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <DebugType>none</DebugType><DebugSymbols>false</DebugSymbols>
+  </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(PayloadPath)" LogicalName="Aquarium.Payload.zip" />
+    <EmbeddedResource Include="$(PayloadManifestPath)" LogicalName="Aquarium.Payload.json" />
+  </ItemGroup>
+  <Target Name="RequirePayload" BeforeTargets="PrepareForBuild">
+    <Error Condition="!Exists('$(PayloadPath)') Or !Exists('$(PayloadManifestPath)')" Text="Build the launcher through scripts/Package-Release.ps1 with a verified runtime payload." />
+  </Target>
+</Project>
