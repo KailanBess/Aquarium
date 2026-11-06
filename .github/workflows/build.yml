@@ -75,7 +75,7 @@ jobs:
           path: artifacts/release/
           if-no-files-found: error
   publish:
-    if: github.event_name == 'push' && github.ref_type == 'tag' && startsWith(github.ref_name, 'v')
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || (github.ref_type == 'tag' && startsWith(github.ref_name, 'v')))
     needs: build
     runs-on: windows-latest
     permissions:
@@ -100,7 +100,11 @@ jobs:
           if((Get-FileHash release/Aquarium-complete-windows-x64.zip -Algorithm SHA256).Hash -ne $Matches[1]){throw 'Release archive digest mismatch.'}
           $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.0 and FishNet 0.3.1 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
           $notes | Set-Content release/notes.txt -Encoding utf8
-          gh release create $env:GITHUB_REF_NAME ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json --verify-tag --draft --title "Aquarium $env:GITHUB_REF_NAME" --notes-file release/notes.txt
+          $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.5') { return }
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) { return }
+          gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
-          gh release edit $env:GITHUB_REF_NAME --draft=false --latest
+          gh release edit $tag --draft=false --latest
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
