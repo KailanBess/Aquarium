@@ -9,6 +9,7 @@ namespace Aquarium;
 public sealed class Preferences
 {
     public string Accent { get; set; } = "Aquarium Mint";
+    public string AccentHex { get; set; } = "";
     public string Background { get; set; } = "Ocean";
     public bool Compact { get; set; }
     public string WindowBorder { get; set; } = "System";
@@ -16,6 +17,8 @@ public sealed class Preferences
     public string CardShape { get; set; } = "Rounded";
     public string TextSize { get; set; } = "Standard";
     public string Sidebar { get; set; } = "Standard";
+    public string ContentWidth { get; set; } = "Standard";
+    public string LibraryIcons { get; set; } = "Standard";
 }
 
 // Separate from the catalog and library so appearance never rewrites app records.
@@ -32,6 +35,8 @@ public sealed class Appearance
     public double CardRadius => Active.CardShape switch { "Square" => 0, "Soft" => 28, _ => 16 };
     public double TitleSize => Active.TextSize switch { "Small" => 30, "Large" => 44, _ => 36 };
     public double SidebarWidth => Active.Sidebar switch { "Narrow" => 168, "Wide" => 280, _ => 224 };
+    public double ContentWidth => Active.ContentWidth switch { "Focused" => 880, "Full" => double.PositiveInfinity, _ => 1200 };
+    public double LibraryIconSize => Active.LibraryIcons switch { "Small" => 24, "Large" => 52, _ => 36 };
     public void EndPreview() => preview = null;
     public void Load()
     {
@@ -77,7 +82,14 @@ public sealed class Appearance
         ["Aquarium Coral"] = ColorHelper.FromArgb(255, 255, 170, 150),
     };
 
-    public Windows.UI.Color Accent => Palette.GetValueOrDefault(AccentName, Palette["Aquarium Mint"]);
+    public Windows.UI.Color Accent => ParseColor(Active.AccentHex) ?? Palette.GetValueOrDefault(AccentName, Palette["Aquarium Mint"]);
+    private static Windows.UI.Color? ParseColor(string? value)
+    {
+        value = value?.Trim().TrimStart('#');
+        if (value?.Length != 6 || !uint.TryParse(value, System.Globalization.NumberStyles.AllowHexSpecifier,
+            System.Globalization.CultureInfo.InvariantCulture, out var hex)) return null;
+        return ColorHelper.FromArgb(255, (byte)(hex >> 16), (byte)(hex >> 8), (byte)hex);
+    }
     private string AccentName => Active.Accent == "Blue" ? "Aquarium Blue" : Active.Accent ?? "Aquarium Mint";
     public Windows.UI.Color? BorderColor => Active.WindowBorder switch
     {
@@ -93,6 +105,9 @@ public sealed class Appearance
         "Slate" => (ColorHelper.FromArgb(255, 27, 35, 43), ColorHelper.FromArgb(255, 45, 56, 65)),
         "Kelp" => (ColorHelper.FromArgb(255, 12, 31, 26), ColorHelper.FromArgb(255, 23, 52, 43)),
         "Graphite" => (ColorHelper.FromArgb(255, 26, 26, 28), ColorHelper.FromArgb(255, 44, 44, 49)),
+        "Blackout" => (ColorHelper.FromArgb(255, 8, 8, 10), ColorHelper.FromArgb(255, 23, 23, 27)),
+        "Arctic" => (ColorHelper.FromArgb(255, 15, 27, 38), ColorHelper.FromArgb(255, 30, 50, 66)),
+        "Violet Night" => (ColorHelper.FromArgb(255, 25, 20, 43), ColorHelper.FromArgb(255, 43, 32, 69)),
         "Reef" => (ColorHelper.FromArgb(255, 27, 20, 22), ColorHelper.FromArgb(255, 55, 33, 38)),
         "Plum" => (ColorHelper.FromArgb(255, 33, 21, 43), ColorHelper.FromArgb(255, 54, 37, 66)),
         _ => (ColorHelper.FromArgb(255, 9, 21, 29), ColorHelper.FromArgb(255, 16, 36, 47))
@@ -120,12 +135,16 @@ public sealed class Appearance
         }
 
         var accent = Choice("Accent", Palette.Keys, AccentName);
-        var background = Choice("Background", ["Ocean", "Midnight", "Slate", "Kelp", "Plum", "Graphite", "Reef"], Active.Background);
+        var customAccent = new TextBox { Header = "Custom accent hex", PlaceholderText = "#67E8D3 (optional)", Text = Active.AccentHex ?? "", MaxLength = 7, Width = 220, HorizontalAlignment = HorizontalAlignment.Left };
+        controls.Children.Add(customAccent);
+        var background = Choice("Background", ["Ocean", "Midnight", "Slate", "Kelp", "Plum", "Graphite", "Reef", "Blackout", "Arctic", "Violet Night"], Active.Background);
         var border = Choice("Window border", new[] { "System", "Match accent", "Hidden" }.Concat(Palette.Keys), Active.WindowBorder);
         var titleBar = Choice("Window title bar", ["Accent", "Match background", "System"], Active.TitleBar);
         var corners = Choice("Card corners", ["Rounded", "Square", "Soft"], Active.CardShape);
         var textSize = Choice("Page heading size", ["Standard", "Small", "Large"], Active.TextSize);
         var sidebar = Choice("Sidebar width", ["Standard", "Narrow", "Wide"], Active.Sidebar);
+        var width = Choice("Content width", ["Standard", "Focused", "Full"], Active.ContentWidth);
+        var icons = Choice("Library icon size", ["Standard", "Small", "Large"], Active.LibraryIcons);
         var compact = new ToggleSwitch { Header = "Compact collection spacing", IsOn = Active.Compact };
         controls.Children.Add(compact);
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
@@ -142,16 +161,20 @@ public sealed class Appearance
             Accent = (string)accent.SelectedItem, Background = (string)background.SelectedItem,
             WindowBorder = (string)border.SelectedItem, TitleBar = (string)titleBar.SelectedItem,
             CardShape = (string)corners.SelectedItem, TextSize = (string)textSize.SelectedItem,
-            Sidebar = (string)sidebar.SelectedItem, Compact = compact.IsOn
+            Sidebar = (string)sidebar.SelectedItem, Compact = compact.IsOn,
+            AccentHex = customAccent.Text.Trim(), ContentWidth = (string)width.SelectedItem, LibraryIcons = (string)icons.SelectedItem
         };
         void Preview()
         {
             preview = ReadControls();
-            status.Text = "Previewing changes. Apply appearance to save.";
+            bool valid = string.IsNullOrWhiteSpace(preview.AccentHex) || ParseColor(preview.AccentHex) is not null;
+            save.IsEnabled = writable && valid;
+            status.Text = valid ? "Previewing changes. Apply appearance to save." : "Enter a six-digit hex color or clear the custom accent.";
             changed();
         }
         foreach (var box in controls.Children.OfType<ComboBox>())
             box.SelectionChanged += (_, _) => Preview();
+        customAccent.TextChanged += (_, _) => Preview();
         compact.Toggled += (_, _) => Preview();
         reset.Click += (_, _) =>
         {
@@ -160,6 +183,7 @@ public sealed class Appearance
             border.SelectedItem = defaults.WindowBorder; titleBar.SelectedItem = defaults.TitleBar;
             corners.SelectedItem = defaults.CardShape; textSize.SelectedItem = defaults.TextSize;
             sidebar.SelectedItem = defaults.Sidebar; compact.IsOn = defaults.Compact;
+            customAccent.Text = defaults.AccentHex; width.SelectedItem = defaults.ContentWidth; icons.SelectedItem = defaults.LibraryIcons;
             Preview();
         };
         save.Click += (_, _) =>
