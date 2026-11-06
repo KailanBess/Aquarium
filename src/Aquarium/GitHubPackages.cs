@@ -10,6 +10,7 @@ public sealed record BundledPackage(string AppId, string Version, string File, s
 
 public sealed class GitHubPackages
 {
+    internal static readonly AppSource Shell = new("aquarium.shell", "KailanBess/Aquarium", "Aquarium.exe", false, false);
     public static readonly AppSource[] Sources =
     [
         new("aquarium.security", "KailanBess/FishTank", "FishTank.exe", true, true),
@@ -24,7 +25,7 @@ public sealed class GitHubPackages
     }
     public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token)
     {
-        if (!Sources.Contains(source)) throw new InvalidOperationException("This repository is not in the Aquarium catalog.");
+        if (source != Shell && !Sources.Contains(source)) throw new InvalidOperationException("This repository is not in the Aquarium catalog.");
         using var client = Client();
         using var response = await client.GetAsync($"https://api.github.com/repos/{source.Repository}/releases?per_page=20", token);
         response.EnsureSuccessStatusCode();
@@ -35,6 +36,7 @@ public sealed class GitHubPackages
         var assets = release.GetProperty("assets").EnumerateArray().ToArray();
         var wanted = source.AppId switch
         {
+            "aquarium.shell" => "Aquarium-complete-windows-x64.zip",
             "aquarium.security" => "FishTank-desktop-preview.zip",
             "aquarium.emulation" => $"FishBowl-{version.TrimStart('v')}.zip",
             _ => "FishNet-windows-x64.zip"

@@ -27,6 +27,7 @@ internal static class Program
                     return RuntimeCache.Prepare(payload, manifest, Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Runtime"));
                 });
                 var start = new ProcessStartInfo(executable) { WorkingDirectory = Path.GetDirectoryName(executable)!, UseShellExecute = false };
+                start.Environment["AQUARIUM_LAUNCHER"] = Environment.ProcessPath;
                 foreach (var argument in args) start.ArgumentList.Add(argument);
                 using var process = Process.Start(start) ?? throw new IOException("Aquarium could not start.");
                 if (args.Contains("--package-check")) { await process.WaitForExitAsync(); Environment.ExitCode = process.ExitCode; }

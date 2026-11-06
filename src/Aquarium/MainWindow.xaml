@@ -2,7 +2,7 @@
   <Grid x:Name="Root" RequestedTheme="Dark" Background="#09151D">
     <NavigationView x:Name="Navigation" PaneDisplayMode="Left" IsBackButtonVisible="Collapsed" IsSettingsVisible="True" SelectionChanged="Navigate" OpenPaneLength="224" IsPaneToggleButtonVisible="True">
       <NavigationView.PaneHeader>
-        <StackPanel Margin="20,24,12,28" Spacing="6"><TextBlock Text="◉  aquarium" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource AquariumAccent}"/><TextBlock Text="YOUR PRIVATE APP COLLECTION" FontSize="10" Foreground="#8CA9B5"/></StackPanel>
+        <StackPanel Margin="20,24,12,28" Spacing="6"><TextBlock x:Name="Wordmark" Text="◉  Aquarium" FontSize="25" FontWeight="SemiBold" Foreground="{StaticResource AquariumAccent}"/><TextBlock Text="YOUR PRIVATE APP COLLECTION" FontSize="10" Foreground="#8CA9B5"/></StackPanel>
       </NavigationView.PaneHeader>
       <NavigationView.MenuItems>
         <NavigationViewItem Content="Home" Tag="Home" Icon="Home"/>
@@ -12,10 +12,10 @@
         <NavigationViewItem Content="Downloads" Tag="Downloads" Icon="Download"/>
         <NavigationViewItem Content="Updates" Tag="Updates" Icon="Refresh"/>
       </NavigationView.MenuItems>
-      <NavigationView.PaneFooter><TextBlock Text="PRIVATE APP COLLECTION · 0.3" Foreground="#8CA9B5" FontSize="10" Margin="24"/></NavigationView.PaneFooter>
+      <NavigationView.PaneFooter><TextBlock Text="PRIVATE APP COLLECTION" Foreground="#8CA9B5" FontSize="10" Margin="24"/></NavigationView.PaneFooter>
       <ScrollViewer x:Name="PageScroll">
         <StackPanel Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">
-          <TextBlock Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
+          <TextBlock x:Name="PageEyebrow" Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
           <TextBlock x:Name="PageTitle" FontSize="36" FontWeight="SemiBold" Text="Home"/>
           <TextBlock x:Name="PageSubtitle" Foreground="#A0B8C3" TextWrapping="Wrap"/>
           <InfoBar x:Name="Notice" IsOpen="False" IsClosable="True" />

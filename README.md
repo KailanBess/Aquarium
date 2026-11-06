@@ -60,3 +60,11 @@ Windows smoke checks: extract the single-app bundle, launch Aquarium, confirm Fi
 
 CI checks cold and repeat launcher startup, launch after moving the file, runtime integrity and bundled-app availability. Visual interaction and physical-device acceptance remain manual checks.
 
+
+## Updating Aquarium
+
+Open **Updates → Check for Aquarium update**. After you approve an available release, Aquarium downloads the Windows package from this repository, checks its SHA-256 digest, and stages the new launcher in your local profile. Close Aquarium and reopen it from the updated desktop or Start menu shortcut. Your app library and settings stay in your profile. The previous launcher is retained.
+
+Use **Updates → Repair Aquarium shortcuts** to create or refresh the desktop and Start menu shortcuts for the current launcher. The launcher and runtime executable carry the Aquarium icon in their Windows file resources.
+
+To make a source change available through the updater, raise the runtime and launcher project versions together, then tag that commit with the matching version (for example, v0.4.4). Publish the draft produced by the Windows release workflow after verification. Git commits alone are not installable updates.

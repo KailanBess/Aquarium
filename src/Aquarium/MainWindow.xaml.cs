@@ -25,7 +25,7 @@ public sealed partial class MainWindow : Window
         if (ready) return;
         try
         {
-            appearance.Load(); appearance.Apply(Root);
+            appearance.Load(); ApplyAppearance();
             await store.LoadAsync();
             installer = new PackageInstaller(store);
             ready = true;
@@ -53,9 +53,9 @@ public sealed partial class MainWindow : Window
         Foreground = new SolidColorBrush(muted ? ColorHelper.FromArgb(255, 160, 184, 195) : Colors.White)
     };
 
-    private static Border Panel(UIElement child) => new()
+    private Border Panel(UIElement child) => new()
     {
-        Background = new SolidColorBrush(ColorHelper.FromArgb(255, 16, 36, 47)),
+        Background = appearance.SurfaceBrush,
         BorderBrush = new SolidColorBrush(ColorHelper.FromArgb(255, 34, 65, 78)),
         BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(16),
         Padding = new Thickness(24), Child = child
@@ -123,7 +123,7 @@ public sealed partial class MainWindow : Window
                 RenderUpdates();
                 break;
             case "Settings":
-                PageBody.Children.Add(appearance.Editor(Root, Render, message => ShowNotice(message, InfoBarSeverity.Error)));
+                PageBody.Children.Add(appearance.Editor(() => { ApplyAppearance(); Render(); }, message => ShowNotice(message, InfoBarSeverity.Error)));
                 Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
@@ -193,6 +193,3 @@ public sealed partial class MainWindow : Window
         Notice.IsOpen = true;
     }
 }
-
-
-

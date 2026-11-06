@@ -7,7 +7,9 @@ namespace Aquarium;
 public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
 {
     public string AppRoot { get; } = Path.GetFullPath(appRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Apps"));
-    public async Task<InstalledApp> DownloadAndInstallAsync(AppPackage package, IProgress<string> progress, CancellationToken token)
+    public Task<InstalledApp> DownloadAndInstallAsync(AppPackage package, IProgress<string> progress, CancellationToken token) =>
+        DownloadAsync(package, progress, token, file => InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token));
+    internal async Task<T> DownloadAsync<T>(AppPackage package, IProgress<string> progress, CancellationToken token, Func<string, Task<T>> install)
     {
         GitHubPackages.ValidateAssetUrl(package.Source, package.DownloadUrl);
         if (!GitHubPackages.IsHash(package.Sha256)) throw new InvalidDataException("Invalid checksum.");
@@ -32,7 +34,7 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
                 }
                 if (received != package.Size) throw new InvalidDataException("The package download is incomplete.");
             }
-            return await InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token);
+            return await install(file);
         }
         finally { if (File.Exists(file)) File.Delete(file); }
     }

@@ -14,6 +14,7 @@ public sealed partial class MainWindow
 
     private void RenderUpdates()
     {
+        RenderSelfUpdate();
         var manage = new Button { Content = "Manage Aquarium app installs and updates" };
         manage.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems.Cast<NavigationViewItem>().Single(i => i.Tag?.ToString() == "App install");
         PageBody.Children.Add(manage);
@@ -88,4 +89,3 @@ public sealed partial class MainWindow
         }
     }
 }
-
