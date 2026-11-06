@@ -53,6 +53,15 @@ try
     await Task.WhenAll(store.SetLibraryAsync("aquarium.emulation", true), store.RecordInstallationAsync(newer));
     Check(store.Registry.LibraryAppIds.Contains("aquarium.emulation"), "Concurrent library change lost");
     Check(GitHubPackages.Sources.Count(s => s.IncludedByDefault) == 2 && !GitHubPackages.Sources.Single(s => s.AppId == "aquarium.emulation").IncludedByDefault, "Default bundle must exclude FishBowl");
+    var verified = await installer.VerifyInstalledFilesAsync(newer, valid, default);
+    Check(verified.Checked == 2 && verified.Damaged == 0, "Verified installation did not match its package");
+    await File.WriteAllTextAsync(Path.Combine(newer.InstallDirectory, newer.EntryPoint), "changed fixture");
+    var damagedFiles = await installer.VerifyInstalledFilesAsync(newer, valid, default);
+    Check(damagedFiles.Damaged == 1, "Modified program file was not reported");
+    Check(store.Registry.InstallationHistory.Contains(installed), "Previous installation was not retained");
+    await installer.RollbackAsync(installed);
+    Check(store.Registry.Installations.Single() == installed && store.Registry.InstallationHistory.Contains(newer), "Rollback did not preserve both versions");
+    await installer.RollbackAsync(newer);
     var profile = Path.Combine(root, "saved-settings.json");
     await File.WriteAllTextAsync(profile, "{}");
     await Refuses(() => installer.UninstallAsync(newer with { InstallDirectory = root }), "uninstall outside managed directory");

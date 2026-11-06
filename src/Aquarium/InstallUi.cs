@@ -50,6 +50,8 @@ public sealed partial class MainWindow
                 launch.Click += (_, _) => LaunchInstalled(installed);
                 panel.Children.Add(launch);
                 panel.Children.Add(UninstallButton(app, installed));
+                panel.Children.Add(PackageCheckButton(app, installed));
+                AddRollbackControls(panel, app);
             }
             PageBody.Children.Add(Panel(panel));
         }

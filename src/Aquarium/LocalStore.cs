@@ -30,7 +30,7 @@ public sealed class LocalStore
         {
             var registry = JsonSerializer.Deserialize<LocalRegistry>(await File.ReadAllTextAsync(RegistryPath), Json)
                 ?? throw new InvalidDataException("Registry is empty.");
-            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null)
+            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null || registry.InstallationHistory is null)
                 throw new InvalidDataException("Unsupported or invalid registry schema.");
             Registry = registry;
         }
@@ -52,7 +52,8 @@ public sealed class LocalStore
         {
             LibraryAppIds = Registry.LibraryAppIds.Where(x => x != id).ToList(),
             Installations = Registry.Installations.ToList(),
-            UninstalledAppIds = Registry.UninstalledAppIds.ToList()
+            UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
+            InstallationHistory = Registry.InstallationHistory.ToList()
         };
         if (include) next.LibraryAppIds.Add(id);
         await CommitAsync(next);
@@ -67,7 +68,16 @@ public sealed class LocalStore
         {
             if (!CanSave) throw new InvalidOperationException("The registry is read-only after a load error.");
             if (!Catalog.Any(a => a.Id == installation.AppId)) throw new InvalidOperationException("Unknown app.");
-            var next = new LocalRegistry { LibraryAppIds = Registry.LibraryAppIds.ToList(), Installations = Registry.Installations.Where(a => a.AppId != installation.AppId).ToList(), UninstalledAppIds = Registry.UninstalledAppIds.Where(id => id != installation.AppId).ToList() };
+            var retained = Registry.Installations.Concat(Registry.InstallationHistory)
+                .Where(item => item.AppId == installation.AppId && item.InstallDirectory != installation.InstallDirectory)
+                .DistinctBy(item => item.InstallDirectory, StringComparer.OrdinalIgnoreCase).Take(5);
+            var next = new LocalRegistry
+            {
+                LibraryAppIds = Registry.LibraryAppIds.ToList(),
+                Installations = Registry.Installations.Where(item => item.AppId != installation.AppId).ToList(),
+                UninstalledAppIds = Registry.UninstalledAppIds.Where(id => id != installation.AppId).ToList(),
+                InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).Concat(retained).ToList()
+            };
             next.Installations.Add(installation);
             if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
             await CommitAsync(next);
@@ -86,7 +96,8 @@ public sealed class LocalStore
             {
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.Where(app => app.AppId != installation.AppId).ToList(),
-                UninstalledAppIds = Registry.UninstalledAppIds.Append(installation.AppId).Distinct().ToList()
+                UninstalledAppIds = Registry.UninstalledAppIds.Append(installation.AppId).Distinct().ToList(),
+                InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).ToList()
             });
         }
         finally { writeGate.Release(); }
