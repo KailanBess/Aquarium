@@ -38,16 +38,55 @@ public sealed partial class MainWindow
                 button.Click += async (_, _) => await InstallPublishedAsync(app, package);
                 panel.Children.Add(button);
             }
+            if (installed is null && source.IncludedByDefault && File.Exists(Path.Combine(AppContext.BaseDirectory, "Bundled", "bundled.json")))
+            {
+                var bundledInstall = new Button { Content = "Install included version", IsEnabled = store.CanSave && installCancellation is null };
+                bundledInstall.Click += async (_, _) => await InstallBundledAsync(app.Id);
+                panel.Children.Add(bundledInstall);
+            }
             if (installed is not null)
             {
                 var launch = new Button { Content = "Open " + app.Name };
                 launch.Click += (_, _) => LaunchInstalled(installed);
                 panel.Children.Add(launch);
+                panel.Children.Add(UninstallButton(app, installed));
             }
             PageBody.Children.Add(Panel(panel));
         }
         PageBody.Children.Add(Text("Only apps from the approved Aquarium repositories are listed. FishBowl does not include games, firmware, or emulators.", 13, true));
     }
+    private Button UninstallButton(CatalogApp app, InstalledApp installed)
+    {
+        var button = new Button { Content = "Uninstall", IsEnabled = store.CanSave && installCancellation is null };
+        button.Click += async (_, _) =>
+        {
+            if (installCancellation is not null) return;
+            var dialog = new ContentDialog
+            {
+                XamlRoot = Root.XamlRoot,
+                Title = "Uninstall " + app.Name + "?",
+                Content = "Close the app first. Aquarium will remove its managed program files and keep your settings, personal files, and library bookmark.",
+                PrimaryButtonText = "Uninstall",
+                CloseButtonText = "Cancel",
+                DefaultButton = ContentDialogButton.Close
+            };
+            if (await dialog.ShowAsync() != ContentDialogResult.Primary || installCancellation is not null) return;
+            using var operation = new CancellationTokenSource();
+            installCancellation = operation;
+            Render();
+            try
+            {
+                var cleaned = await installer.UninstallAsync(installed);
+                if (!isClosed)
+                    ShowNotice(cleaned ? app.Name + " was uninstalled." : app.Name + " was unregistered, but some program files could not be removed.",
+                        cleaned ? InfoBarSeverity.Success : InfoBarSeverity.Warning);
+            }
+            catch (Exception ex) { if (!isClosed) ShowNotice("Uninstall failed: " + ex.Message, InfoBarSeverity.Error); }
+            finally { installCancellation = null; if (!isClosed) Render(); }
+        };
+        return button;
+    }
+
     private async Task CheckPackagesAsync()
     {
         if (installCancellation is not null) return;
@@ -81,7 +120,7 @@ public sealed partial class MainWindow
             Content = $"Download {package.Version} from {package.Source.Repository} ({package.Size / 1048576d:F1} MB), verify its SHA-256, and install a separate app folder managed by Aquarium. A published version can differ from a bundled development build. Previous managed versions and user data are retained. The app will not start automatically.",
             PrimaryButtonText = "Install", CloseButtonText = "Cancel"
         };
-        if (await confirmation.ShowAsync() != ContentDialogResult.Primary) return;
+        if (await confirmation.ShowAsync() != ContentDialogResult.Primary || installCancellation is not null) return;
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         installCancellation = cancellation; ReportInstall("Starting " + app.Name + " installation…"); Render();
         try { await installer.DownloadAndInstallAsync(package, new Progress<string>(ReportInstall), cancellation.Token); }
@@ -111,8 +150,9 @@ public sealed partial class MainWindow
         try { installer.Launch(app); }
         catch (Exception ex) { ShowNotice("Could not open the app: " + ex.Message, InfoBarSeverity.Error); }
     }
-    private async Task InstallBundledAsync()
+    private async Task InstallBundledAsync(string? requestedAppId = null)
     {
+        if (installCancellation is not null || !store.CanSave) return;
         var manifest = Path.Combine(AppContext.BaseDirectory, "Bundled", "bundled.json");
         if (!File.Exists(manifest)) return; // A source-only build has no default app bundle.
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(10));
@@ -124,6 +164,7 @@ public sealed partial class MainWindow
             {
                 var source = GitHubPackages.Sources.Single(s => s.AppId == item.AppId && s.IncludedByDefault);
                 if (store.Registry.Installations.Any(a => a.AppId == item.AppId)) continue;
+                if (requestedAppId is null ? store.Registry.UninstalledAppIds.Contains(item.AppId) : requestedAppId != item.AppId) continue;
                 if (Path.GetFileName(item.File) != item.File || Path.GetExtension(item.File) != ".zip") throw new InvalidDataException("Invalid included package filename.");
                 await installer.InstallZipAsync(source, item.Version, Path.Combine(AppContext.BaseDirectory, "Bundled", item.File), item.Sha256, new Progress<string>(ReportInstall), cancellation.Token);
                 if (source.AppId == "aquarium.security") ApplyInitialFishTankAppearance();

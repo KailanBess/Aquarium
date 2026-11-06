@@ -2,7 +2,7 @@
   <PropertyGroup>
     <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
-    <AssemblyName>Aquarium</AssemblyName><Version>0.4.3</Version><ApplicationIcon>Aquarium.ico</ApplicationIcon>
+    <AssemblyName>Aquarium</AssemblyName><Version>0.4.4</Version><ApplicationIcon>Aquarium.ico</ApplicationIcon>
     <RuntimeIdentifier>win-x64</RuntimeIdentifier><SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile><IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
     <DebugType>none</DebugType><DebugSymbols>false</DebugSymbols>

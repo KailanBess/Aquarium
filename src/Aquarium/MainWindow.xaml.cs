@@ -182,6 +182,7 @@ public sealed partial class MainWindow : Window
         var open = new Button { Content = installed is null ? "Install options" : "Open " + app.Name };
         open.Click += (_, _) => { if (installed is not null) LaunchInstalled(installed); else Navigation.SelectedItem = Navigation.MenuItems.Cast<NavigationViewItem>().Single(i => i.Tag?.ToString() == "App install"); };
         content.Children.Add(open);
+        if (installed is not null) content.Children.Add(UninstallButton(app, installed));
         content.Children.Add(Text(installed is null ? "Not installed" : "Installed · " + installed.Version, 12, true));
         parent.Children.Add(Panel(content));
     }

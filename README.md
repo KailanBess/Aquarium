@@ -68,3 +68,7 @@ Open **Updates → Check for Aquarium update**. After you approve an available r
 Use **Updates → Repair Aquarium shortcuts** to create or refresh the desktop and Start menu shortcuts for the current launcher. The launcher and runtime executable carry the Aquarium icon in their Windows file resources.
 
 To make a source change available through the updater, raise the runtime and launcher project versions together, then tag that commit with the matching version (for example, v0.4.4). Publish the draft produced by the Windows release workflow after verification. Git commits alone are not installable updates.
+
+### Uninstalling a managed app
+
+Choose **Uninstall** on an installed app in **Library** or **App install**. Close the app first. Aquarium removes its managed program versions and keeps the app profile and library bookmark. An explicitly uninstalled bundled app stays removed on restart. Use **Install included version** or a published package in **App install** to reinstall it.
