@@ -7,7 +7,9 @@ namespace Aquarium;
 public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
 {
     public string AppRoot { get; } = Path.GetFullPath(appRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Apps"));
-    public async Task<InstalledApp> DownloadAndInstallAsync(AppPackage package, IProgress<string> progress, CancellationToken token)
+    public Task<InstalledApp> DownloadAndInstallAsync(AppPackage package, IProgress<string> progress, CancellationToken token) =>
+        DownloadAsync(package, progress, token, file => InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token));
+    internal async Task<T> DownloadAsync<T>(AppPackage package, IProgress<string> progress, CancellationToken token, Func<string, Task<T>> install)
     {
         GitHubPackages.ValidateAssetUrl(package.Source, package.DownloadUrl);
         if (!GitHubPackages.IsHash(package.Sha256)) throw new InvalidDataException("Invalid checksum.");
@@ -32,7 +34,7 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
                 }
                 if (received != package.Size) throw new InvalidDataException("The package download is incomplete.");
             }
-            return await InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token);
+            return await install(file);
         }
         finally { if (File.Exists(file)) File.Delete(file); }
     }
@@ -98,13 +100,77 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             if (written != entry.Length) throw new InvalidDataException("Package file is truncated.");
         }
     }
-    public void Launch(InstalledApp app)
+    public async Task<bool> UninstallAsync(InstalledApp app)
+    {
+        var source = GitHubPackages.Sources.Single(s => s.AppId == app.AppId);
+        var directory = Path.Combine(AppRoot, source.AppId);
+        RequireWithin(directory, app.InstallDirectory);
+        RefuseLinks(directory);
+        foreach (var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(source.Executable)))
+        {
+            using (process)
+            {
+                if (!process.HasExited)
+                    throw new InvalidOperationException($"Close {Path.GetFileNameWithoutExtension(source.Executable)} before uninstalling.");
+            }
+        }
+        if (!Directory.Exists(directory))
+        {
+            await store.RecordUninstallAsync(app);
+            return true;
+        }
+
+        var directories = new Stack<string>();
+        directories.Push(directory);
+        while (directories.TryPop(out var folder))
+        {
+            foreach (var entry in Directory.EnumerateFileSystemEntries(folder))
+            {
+                var attributes = File.GetAttributes(entry);
+                if ((attributes & FileAttributes.ReparsePoint) != 0)
+                    throw new InvalidDataException("The installation contains a linked path. Move it out before uninstalling.");
+                if (source.AppId == "aquarium.emulation" &&
+                    (Path.GetFileName(entry).Equals("FishBowlData", StringComparison.OrdinalIgnoreCase) ||
+                     Path.GetFileName(entry).Equals("portable.flag", StringComparison.OrdinalIgnoreCase)))
+                    throw new InvalidOperationException("Move your FishBowl portable profile and portable.flag out of the installation folder before uninstalling.");
+                if ((attributes & FileAttributes.Directory) != 0) directories.Push(entry);
+            }
+        }
+
+        // Move program files aside before changing the registry. A failed write restores the original path.
+        var staged = Path.Combine(AppRoot, ".uninstall-" + Guid.NewGuid().ToString("N"));
+        RequireWithin(AppRoot, staged);
+        Directory.Move(directory, staged);
+        try { await store.RecordUninstallAsync(app); }
+        catch
+        {
+            Directory.Move(staged, directory);
+            throw;
+        }
+        try
+        {
+            RefuseLinks(staged);
+            await Task.Run(() => Directory.Delete(staged, recursive: true));
+            return true;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return false;
+        }
+    }
+
+    internal string InstalledExecutable(InstalledApp app)
     {
         var source = GitHubPackages.Sources.Single(s => s.AppId == app.AppId);
         RequireWithin(AppRoot, app.InstallDirectory); RefuseLinks(app.InstallDirectory);
         var executable = Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
         RequireWithin(app.InstallDirectory, executable); RefuseLinks(executable);
         if (!File.Exists(executable) || !Path.GetFileName(executable).Equals(source.Executable, StringComparison.OrdinalIgnoreCase)) throw new FileNotFoundException("The registered app executable is missing or invalid.");
+        return executable;
+    }
+    public void Launch(InstalledApp app)
+    {
+        var executable = InstalledExecutable(app);
         Process.Start(new ProcessStartInfo(executable) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable)! })?.Dispose();
     }
     internal static void RequireWithin(string root, string path)

@@ -30,7 +30,7 @@ public sealed class LocalStore
         {
             var registry = JsonSerializer.Deserialize<LocalRegistry>(await File.ReadAllTextAsync(RegistryPath), Json)
                 ?? throw new InvalidDataException("Registry is empty.");
-            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null)
+            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null)
                 throw new InvalidDataException("Unsupported or invalid registry schema.");
             Registry = registry;
         }
@@ -51,7 +51,8 @@ public sealed class LocalStore
         var next = new LocalRegistry
         {
             LibraryAppIds = Registry.LibraryAppIds.Where(x => x != id).ToList(),
-            Installations = Registry.Installations.ToList()
+            Installations = Registry.Installations.ToList(),
+            UninstalledAppIds = Registry.UninstalledAppIds.ToList()
         };
         if (include) next.LibraryAppIds.Add(id);
         await CommitAsync(next);
@@ -66,10 +67,27 @@ public sealed class LocalStore
         {
             if (!CanSave) throw new InvalidOperationException("The registry is read-only after a load error.");
             if (!Catalog.Any(a => a.Id == installation.AppId)) throw new InvalidOperationException("Unknown app.");
-            var next = new LocalRegistry { LibraryAppIds = Registry.LibraryAppIds.ToList(), Installations = Registry.Installations.Where(a => a.AppId != installation.AppId).ToList() };
+            var next = new LocalRegistry { LibraryAppIds = Registry.LibraryAppIds.ToList(), Installations = Registry.Installations.Where(a => a.AppId != installation.AppId).ToList(), UninstalledAppIds = Registry.UninstalledAppIds.Where(id => id != installation.AppId).ToList() };
             next.Installations.Add(installation);
             if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
             await CommitAsync(next);
+        }
+        finally { writeGate.Release(); }
+    }
+
+    internal async Task RecordUninstallAsync(InstalledApp installation)
+    {
+        await writeGate.WaitAsync();
+        try
+        {
+            if (!CanSave || !Registry.Installations.Contains(installation))
+                throw new InvalidOperationException("The installation record changed. Refresh Aquarium and try again.");
+            await CommitAsync(new LocalRegistry
+            {
+                LibraryAppIds = Registry.LibraryAppIds.ToList(),
+                Installations = Registry.Installations.Where(app => app.AppId != installation.AppId).ToList(),
+                UninstalledAppIds = Registry.UninstalledAppIds.Append(installation.AppId).Distinct().ToList()
+            });
         }
         finally { writeGate.Release(); }
     }

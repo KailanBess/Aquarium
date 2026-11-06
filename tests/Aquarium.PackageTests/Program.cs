@@ -53,6 +53,17 @@ try
     await Task.WhenAll(store.SetLibraryAsync("aquarium.emulation", true), store.RecordInstallationAsync(newer));
     Check(store.Registry.LibraryAppIds.Contains("aquarium.emulation"), "Concurrent library change lost");
     Check(GitHubPackages.Sources.Count(s => s.IncludedByDefault) == 2 && !GitHubPackages.Sources.Single(s => s.AppId == "aquarium.emulation").IncludedByDefault, "Default bundle must exclude FishBowl");
+    var profile = Path.Combine(root, "saved-settings.json");
+    await File.WriteAllTextAsync(profile, "{}");
+    await Refuses(() => installer.UninstallAsync(newer with { InstallDirectory = root }), "uninstall outside managed directory");
+    Check(await installer.UninstallAsync(newer), "Managed files could not be removed");
+    Check(!Directory.Exists(installed.InstallDirectory) && !Directory.Exists(newer.InstallDirectory), "A managed version survived uninstall");
+    Check(File.Exists(profile), "Uninstall touched profile data");
+    await reload.LoadAsync();
+    Check(reload.Registry.Installations.Count == 0 && reload.Registry.UninstalledAppIds.Contains(source.AppId), "Uninstall did not persist");
+    Check(reload.Registry.LibraryAppIds.Contains(source.AppId), "Uninstall removed the library bookmark");
+    await installer.InstallZipAsync(source, "fixture-reinstall", valid, Hash(valid), progress, default);
+    Check(!store.Registry.UninstalledAppIds.Contains(source.AppId), "Explicit reinstall did not clear the uninstall marker");
     await File.WriteAllTextAsync(store.RegistryPath, "invalid JSON");
     var damaged = new LocalStore(Path.Combine(root, "registry")); await damaged.LoadAsync();
     Check(!damaged.CanSave && await File.ReadAllTextAsync(store.RegistryPath) == "invalid JSON", "Invalid registry was overwritten");
