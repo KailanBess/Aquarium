@@ -17,7 +17,7 @@ public sealed partial class MainWindow
             "media" => Symbol.Video,
             _ => Symbol.Library
         });
-        var frame = new Grid { Width = 36, Height = 36, Children = { fallback } };
+        var frame = new Grid { Width = appearance.LibraryIconSize, Height = appearance.LibraryIconSize, Children = { fallback } };
         heading.Children.Add(frame);
         var title = Text(app.Name, 24);
         title.VerticalAlignment = VerticalAlignment.Center;
