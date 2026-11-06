@@ -6,7 +6,7 @@ New-Item -ItemType Directory -Path $temp | Out-Null
 try {
  & (Join-Path $PSScriptRoot 'Bundle-Apps.ps1') -PublishDirectory (Join-Path $temp 'valid') -FishNetDirectory $FishNetDirectory -FishTankArchive $FishTankArchive | Out-Null
  $manifest=@(Get-Content (Join-Path $temp 'valid/Bundled/bundled.json') -Raw | ConvertFrom-Json)
- if($manifest.Count -ne 2 -or $manifest.version -notcontains 'v0.3.1' -or $manifest.version -notcontains 'preview-v0.16.0'){throw 'Included manifest identities are incorrect.'}
+ if($manifest.Count -ne 2 -or $manifest.version -notcontains 'v0.3.2' -or $manifest.version -notcontains 'preview-v0.16.1'){throw 'Included manifest identities are incorrect.'}
  $checks=1
  foreach($item in $manifest){if((Get-FileHash (Join-Path $temp ('valid/Bundled/'+$item.file)) -Algorithm SHA256).Hash -ne $item.sha256){throw 'Included package hash differs.'};$checks++}
  $rejected=$false
