@@ -14,7 +14,7 @@
       </NavigationView.MenuItems>
       <NavigationView.PaneFooter><TextBlock Text="PRIVATE APP COLLECTION" Foreground="#8CA9B5" FontSize="10" Margin="24"/></NavigationView.PaneFooter>
       <ScrollViewer x:Name="PageScroll">
-        <StackPanel Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">
+        <StackPanel x:Name="PageContent" Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">
           <TextBlock x:Name="PageEyebrow" Text="A Q U A R I U M   /   P R I V A T E" Foreground="{StaticResource AquariumAccent}" FontSize="11"/>
           <TextBlock x:Name="PageTitle" FontSize="36" FontWeight="SemiBold" Text="Home"/>
           <TextBlock x:Name="PageSubtitle" Foreground="#A0B8C3" TextWrapping="Wrap"/>
