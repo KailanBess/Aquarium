@@ -10,8 +10,10 @@ try {
  foreach($attempt in 1..3){
   if($attempt -eq 3){$moved=$test+'-moved';Move-Item $test $moved;$test=$moved}
   $process=Start-Process (Join-Path $test 'Aquarium.exe') -ArgumentList '--package-check' -PassThru
-  if(!$process.WaitForExit(180000)){$process.Kill($true);throw "Launcher startup timed out on attempt $attempt."}
-  if($process.ExitCode -ne 0){throw "Native Aquarium initialization failed on attempt $attempt with exit $($process.ExitCode)."}
+  try {
+   if(!$process.WaitForExit(180000)){$process.Kill($true);$process.WaitForExit(5000)|Out-Null;throw "Launcher startup timed out on attempt $attempt."}
+   if($process.ExitCode -ne 0){throw "Native Aquarium initialization failed on attempt $attempt with exit $($process.ExitCode)."}
+  } finally {$process.Dispose()}
   if(@(Get-ChildItem $test -Force).Count -ne 1){throw 'Launcher left support files beside the app.'}
  }
  Write-Host 'PASS: one visible app, cold/repeat/moved native launches, XAML initialization, runtime PRI and both included app hashes.'
@@ -19,4 +21,16 @@ try {
  $message=$_.Exception.Message.Replace('%','%25').Replace("`r",'%0D').Replace("`n",'%0A')
  Write-Host "::error title=Single-app startup check::$message"
  throw
-} finally {if(Test-Path $test){Remove-Item $test -Recurse -Force}}
+} finally {
+ if(Test-Path -LiteralPath $test){
+  $full=[IO.Path]::GetFullPath($test)
+  if([IO.Path]::GetDirectoryName($full) -ne [IO.Path]::GetFullPath($env:RUNNER_TEMP).TrimEnd('\','/') -or
+      [IO.Path]::GetFileName($full) -notmatch '^aquarium-single-[a-f0-9]{32}(-moved)?
+){throw 'Unexpected smoke-test cleanup path.'}
+  for($attempt=1;$attempt -le 10;$attempt++){
+   try {Remove-Item -LiteralPath $full -Recurse -Force -ErrorAction Stop;break}
+   catch [IO.IOException] {if($attempt -eq 10){throw};Start-Sleep -Seconds 1}
+  }
+ }
+}
+
