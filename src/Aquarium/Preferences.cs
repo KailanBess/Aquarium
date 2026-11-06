@@ -116,7 +116,7 @@ public sealed class Appearance
     public SolidColorBrush PageBrush => new(Background.Page);
     public SolidColorBrush SurfaceBrush => new(Background.Surface);
 
-    public StackPanel Editor(Action changed, Action<string> error)
+    public StackPanel Editor(nint owner, Action changed, Action<string> error)
     {
         var panel = new StackPanel { Spacing = 12 };
         var controls = new StackPanel { Spacing = 10 };
@@ -155,6 +155,8 @@ public sealed class Appearance
         actions.Children.Add(reset);
         panel.Children.Add(actions);
         panel.Children.Add(status);
+        var transfer = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        panel.Children.Add(transfer);
 
         Preferences ReadControls() => new()
         {
@@ -207,6 +209,61 @@ public sealed class Appearance
                 save.IsEnabled = writable;
             }
         };
+        void Select(ComboBox box, string? value)
+        {
+            if (value is not null && box.ItemsSource is IEnumerable<string> options && options.Contains(value))
+                box.SelectedItem = value;
+        }
+
+        var export = new Button { Content = "Export theme" };
+        export.Click += async (_, _) =>
+        {
+            export.IsEnabled = false;
+            try
+            {
+                var theme = ReadControls();
+                if (!string.IsNullOrWhiteSpace(theme.AccentHex) && ParseColor(theme.AccentHex) is null)
+                    throw new InvalidDataException("Enter a valid custom accent before exporting.");
+                var picker = new Windows.Storage.Pickers.FileSavePicker { SuggestedFileName = "Aquarium-theme" };
+                picker.FileTypeChoices.Add("Aquarium theme", new List<string> { ".json" });
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
+                var file = await picker.PickSaveFileAsync();
+                if (file is not null) await File.WriteAllTextAsync(file.Path, JsonSerializer.Serialize(theme, new JsonSerializerOptions { WriteIndented = true }));
+            }
+            catch (Exception ex) { error("Could not export the theme. " + ex.Message); }
+            finally { export.IsEnabled = true; }
+        };
+
+        var import = new Button { Content = "Import theme preview" };
+        import.Click += async (_, _) =>
+        {
+            import.IsEnabled = false;
+            try
+            {
+                var picker = new Windows.Storage.Pickers.FileOpenPicker();
+                picker.FileTypeFilter.Add(".json");
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
+                var file = await picker.PickSingleFileAsync();
+                if (file is null || !panel.IsLoaded) return;
+                using var stream = File.OpenRead(file.Path);
+                if (stream.Length > 32768) throw new InvalidDataException("Theme files must be at most 32 KB.");
+                var theme = await JsonSerializer.DeserializeAsync<Preferences>(stream) ?? throw new InvalidDataException("The theme is empty.");
+                if (!panel.IsLoaded) return;
+                if (!string.IsNullOrWhiteSpace(theme.AccentHex) && ParseColor(theme.AccentHex) is null)
+                    throw new InvalidDataException("The theme's custom accent is invalid.");
+
+                Select(accent, theme.Accent); Select(background, theme.Background); Select(border, theme.WindowBorder);
+                Select(titleBar, theme.TitleBar); Select(corners, theme.CardShape); Select(textSize, theme.TextSize);
+                Select(sidebar, theme.Sidebar); Select(width, theme.ContentWidth); Select(icons, theme.LibraryIcons);
+                customAccent.Text = theme.AccentHex ?? ""; compact.IsOn = theme.Compact;
+                Preview();
+                status.Text = "Imported a theme preview. Apply appearance to save.";
+            }
+            catch (Exception ex) { error("Could not import the theme. " + ex.Message); }
+            finally { import.IsEnabled = true; }
+        };
+        transfer.Children.Add(import);
+        transfer.Children.Add(export);
         if (Warning is not null) panel.Children.Add(new TextBlock { Text = Warning, TextWrapping = TextWrapping.Wrap });
         return panel;
     }

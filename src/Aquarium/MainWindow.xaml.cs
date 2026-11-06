@@ -125,7 +125,7 @@ public sealed partial class MainWindow : Window
                 RenderUpdates();
                 break;
             case "Settings":
-                PageBody.Children.Add(appearance.Editor(ApplyAppearance, message => ShowNotice(message, InfoBarSeverity.Error)));
+                PageBody.Children.Add(appearance.Editor(WinRT.Interop.WindowNative.GetWindowHandle(this), ApplyAppearance, message => ShowNotice(message, InfoBarSeverity.Error)));
                 Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");

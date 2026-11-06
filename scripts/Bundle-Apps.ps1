@@ -1,4 +1,4 @@
-param([Parameter(Mandatory)][string]$PublishDirectory,[Parameter(Mandatory)][string]$FishNetDirectory,[Parameter(Mandatory)][string]$FishTankArchive,[string]$FishTankVersion='0.16.1',[string]$FishNetVersion='0.3.2')
+param([Parameter(Mandatory)][string]$PublishDirectory,[Parameter(Mandatory)][string]$FishNetDirectory,[Parameter(Mandatory)][string]$FishTankArchive,[string]$FishTankVersion='0.16.2',[string]$FishNetVersion='0.3.4')
 $ErrorActionPreference='Stop'
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $bundle=Join-Path $PublishDirectory 'Bundled'
