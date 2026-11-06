@@ -159,13 +159,18 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
         }
     }
 
-    public void Launch(InstalledApp app)
+    internal string InstalledExecutable(InstalledApp app)
     {
         var source = GitHubPackages.Sources.Single(s => s.AppId == app.AppId);
         RequireWithin(AppRoot, app.InstallDirectory); RefuseLinks(app.InstallDirectory);
         var executable = Path.GetFullPath(Path.Combine(app.InstallDirectory, app.EntryPoint));
         RequireWithin(app.InstallDirectory, executable); RefuseLinks(executable);
         if (!File.Exists(executable) || !Path.GetFileName(executable).Equals(source.Executable, StringComparison.OrdinalIgnoreCase)) throw new FileNotFoundException("The registered app executable is missing or invalid.");
+        return executable;
+    }
+    public void Launch(InstalledApp app)
+    {
+        var executable = InstalledExecutable(app);
         Process.Start(new ProcessStartInfo(executable) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable)! })?.Dispose();
     }
     internal static void RequireWithin(string root, string path)

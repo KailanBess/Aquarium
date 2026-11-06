@@ -12,6 +12,10 @@ public sealed class Preferences
     public string Background { get; set; } = "Ocean";
     public bool Compact { get; set; }
     public string WindowBorder { get; set; } = "System";
+    public string TitleBar { get; set; } = "Accent";
+    public string CardShape { get; set; } = "Rounded";
+    public string TextSize { get; set; } = "Standard";
+    public string Sidebar { get; set; } = "Standard";
 }
 
 // Separate from the catalog and library so appearance never rewrites app records.
@@ -19,9 +23,16 @@ public sealed class Appearance
 {
     private readonly string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "appearance.json");
     private Preferences current = new();
+    private Preferences? preview;
+    private Preferences Active => preview ?? current;
     private bool writable = true;
     public string? Warning { get; private set; }
-    public bool Compact => current.Compact;
+    public bool Compact => Active.Compact;
+    public string TitleBar => Active.TitleBar;
+    public double CardRadius => Active.CardShape switch { "Square" => 0, "Soft" => 28, _ => 16 };
+    public double TitleSize => Active.TextSize switch { "Small" => 30, "Large" => 44, _ => 36 };
+    public double SidebarWidth => Active.Sidebar switch { "Narrow" => 168, "Wide" => 280, _ => 224 };
+    public void EndPreview() => preview = null;
     public void Load()
     {
         try
@@ -67,20 +78,22 @@ public sealed class Appearance
     };
 
     public Windows.UI.Color Accent => Palette.GetValueOrDefault(AccentName, Palette["Aquarium Mint"]);
-    private string AccentName => current.Accent == "Blue" ? "Aquarium Blue" : current.Accent ?? "Aquarium Mint";
-    public Windows.UI.Color? BorderColor => current.WindowBorder switch
+    private string AccentName => Active.Accent == "Blue" ? "Aquarium Blue" : Active.Accent ?? "Aquarium Mint";
+    public Windows.UI.Color? BorderColor => Active.WindowBorder switch
     {
         "Match accent" => Accent,
         string name when Palette.TryGetValue(name, out var color) => color,
         _ => null
     };
-    public bool HideBorder => current.WindowBorder == "Hidden";
+    public bool HideBorder => Active.WindowBorder == "Hidden";
 
-    private (Windows.UI.Color Page, Windows.UI.Color Surface) Background => current.Background switch
+    private (Windows.UI.Color Page, Windows.UI.Color Surface) Background => Active.Background switch
     {
         "Midnight" => (ColorHelper.FromArgb(255, 12, 14, 22), ColorHelper.FromArgb(255, 30, 32, 46)),
         "Slate" => (ColorHelper.FromArgb(255, 27, 35, 43), ColorHelper.FromArgb(255, 45, 56, 65)),
         "Kelp" => (ColorHelper.FromArgb(255, 12, 31, 26), ColorHelper.FromArgb(255, 23, 52, 43)),
+        "Graphite" => (ColorHelper.FromArgb(255, 26, 26, 28), ColorHelper.FromArgb(255, 44, 44, 49)),
+        "Reef" => (ColorHelper.FromArgb(255, 27, 20, 22), ColorHelper.FromArgb(255, 55, 33, 38)),
         "Plum" => (ColorHelper.FromArgb(255, 33, 21, 43), ColorHelper.FromArgb(255, 54, 37, 66)),
         _ => (ColorHelper.FromArgb(255, 9, 21, 29), ColorHelper.FromArgb(255, 16, 36, 47))
     };
@@ -91,27 +104,85 @@ public sealed class Appearance
     public StackPanel Editor(Action changed, Action<string> error)
     {
         var panel = new StackPanel { Spacing = 12 };
-        var accent = new ComboBox { Header = "Accent", ItemsSource = Palette.Keys.ToArray(), SelectedItem = AccentName };
-        var background = new ComboBox { Header = "Background", ItemsSource = new[] { "Ocean", "Midnight", "Slate", "Kelp", "Plum" }, SelectedItem = current.Background };
-        var border = new ComboBox { Header = "Window border", ItemsSource = new[] { "System", "Match accent", "Hidden" }.Concat(Palette.Keys).ToArray(), SelectedItem = current.WindowBorder };
-        var compact = new ToggleSwitch { Header = "Compact collection spacing", IsOn = current.Compact };
-        async Task Save()
+        var controls = new StackPanel { Spacing = 10 };
+        panel.Children.Add(controls);
+
+        ComboBox Choice(string header, IEnumerable<string> options, string? value)
         {
-            var next = new Preferences { Accent = accent.SelectedItem?.ToString() ?? "Aquarium Mint", Background = background.SelectedItem?.ToString() ?? "Ocean", Compact = compact.IsOn, WindowBorder = border.SelectedItem?.ToString() ?? "System" };
+            var choices = options.ToArray();
+            var box = new ComboBox
+            {
+                Header = header, ItemsSource = choices,
+                SelectedItem = choices.Contains(value) ? value : choices[0]
+            };
+            controls.Children.Add(box);
+            return box;
+        }
+
+        var accent = Choice("Accent", Palette.Keys, AccentName);
+        var background = Choice("Background", ["Ocean", "Midnight", "Slate", "Kelp", "Plum", "Graphite", "Reef"], Active.Background);
+        var border = Choice("Window border", new[] { "System", "Match accent", "Hidden" }.Concat(Palette.Keys), Active.WindowBorder);
+        var titleBar = Choice("Window title bar", ["Accent", "Match background", "System"], Active.TitleBar);
+        var corners = Choice("Card corners", ["Rounded", "Square", "Soft"], Active.CardShape);
+        var textSize = Choice("Page heading size", ["Standard", "Small", "Large"], Active.TextSize);
+        var sidebar = Choice("Sidebar width", ["Standard", "Narrow", "Wide"], Active.Sidebar);
+        var compact = new ToggleSwitch { Header = "Compact collection spacing", IsOn = Active.Compact };
+        controls.Children.Add(compact);
+        var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var save = new Button { Content = "Apply appearance", IsEnabled = writable };
+        var reset = new Button { Content = "Preview defaults" };
+        var status = new TextBlock { Text = "Changes preview immediately. Apply appearance saves them." };
+        actions.Children.Add(save);
+        actions.Children.Add(reset);
+        panel.Children.Add(actions);
+        panel.Children.Add(status);
+
+        Preferences ReadControls() => new()
+        {
+            Accent = (string)accent.SelectedItem, Background = (string)background.SelectedItem,
+            WindowBorder = (string)border.SelectedItem, TitleBar = (string)titleBar.SelectedItem,
+            CardShape = (string)corners.SelectedItem, TextSize = (string)textSize.SelectedItem,
+            Sidebar = (string)sidebar.SelectedItem, Compact = compact.IsOn
+        };
+        void Preview()
+        {
+            preview = ReadControls();
+            status.Text = "Previewing changes. Apply appearance to save.";
+            changed();
+        }
+        foreach (var box in controls.Children.OfType<ComboBox>())
+            box.SelectionChanged += (_, _) => Preview();
+        compact.Toggled += (_, _) => Preview();
+        reset.Click += (_, _) =>
+        {
+            var defaults = new Preferences();
+            accent.SelectedItem = defaults.Accent; background.SelectedItem = defaults.Background;
+            border.SelectedItem = defaults.WindowBorder; titleBar.SelectedItem = defaults.TitleBar;
+            corners.SelectedItem = defaults.CardShape; textSize.SelectedItem = defaults.TextSize;
+            sidebar.SelectedItem = defaults.Sidebar; compact.IsOn = defaults.Compact;
+            Preview();
+        };
+        save.Click += (_, _) =>
+        {
+            controls.IsHitTestVisible = save.IsEnabled = reset.IsEnabled = false;
+            var next = ReadControls();
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                await File.WriteAllTextAsync(path + ".tmp", JsonSerializer.Serialize(next));
+                File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(next));
                 File.Move(path + ".tmp", path, true);
                 current = next;
+                preview = null;
+                status.Text = "Appearance saved.";
                 changed();
             }
             catch (Exception ex) { error("Appearance was not saved: " + ex.Message); }
-        }
-        // Disable during a write so rapid events cannot collide on the temporary file.
-        var save = new Button { Content = "Apply appearance", IsEnabled = writable };
-        save.Click += async (_, _) => { save.IsEnabled = false; try { await Save(); } finally { save.IsEnabled = writable; } };
-        panel.Children.Add(accent); panel.Children.Add(background); panel.Children.Add(border); panel.Children.Add(compact); panel.Children.Add(save);
+            finally
+            {
+                controls.IsHitTestVisible = reset.IsEnabled = true;
+                save.IsEnabled = writable;
+            }
+        };
         if (Warning is not null) panel.Children.Add(new TextBlock { Text = Warning, TextWrapping = TextWrapping.Wrap });
         return panel;
     }

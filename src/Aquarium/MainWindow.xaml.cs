@@ -15,6 +15,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "Aquarium.ico"));
         AppWindow.Resize(new Windows.Graphics.SizeInt32(1240, 820));
         Root.Loaded += Initialize;
         Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); };
@@ -43,6 +44,7 @@ public sealed partial class MainWindow : Window
 
     private void Navigate(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
     {
+        if (page == "Settings") { appearance.EndPreview(); ApplyAppearance(); }
         page = args.IsSettingsSelected ? "Settings" : (args.SelectedItem as NavigationViewItem)?.Tag?.ToString() ?? "Home";
         if (ready) Render();
     }
@@ -57,8 +59,8 @@ public sealed partial class MainWindow : Window
     {
         Background = appearance.SurfaceBrush,
         BorderBrush = new SolidColorBrush(ColorHelper.FromArgb(255, 34, 65, 78)),
-        BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(16),
-        Padding = new Thickness(24), Child = child
+        BorderThickness = new Thickness(1), CornerRadius = new CornerRadius(appearance.CardRadius),
+        Padding = new Thickness(appearance.Compact ? 14 : 24), Child = child
     };
 
     private void Render()
@@ -123,7 +125,7 @@ public sealed partial class MainWindow : Window
                 RenderUpdates();
                 break;
             case "Settings":
-                PageBody.Children.Add(appearance.Editor(() => { ApplyAppearance(); Render(); }, message => ShowNotice(message, InfoBarSeverity.Error)));
+                PageBody.Children.Add(appearance.Editor(ApplyAppearance, message => ShowNotice(message, InfoBarSeverity.Error)));
                 Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
@@ -146,7 +148,7 @@ public sealed partial class MainWindow : Window
     {
         var content = new StackPanel { Spacing = 10 };
         content.Children.Add(Text($"{app.Category.ToUpperInvariant()}   /   {app.Stage}", 11, true));
-        content.Children.Add(Text(app.Name, 24));
+        content.Children.Add(page == "Library" ? LibraryHeading(app) : Text(app.Name, 24));
         content.Children.Add(Text(app.Summary, 15, true));
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         var details = new Button { Content = "View details" };

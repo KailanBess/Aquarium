@@ -72,3 +72,7 @@ To make a source change available through the updater, raise the runtime and lau
 ### Uninstalling a managed app
 
 Choose **Uninstall** on an installed app in **Library** or **App install**. Close the app first. Aquarium removes its managed program versions and keeps the app profile and library bookmark. An explicitly uninstalled bundled app stays removed on restart. Use **Install included version** or a published package in **App install** to reinstall it.
+
+### Previewing appearance
+
+Open **Settings** to preview colors, title bar, frame, card corners, heading size, sidebar width, and spacing. **Apply appearance** saves your choices. Leaving Settings discards unapplied choices. Library cards display the installed executable's Windows icon when available.

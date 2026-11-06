@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <Version>0.4.4</Version><ApplicationIcon>..\Aquarium.Launcher\Aquarium.ico</ApplicationIcon>
+    <Version>0.4.5</Version><ApplicationIcon>..\Aquarium.Launcher\Aquarium.ico</ApplicationIcon>
     <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
     <RootNamespace>Aquarium</RootNamespace>
@@ -20,6 +20,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260921001" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4654" />
+    <Content Include="..\Aquarium.Launcher\Aquarium.ico" Link="Aquarium.ico" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="Data\catalog.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>
