@@ -24,9 +24,9 @@ try {
 } finally {
  if(Test-Path -LiteralPath $test){
   $full=[IO.Path]::GetFullPath($test)
-  if([IO.Path]::GetDirectoryName($full) -ne [IO.Path]::GetFullPath($env:RUNNER_TEMP).TrimEnd('\','/') -or
-      [IO.Path]::GetFileName($full) -notmatch '^aquarium-single-[a-f0-9]{32}(-moved)?
-){throw 'Unexpected smoke-test cleanup path.'}
+  $temp=[IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($env:RUNNER_TEMP))
+  if([IO.Path]::GetDirectoryName($full) -ne $temp -or
+      [IO.Path]::GetFileName($full) -notmatch '^aquarium-single-[a-f0-9]{32}(-moved)?$'){throw 'Unexpected smoke-test cleanup path.'}
   for($attempt=1;$attempt -le 10;$attempt++){
    try {Remove-Item -LiteralPath $full -Recurse -Force -ErrorAction Stop;break}
    catch [IO.IOException] {if($attempt -eq 10){throw};Start-Sleep -Seconds 1}
