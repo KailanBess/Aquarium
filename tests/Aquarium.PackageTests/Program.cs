@@ -53,7 +53,12 @@ try
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Expected entry point missing");
     Check(store.Registry.Installations.Single() == installed, "Installation not registered");
     Check(store.Registry.LibraryAppIds.Contains(source.AppId), "Installed app not added to Library");
+    await store.SetVersionPinAsync(source.AppId, true);
+    Check(store.AllowsPublishedVersion(source.AppId, "fixture-v1") && !store.AllowsPublishedVersion(source.AppId, "fixture-v2"), "Pin did not restrict published versions");
     var reload = new LocalStore(Path.Combine(root, "registry")); await reload.LoadAsync();
+    Check(reload.GetVersionPin(source.AppId) == "fixture-v1", "Pinned version was not persisted");
+    await store.SetVersionPinAsync(source.AppId, false);
+    Check(store.AllowsPublishedVersion(source.AppId, "fixture-v2"), "Unpin did not restore available versions");
     Check(reload.GetReleaseChannel(source.AppId) == ReleaseChannel.Stable, "Release channel was lost after install");
     Check(reload.Registry.Installations.Single().EntryPoint == installed.EntryPoint, "Entry point not persisted");
     await Refuses(() => installer.InstallZipAsync(source, "bad", valid, new string('0', 64), progress, default), "checksum mismatch");

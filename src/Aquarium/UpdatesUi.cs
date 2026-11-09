@@ -31,6 +31,7 @@ public sealed partial class MainWindow
             panel.Children.Add(Text(app.Name, 20));
             panel.Children.Add(Text(installed is null ? "Installed · No" : $"Installed · {installed.Version}", 13, true));
             panel.Children.Add(ChannelPicker(app, source));
+            if (installed is not null) panel.Children.Add(VersionPinButton(app, installed));
             panel.Children.Add(Text(availability.GetValueOrDefault(app.Id, "Published package · Not checked"), 13, true));
             panel.Children.Add(new HyperlinkButton { Content = "Release notes · " + source.Repository, NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
             if (available.TryGetValue(app.Id, out var package))
@@ -39,7 +40,7 @@ public sealed partial class MainWindow
                 var apply = new Button
                 {
                     Content = same ? "Published package installed" : $"Review {package.Version}",
-                    IsEnabled = !same && store.CanSave && installCancellation is null
+                    IsEnabled = !same && store.CanSave && installCancellation is null && store.AllowsPublishedVersion(app.Id, package.Version)
                 };
                 apply.Click += async (_, _) => await InstallPublishedAsync(app, package);
                 panel.Children.Add(apply);

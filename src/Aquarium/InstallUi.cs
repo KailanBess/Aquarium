@@ -31,11 +31,12 @@ public sealed partial class MainWindow
             panel.Children.Add(new HyperlinkButton { Content = source.Repository + " · Public releases", NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
             panel.Children.Add(Text(installed is null ? source.IncludedByDefault ? "Included in the complete bundle; not installed in this copy yet." : "Optional · Not installed" : $"Installed · {installed.Version}", 13, true));
             panel.Children.Add(ChannelPicker(app, source));
+            if (installed is not null) panel.Children.Add(VersionPinButton(app, installed));
             panel.Children.Add(Text(availability.GetValueOrDefault(app.Id, "Published packages have not been checked in this session."), 13, true));
             if (available.TryGetValue(app.Id, out var package))
             {
                 var same = installed?.Version == package.Version && installed.PackageSha256.Equals(package.Sha256, StringComparison.OrdinalIgnoreCase);
-                var button = new Button { Content = same ? "Installed" : installed is null ? $"Install {package.Version}" : $"Install published {package.Version}", IsEnabled = !same && store.CanSave && installCancellation is null };
+                var button = new Button { Content = same ? "Installed" : installed is null ? $"Install {package.Version}" : $"Install published {package.Version}", IsEnabled = !same && store.CanSave && installCancellation is null && store.AllowsPublishedVersion(app.Id, package.Version) };
                 button.Click += async (_, _) => await InstallPublishedAsync(app, package);
                 panel.Children.Add(button);
             }
@@ -58,6 +59,26 @@ public sealed partial class MainWindow
         }
         PageBody.Children.Add(Text("Only apps from the approved Aquarium repositories are listed. FishBowl does not include games, firmware, or emulators.", 13, true));
     }
+    private Button VersionPinButton(CatalogApp app, InstalledApp installed)
+    {
+        var pinned = store.GetVersionPin(app.Id);
+        var button = new Button
+        {
+            Content = pinned is null ? $"Pin installed version {installed.Version}" : $"Unpin version {pinned}",
+            IsEnabled = store.CanSave && installCancellation is null
+        };
+        button.Click += async (_, _) =>
+        {
+            if (installCancellation is not null) return;
+            using var operation = new CancellationTokenSource();
+            installCancellation = operation;
+            try { await store.SetVersionPinAsync(app.Id, pinned is null); }
+            catch (Exception ex) { if (!isClosed) ShowNotice("Could not save the pin: " + ex.Message, InfoBarSeverity.Error); }
+            finally { installCancellation = null; if (!isClosed) Render(); }
+        };
+        return button;
+    }
+
     private ComboBox ChannelPicker(CatalogApp app, AppSource source)
     {
         var channels = new[] { ReleaseChannel.Default, ReleaseChannel.Stable, ReleaseChannel.Preview };
@@ -145,6 +166,11 @@ public sealed partial class MainWindow
     private async Task InstallPublishedAsync(CatalogApp app, AppPackage package)
     {
         if (installCancellation is not null) return;
+        if (!store.AllowsPublishedVersion(app.Id, package.Version))
+        {
+            ShowNotice("Unpin the installed version before choosing a different release.", InfoBarSeverity.Warning);
+            return;
+        }
         var confirmation = new ContentDialog
         {
             XamlRoot = Root.XamlRoot, RequestedTheme = ElementTheme.Dark, Title = "Install " + app.Name + "?",
@@ -152,6 +178,7 @@ public sealed partial class MainWindow
             PrimaryButtonText = "Install", CloseButtonText = "Cancel"
         };
         if (await confirmation.ShowAsync() != ContentDialogResult.Primary || installCancellation is not null) return;
+        if (!store.AllowsPublishedVersion(app.Id, package.Version)) return;
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(10));
         installCancellation = cancellation; ReportInstall("Starting " + app.Name + " installation…"); Render();
         try { await installer.DownloadAndInstallAsync(package, new Progress<string>(ReportInstall), cancellation.Token); }
