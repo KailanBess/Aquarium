@@ -14,6 +14,7 @@ public sealed class LocalRegistry
     public List<string> UninstalledAppIds { get; set; } = [];
     public List<InstalledApp> InstallationHistory { get; set; } = [];
     public Dictionary<string, ReleaseChannel> ReleaseChannels { get; set; } = [];
+    public Dictionary<string, string> VersionPins { get; set; } = [];
 }
 
 public interface IAquariumModule

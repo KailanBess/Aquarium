@@ -1,10 +1,12 @@
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Security.Cryptography;
 
 namespace Aquarium;
 
-public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
+public sealed class PackageInstaller(LocalStore store, string? appRoot = null, Func<HttpClient>? clientFactory = null)
 {
     private const long MaxDownloadBytes = 512L * 1024 * 1024;
     private const long MaxExpandedBytes = 1024L * 1024 * 1024;
@@ -21,17 +23,42 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             throw new InvalidDataException("Invalid package download size.");
         var cache = Path.Combine(AppRoot, ".downloads");
         RefuseLinks(cache); Directory.CreateDirectory(cache);
-        RequireSpace(cache, package.Size);
-        var file = Path.Combine(cache, Guid.NewGuid().ToString("N") + ".zip");
+        var lockPath = Path.Combine(cache, "resume.lock");
+        RefuseLinks(lockPath);
+        using var downloadLock = new FileStream(lockPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        var file = Path.Combine(cache, package.Sha256.ToLowerInvariant() + ".part");
+        RefuseLinks(file);
+        foreach (var previous in Directory.EnumerateFiles(cache, "*.part"))
+        {
+            if (!GitHubPackages.IsHash(Path.GetFileNameWithoutExtension(previous)) ||
+                string.Equals(previous, file, StringComparison.OrdinalIgnoreCase)) continue;
+            RefuseLinks(previous);
+            File.Delete(previous);
+        }
         try
         {
-            using var client = GitHubPackages.Client();
-            using var response = await client.GetAsync(package.DownloadUrl, System.Net.Http.HttpCompletionOption.ResponseHeadersRead, token);
-            response.EnsureSuccessStatusCode();
-            await using (var input = await response.Content.ReadAsStreamAsync(token))
-            await using (var output = new FileStream(file, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+            long offset = File.Exists(file) ? new FileInfo(file).Length : 0;
+            if (offset > package.Size) { File.Delete(file); offset = 0; }
+            if (offset < package.Size)
             {
-                var buffer = new byte[81920]; long received = 0; int count;
+                using var client = clientFactory?.Invoke() ?? GitHubPackages.Client();
+                using var request = new HttpRequestMessage(HttpMethod.Get, package.DownloadUrl);
+                if (offset > 0) request.Headers.Range = new RangeHeaderValue(offset, null);
+                using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token);
+                if (offset > 0 && response.StatusCode == HttpStatusCode.RequestedRangeNotSatisfiable)
+                    throw new InvalidDataException("The server could not resume the download. Try again to start over.");
+                response.EnsureSuccessStatusCode();
+                if (response.StatusCode == HttpStatusCode.OK) offset = 0;
+                else if (response.StatusCode != HttpStatusCode.PartialContent || offset == 0 ||
+                    response.Content.Headers.ContentRange is not { } range ||
+                    !string.Equals(range.Unit, "bytes", StringComparison.OrdinalIgnoreCase) ||
+                    range.From != offset || range.To != package.Size - 1 || range.Length != package.Size)
+                    throw new InvalidDataException("The server returned an invalid download range. Try the download again.");
+
+                RequireSpace(cache, package.Size - offset);
+                await using var input = await response.Content.ReadAsStreamAsync(token);
+                await using var output = new FileStream(file, offset == 0 ? FileMode.Create : FileMode.Append, FileAccess.Write, FileShare.None);
+                var buffer = new byte[81920]; long received = offset; int count;
                 while ((count = await input.ReadAsync(buffer, token)) > 0)
                 {
                     received += count;
@@ -39,11 +66,20 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
                     await output.WriteAsync(buffer.AsMemory(0, count), token);
                     progress.Report($"Downloading {package.Source.Repository}: {received / 1048576d:F1} / {package.Size / 1048576d:F1} MB");
                 }
-                if (received != package.Size) throw new InvalidDataException("The package download is incomplete.");
+                if (received != package.Size) throw new EndOfStreamException("The package download is incomplete. Try again to resume.");
             }
-            return await install(file);
+            await using var downloaded = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
+            var actual = Convert.ToHexString(await SHA256.HashDataAsync(downloaded, token));
+            if (!actual.Equals(package.Sha256, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidDataException("Package checksum mismatch. Nothing was installed. Try downloading again.");
         }
-        finally { if (File.Exists(file)) File.Delete(file); }
+        catch (InvalidDataException)
+        {
+            File.Delete(file);
+            throw;
+        }
+        try { return await install(file); }
+        finally { File.Delete(file); }
     }
     public async Task<InstalledApp> InstallZipAsync(AppSource source, string version, string zipPath, string expectedHash, IProgress<string> progress, CancellationToken token)
     {

@@ -30,7 +30,7 @@ public sealed class LocalStore
         {
             var registry = JsonSerializer.Deserialize<LocalRegistry>(await File.ReadAllTextAsync(RegistryPath), Json)
                 ?? throw new InvalidDataException("Registry is empty.");
-            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null || registry.InstallationHistory is null || registry.ReleaseChannels is null)
+            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null || registry.InstallationHistory is null || registry.ReleaseChannels is null || registry.VersionPins is null)
                 throw new InvalidDataException("Unsupported or invalid registry schema.");
             Registry = registry;
         }
@@ -65,10 +65,41 @@ public sealed class LocalStore
                 Installations = Registry.Installations.ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
                 InstallationHistory = Registry.InstallationHistory.ToList(),
-                ReleaseChannels = new(Registry.ReleaseChannels)
+                ReleaseChannels = new(Registry.ReleaseChannels),
+                VersionPins = new(Registry.VersionPins)
             };
             if (channel == ReleaseChannel.Default) next.ReleaseChannels.Remove(appId);
             else next.ReleaseChannels[appId] = channel;
+            await CommitAsync(next);
+        }
+        finally { writeGate.Release(); }
+    }
+
+    public string? GetVersionPin(string appId) => Registry.VersionPins.GetValueOrDefault(appId);
+
+    public bool AllowsPublishedVersion(string appId, string version) =>
+        GetVersionPin(appId) is not string pinned || string.Equals(pinned, version, StringComparison.OrdinalIgnoreCase);
+
+    public async Task SetVersionPinAsync(string appId, bool pin)
+    {
+        await writeGate.WaitAsync();
+        try
+        {
+            if (!CanSave) throw new InvalidOperationException("The registry is read-only after a load error.");
+            if (!Catalog.Any(app => app.Id == appId)) throw new ArgumentException("Unknown app.");
+            var installed = Registry.Installations.SingleOrDefault(item => item.AppId == appId);
+            if (pin && installed is null) throw new InvalidOperationException("Install the app before pinning a version.");
+            var next = new LocalRegistry
+            {
+                LibraryAppIds = Registry.LibraryAppIds.ToList(),
+                Installations = Registry.Installations.ToList(),
+                UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
+                InstallationHistory = Registry.InstallationHistory.ToList(),
+                ReleaseChannels = new(Registry.ReleaseChannels),
+                VersionPins = new(Registry.VersionPins)
+            };
+            if (pin) next.VersionPins[appId] = installed!.Version;
+            else next.VersionPins.Remove(appId);
             await CommitAsync(next);
         }
         finally { writeGate.Release(); }
@@ -87,7 +118,8 @@ public sealed class LocalStore
             Installations = Registry.Installations.ToList(),
             UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
             InstallationHistory = Registry.InstallationHistory.ToList(),
-            ReleaseChannels = new(Registry.ReleaseChannels)
+            ReleaseChannels = new(Registry.ReleaseChannels),
+            VersionPins = new(Registry.VersionPins)
         };
         if (include) next.LibraryAppIds.Add(id);
         await CommitAsync(next);
@@ -111,7 +143,8 @@ public sealed class LocalStore
                 Installations = Registry.Installations.Where(item => item.AppId != installation.AppId).ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.Where(id => id != installation.AppId).ToList(),
                 InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).Concat(retained).ToList(),
-                ReleaseChannels = new(Registry.ReleaseChannels)
+                ReleaseChannels = new(Registry.ReleaseChannels),
+                VersionPins = new(Registry.VersionPins)
             };
             next.Installations.Add(installation);
             if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
@@ -127,14 +160,17 @@ public sealed class LocalStore
         {
             if (!CanSave || !Registry.Installations.Contains(installation))
                 throw new InvalidOperationException("The installation record changed. Refresh Aquarium and try again.");
-            await CommitAsync(new LocalRegistry
+            var next = new LocalRegistry
             {
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.Where(app => app.AppId != installation.AppId).ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.Append(installation.AppId).Distinct().ToList(),
                 InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).ToList(),
-                ReleaseChannels = new(Registry.ReleaseChannels)
-            });
+                ReleaseChannels = new(Registry.ReleaseChannels),
+                VersionPins = new(Registry.VersionPins)
+            };
+            next.VersionPins.Remove(installation.AppId);
+            await CommitAsync(next);
         }
         finally { writeGate.Release(); }
     }
