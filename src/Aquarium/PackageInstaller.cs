@@ -6,6 +6,9 @@ namespace Aquarium;
 
 public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
 {
+    private const long MaxDownloadBytes = 512L * 1024 * 1024;
+    private const long MaxExpandedBytes = 1024L * 1024 * 1024;
+
     public string AppRoot { get; } = Path.GetFullPath(appRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Apps"));
     public Task<InstalledApp> DownloadAndInstallAsync(AppPackage package, IProgress<string> progress, CancellationToken token) =>
         DownloadAsync(package, progress, token, file => InstallZipAsync(package.Source, package.Version, file, package.Sha256, progress, token));
@@ -13,8 +16,12 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
     {
         GitHubPackages.ValidateAssetUrl(package.Source, package.DownloadUrl);
         if (!GitHubPackages.IsHash(package.Sha256)) throw new InvalidDataException("Invalid checksum.");
+        token.ThrowIfCancellationRequested();
+        if (package.Size <= 0 || package.Size > MaxDownloadBytes)
+            throw new InvalidDataException("Invalid package download size.");
         var cache = Path.Combine(AppRoot, ".downloads");
         RefuseLinks(cache); Directory.CreateDirectory(cache);
+        RequireSpace(cache, package.Size);
         var file = Path.Combine(cache, Guid.NewGuid().ToString("N") + ".zip");
         try
         {
@@ -28,7 +35,7 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
                 while ((count = await input.ReadAsync(buffer, token)) > 0)
                 {
                     received += count;
-                    if (received > package.Size || received > 512L * 1024 * 1024) throw new InvalidDataException("Package exceeded its declared size.");
+                    if (received > package.Size) throw new InvalidDataException("Package exceeded its declared size.");
                     await output.WriteAsync(buffer.AsMemory(0, count), token);
                     progress.Report($"Downloading {package.Source.Repository}: {received / 1048576d:F1} / {package.Size / 1048576d:F1} MB");
                 }
@@ -74,7 +81,16 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
     internal static async Task ExtractAsync(ZipArchive archive, string destination, CancellationToken token)
     {
         if (archive.Entries.Count > 20000) throw new InvalidDataException("Too many package files.");
-        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase); long total = 0;
+        long total = 0;
+        foreach (var entry in archive.Entries)
+        {
+            token.ThrowIfCancellationRequested();
+            if (entry.Length > MaxExpandedBytes - total)
+                throw new InvalidDataException("Expanded package is too large.");
+            total += entry.Length;
+        }
+        RequireSpace(destination, total);
+        var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var entry in archive.Entries)
         {
             token.ThrowIfCancellationRequested();
@@ -84,8 +100,6 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             var path = Path.GetFullPath(Path.Combine(destination, relative));
             RequireWithin(destination, path);
             if (!seen.Add(path)) throw new InvalidDataException("Duplicate package path.");
-            total += entry.Length;
-            if (total > 1024L * 1024 * 1024) throw new InvalidDataException("Expanded package is too large.");
             if (string.IsNullOrEmpty(entry.Name)) { Directory.CreateDirectory(path); continue; }
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
             await using var source = entry.Open();
@@ -100,6 +114,14 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null)
             if (written != entry.Length) throw new InvalidDataException("Package file is truncated.");
         }
     }
+    internal static void RequireSpace(string directory, long bytes)
+    {
+        var root = Path.GetPathRoot(Path.GetFullPath(directory))!;
+        var available = new DriveInfo(root).AvailableFreeSpace;
+        if (available < bytes)
+            throw new IOException($"Not enough free disk space to process this package. Aquarium needs {bytes:N0} bytes and the destination has {available:N0} bytes available.");
+    }
+
     public async Task<(int Checked, int Damaged)> VerifyInstalledFilesAsync(InstalledApp app, string zipPath, CancellationToken token)
     {
         RequireWithin(Path.Combine(AppRoot, app.AppId), app.InstallDirectory);

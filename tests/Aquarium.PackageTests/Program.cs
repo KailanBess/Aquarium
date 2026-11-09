@@ -25,6 +25,16 @@ try
     var installer = new PackageInstaller(store, Path.Combine(root, "Apps"));
     var source = GitHubPackages.Sources.Single(s => s.AppId == "aquarium.security");
     var progress = new Progress<string>();
+    PackageInstaller.RequireSpace(root, 0);
+    try
+    {
+        PackageInstaller.RequireSpace(root, long.MaxValue);
+        throw new Exception("A package larger than the destination's free space was accepted.");
+    }
+    catch (IOException error)
+    {
+        Check(error.Message.Contains("Not enough free disk space", StringComparison.Ordinal), "Insufficient space did not report a useful error");
+    }
     var valid = Zip("valid", "FishTank.exe", "FishTank.exe.config");
     var installed = await installer.InstallZipAsync(source, "fixture-v1", valid, Hash(valid), progress, default);
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Expected entry point missing");
