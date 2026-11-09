@@ -1,12 +1,9 @@
 using System.Diagnostics;
-using System.Net;
-using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Aquarium;
 
 public sealed record UpdateReport(string Output, int ExitCode, DateTimeOffset CheckedAt);
-public sealed record ReleaseInfo(string Name, string Tag, string Url);
 
 public sealed class UpdateService
 {
@@ -44,24 +41,5 @@ public sealed class UpdateService
         var start = new ProcessStartInfo(WingetPath) { UseShellExecute = true };
         foreach (var argument in new[] { "upgrade", "--id", packageId, "--exact", "--source", "winget" }) start.ArgumentList.Add(argument);
         Process.Start(start)?.Dispose();
-    }
-    public async Task<IReadOnlyList<ReleaseInfo>> CheckAquariumReleasesAsync(CancellationToken token)
-    {
-        using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.2");
-        var releases = new List<ReleaseInfo>();
-        foreach (var app in new[] { "Aquarium", "FishNet" })
-        {
-            using var response = await client.GetAsync($"https://api.github.com/repos/KailanBess/{app}/releases/latest", token);
-            if (response.StatusCode == HttpStatusCode.NotFound)
-            {
-                releases.Add(new(app, "No stable release published", $"https://github.com/KailanBess/{app}/releases"));
-                continue;
-            }
-            response.EnsureSuccessStatusCode();
-            using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-            releases.Add(new(app, json.RootElement.GetProperty("tag_name").GetString() ?? "Unknown tag", $"https://github.com/KailanBess/{app}/releases"));
-        }
-        return releases;
     }
 }

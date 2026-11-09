@@ -4,6 +4,8 @@ using System.Text.RegularExpressions;
 
 namespace Aquarium;
 
+public enum ReleaseChannel { Default, Stable, Preview }
+
 public sealed record AppSource(string AppId, string Repository, string Executable, bool IncludePreview, bool IncludedByDefault);
 public sealed record AppPackage(AppSource Source, string Version, string AssetName, string DownloadUrl, string Sha256, long Size);
 public sealed record BundledPackage(string AppId, string Version, string File, string Sha256);
@@ -23,15 +25,15 @@ public sealed class GitHubPackages
         client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.4");
         return client;
     }
-    public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token)
+    public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token, ReleaseChannel channel = ReleaseChannel.Default)
     {
         if (source != Shell && !Sources.Contains(source)) throw new InvalidOperationException("This repository is not in the Aquarium catalog.");
         using var client = Client();
         using var response = await client.GetAsync($"https://api.github.com/repos/{source.Repository}/releases?per_page=20", token);
         response.EnsureSuccessStatusCode();
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync(token));
-        var release = json.RootElement.EnumerateArray().FirstOrDefault(r => !r.GetProperty("draft").GetBoolean() && (source.IncludePreview || !r.GetProperty("prerelease").GetBoolean()));
-        if (release.ValueKind == JsonValueKind.Undefined) throw new InvalidOperationException("No published release is available yet.");
+        var release = SelectRelease(json.RootElement, source.IncludePreview, channel);
+        if (release.ValueKind == JsonValueKind.Undefined) throw new InvalidOperationException(channel == ReleaseChannel.Default ? "No published release is available yet." : $"No published {channel.ToString().ToLowerInvariant()} release is available yet.");
         var version = release.GetProperty("tag_name").GetString() ?? throw new InvalidDataException("Missing release tag.");
         var assets = release.GetProperty("assets").EnumerateArray().ToArray();
         var wanted = source.AppId switch
@@ -65,6 +67,21 @@ public sealed class GitHubPackages
         if (size <= 0 || size > 512L * 1024 * 1024) throw new InvalidDataException("Unsupported package size.");
         return new(source, version, wanted, download, hash!.ToLowerInvariant(), size);
     }
+    internal static JsonElement SelectRelease(JsonElement releases, bool includePreviewByDefault, ReleaseChannel channel)
+    {
+        return releases.EnumerateArray().FirstOrDefault(release =>
+        {
+            if (release.GetProperty("draft").GetBoolean()) return false;
+            var preview = release.GetProperty("prerelease").GetBoolean();
+            return channel switch
+            {
+                ReleaseChannel.Stable => !preview,
+                ReleaseChannel.Preview => preview,
+                _ => includePreviewByDefault || !preview
+            };
+        });
+    }
+
     internal static bool IsHash(string? hash) => hash is not null && Regex.IsMatch(hash, @"\A[a-fA-F0-9]{64}\z");
     internal static void ValidateAssetUrl(AppSource source, string url)
     {
