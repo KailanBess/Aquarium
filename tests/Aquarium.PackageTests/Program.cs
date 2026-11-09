@@ -35,12 +35,26 @@ try
     {
         Check(error.Message.Contains("Not enough free disk space", StringComparison.Ordinal), "Insufficient space did not report a useful error");
     }
+    using (var releases = System.Text.Json.JsonDocument.Parse("""
+        [{"draft":true,"prerelease":false,"tag_name":"draft"},
+         {"draft":false,"prerelease":true,"tag_name":"preview"},
+         {"draft":false,"prerelease":false,"tag_name":"stable"}]
+        """))
+    {
+        string? Tag(ReleaseChannel channel, bool previews = false) =>
+            GitHubPackages.SelectRelease(releases.RootElement, previews, channel).GetProperty("tag_name").GetString();
+        Check(Tag(ReleaseChannel.Stable, true) == "stable", "Stable must skip drafts and previews");
+        Check(Tag(ReleaseChannel.Preview) == "preview", "Preview must pick the preview release");
+        Check(Tag(ReleaseChannel.Default, true) == "preview" && Tag(ReleaseChannel.Default) == "stable", "Defaults changed for existing installs");
+    }
+    await store.SetReleaseChannelAsync(source.AppId, ReleaseChannel.Stable);
     var valid = Zip("valid", "FishTank.exe", "FishTank.exe.config");
     var installed = await installer.InstallZipAsync(source, "fixture-v1", valid, Hash(valid), progress, default);
     Check(File.Exists(Path.Combine(installed.InstallDirectory, installed.EntryPoint)), "Expected entry point missing");
     Check(store.Registry.Installations.Single() == installed, "Installation not registered");
     Check(store.Registry.LibraryAppIds.Contains(source.AppId), "Installed app not added to Library");
     var reload = new LocalStore(Path.Combine(root, "registry")); await reload.LoadAsync();
+    Check(reload.GetReleaseChannel(source.AppId) == ReleaseChannel.Stable, "Release channel was lost after install");
     Check(reload.Registry.Installations.Single().EntryPoint == installed.EntryPoint, "Entry point not persisted");
     await Refuses(() => installer.InstallZipAsync(source, "bad", valid, new string('0', 64), progress, default), "checksum mismatch");
     foreach (var paths in new[] { new[] { "../escape.exe", "FishTank.exe" }, new[] { "FishTank.exe", "fishtank.EXE" }, new[] { "other.exe" }, new[] { "folder/../../escape.exe" } })

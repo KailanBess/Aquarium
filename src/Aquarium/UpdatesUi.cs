@@ -9,31 +9,51 @@ public sealed partial class MainWindow
     private readonly Appearance appearance = new();
     private CancellationTokenSource? updateCancellation;
     private string updateOutput = "No outside-app check has run in this session.";
-    private IReadOnlyList<ReleaseInfo> releases = [];
-    private string releaseStatus = "Aquarium-family releases have not been checked.";
 
     private void RenderUpdates()
     {
         RenderSelfUpdate();
-        var manage = new Button { Content = "Manage Aquarium app installs and updates" };
-        manage.Click += (_, _) => Navigation.SelectedItem = Navigation.MenuItems.Cast<NavigationViewItem>().Single(i => i.Tag?.ToString() == "App install");
-        PageBody.Children.Add(manage);
-        Empty("One home for updates", "Aquarium owns update management for the Aquarium family. FishNet has no updater. Outside-app checks use the WinGet community source; coverage is limited to apps it can match. Other apps may still update themselves.");
+        Empty("Aquarium app updates", "Check approved GitHub releases and review the installed and published packages before changing versions.");
+        var own = new Button { Content = "Check Aquarium apps", IsEnabled = installCancellation is null };
+        own.Click += async (_, _) => await CheckPackagesAsync();
+        PageBody.Children.Add(own);
+        if (installCancellation is not null)
+        {
+            var cancelPackages = new Button { Content = "Cancel package operation" };
+            cancelPackages.Click += (_, _) => installCancellation?.Cancel();
+            PageBody.Children.Add(cancelPackages);
+        }
+        foreach (var app in store.Catalog)
+        {
+            var source = GitHubPackages.Sources.Single(item => item.AppId == app.Id);
+            var installed = store.Registry.Installations.FirstOrDefault(item => item.AppId == app.Id);
+            var panel = new StackPanel { Spacing = 8 };
+            panel.Children.Add(Text(app.Name, 20));
+            panel.Children.Add(Text(installed is null ? "Installed · No" : $"Installed · {installed.Version}", 13, true));
+            panel.Children.Add(ChannelPicker(app, source));
+            panel.Children.Add(Text(availability.GetValueOrDefault(app.Id, "Published package · Not checked"), 13, true));
+            panel.Children.Add(new HyperlinkButton { Content = "Release notes · " + source.Repository, NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
+            if (available.TryGetValue(app.Id, out var package))
+            {
+                bool same = installed?.Version == package.Version && installed.PackageSha256.Equals(package.Sha256, StringComparison.OrdinalIgnoreCase);
+                var apply = new Button
+                {
+                    Content = same ? "Published package installed" : $"Review {package.Version}",
+                    IsEnabled = !same && store.CanSave && installCancellation is null
+                };
+                apply.Click += async (_, _) => await InstallPublishedAsync(app, package);
+                panel.Children.Add(apply);
+            }
+            PageBody.Children.Add(Panel(panel));
+        }
+
+        Empty("Windows app updates", "WinGet checks apps it can match to its community source. Other apps may still update themselves.");
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         var check = new Button { Content = "Check outside apps", IsEnabled = updateCancellation is null };
-        var own = new Button { Content = "Check Aquarium releases", IsEnabled = updateCancellation is null };
         var cancel = new Button { Content = "Cancel check", IsEnabled = updateCancellation is not null };
-        check.Click += async (_, _) => await RunCheck(false);
-        own.Click += async (_, _) => await RunCheck(true);
+        check.Click += async (_, _) => await RunOutsideCheck();
         cancel.Click += (_, _) => updateCancellation?.Cancel();
-        actions.Children.Add(check); actions.Children.Add(own); actions.Children.Add(cancel); PageBody.Children.Add(actions);
-        PageBody.Children.Add(Text(releaseStatus, 14, true));
-        foreach (var release in releases)
-        {
-            var link = new HyperlinkButton { Content = $"{release.Name} · {release.Tag} · View releases", NavigateUri = new Uri(release.Url) };
-            PageBody.Children.Add(link);
-        }
-        PageBody.Children.Add(Text("Release tags are shown for review; installed-version comparison and verified Aquarium package installation are pending. No release is silently downloaded or applied.", 13, true));
+        actions.Children.Add(check); actions.Children.Add(cancel); PageBody.Children.Add(actions);
         var report = new TextBox { Text = updateOutput, IsReadOnly = true, AcceptsReturn = true, TextWrapping = TextWrapping.NoWrap, MinHeight = 160, MaxHeight = 380, FontFamily = new Microsoft.UI.Xaml.Media.FontFamily("Consolas") };
         ScrollViewer.SetHorizontalScrollBarVisibility(report, ScrollBarVisibility.Auto);
         ScrollViewer.SetVerticalScrollBarVisibility(report, ScrollBarVisibility.Auto);
@@ -57,30 +77,22 @@ public sealed partial class MainWindow
         };
         PageBody.Children.Add(id); PageBody.Children.Add(install);
     }
-    private async Task RunCheck(bool aquariumFamily)
+    private async Task RunOutsideCheck()
     {
         if (updateCancellation is not null) return;
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         updateCancellation = cancellation;
-        if (aquariumFamily) releaseStatus = "Checking published releases…"; else updateOutput = "Checking WinGet…";
+        updateOutput = "Checking WinGet…";
         Render();
         try
         {
-            if (aquariumFamily)
-            {
-                releases = await updates.CheckAquariumReleasesAsync(cancellation.Token);
-                releaseStatus = $"Release check finished {DateTimeOffset.Now:g}. Tags are available-release information, not proof an installed app needs an update.";
-            }
-            else
-            {
-                var report = await updates.CheckOutsideAppsAsync(cancellation.Token);
-                updateOutput = $"Checked {report.CheckedAt:g} · WinGet exit code {report.ExitCode}\n{report.Output}";
-            }
+            var report = await updates.CheckOutsideAppsAsync(cancellation.Token);
+            updateOutput = $"Checked {report.CheckedAt:g} · WinGet exit code {report.ExitCode}\n{report.Output}";
         }
         catch (Exception ex)
         {
             var message = ex is OperationCanceledException ? "Check canceled or timed out. No updates were installed by this check." : "Check failed: " + ex.Message;
-            if (aquariumFamily) releaseStatus = message; else updateOutput = message;
+            updateOutput = message;
         }
         finally
         {

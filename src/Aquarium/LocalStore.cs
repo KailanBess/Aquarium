@@ -30,7 +30,7 @@ public sealed class LocalStore
         {
             var registry = JsonSerializer.Deserialize<LocalRegistry>(await File.ReadAllTextAsync(RegistryPath), Json)
                 ?? throw new InvalidDataException("Registry is empty.");
-            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null || registry.InstallationHistory is null)
+            if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null || registry.InstallationHistory is null || registry.ReleaseChannels is null)
                 throw new InvalidDataException("Unsupported or invalid registry schema.");
             Registry = registry;
         }
@@ -39,6 +39,39 @@ public sealed class LocalStore
             CanSave = false;
             LoadWarning = $"The local registry could not be read. It has been preserved; library changes are disabled. {ex.Message}";
         }
+    }
+
+    public ReleaseChannel GetReleaseChannel(string appId)
+    {
+        return Registry.ReleaseChannels.GetValueOrDefault(appId) switch
+        {
+            ReleaseChannel.Stable => ReleaseChannel.Stable,
+            ReleaseChannel.Preview => ReleaseChannel.Preview,
+            _ => ReleaseChannel.Default
+        };
+    }
+
+    public async Task SetReleaseChannelAsync(string appId, ReleaseChannel channel)
+    {
+        await writeGate.WaitAsync();
+        try
+        {
+            if (!CanSave) throw new InvalidOperationException("The registry is read-only after a load error.");
+            if (!Catalog.Any(app => app.Id == appId) || !Enum.IsDefined(channel))
+                throw new ArgumentException("Unknown app or release channel.");
+            var next = new LocalRegistry
+            {
+                LibraryAppIds = Registry.LibraryAppIds.ToList(),
+                Installations = Registry.Installations.ToList(),
+                UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
+                InstallationHistory = Registry.InstallationHistory.ToList(),
+                ReleaseChannels = new(Registry.ReleaseChannels)
+            };
+            if (channel == ReleaseChannel.Default) next.ReleaseChannels.Remove(appId);
+            else next.ReleaseChannels[appId] = channel;
+            await CommitAsync(next);
+        }
+        finally { writeGate.Release(); }
     }
 
     public async Task SetLibraryAsync(string id, bool include)
@@ -53,7 +86,8 @@ public sealed class LocalStore
             LibraryAppIds = Registry.LibraryAppIds.Where(x => x != id).ToList(),
             Installations = Registry.Installations.ToList(),
             UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
-            InstallationHistory = Registry.InstallationHistory.ToList()
+            InstallationHistory = Registry.InstallationHistory.ToList(),
+            ReleaseChannels = new(Registry.ReleaseChannels)
         };
         if (include) next.LibraryAppIds.Add(id);
         await CommitAsync(next);
@@ -76,7 +110,8 @@ public sealed class LocalStore
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.Where(item => item.AppId != installation.AppId).ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.Where(id => id != installation.AppId).ToList(),
-                InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).Concat(retained).ToList()
+                InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).Concat(retained).ToList(),
+                ReleaseChannels = new(Registry.ReleaseChannels)
             };
             next.Installations.Add(installation);
             if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
@@ -97,7 +132,8 @@ public sealed class LocalStore
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.Where(app => app.AppId != installation.AppId).ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.Append(installation.AppId).Distinct().ToList(),
-                InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).ToList()
+                InstallationHistory = Registry.InstallationHistory.Where(item => item.AppId != installation.AppId).ToList(),
+                ReleaseChannels = new(Registry.ReleaseChannels)
             });
         }
         finally { writeGate.Release(); }

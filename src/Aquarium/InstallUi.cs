@@ -30,6 +30,7 @@ public sealed partial class MainWindow
             panel.Children.Add(Text(app.Summary, 14, true));
             panel.Children.Add(new HyperlinkButton { Content = source.Repository + " · Public releases", NavigateUri = new Uri($"https://github.com/{source.Repository}/releases") });
             panel.Children.Add(Text(installed is null ? source.IncludedByDefault ? "Included in the complete bundle; not installed in this copy yet." : "Optional · Not installed" : $"Installed · {installed.Version}", 13, true));
+            panel.Children.Add(ChannelPicker(app, source));
             panel.Children.Add(Text(availability.GetValueOrDefault(app.Id, "Published packages have not been checked in this session."), 13, true));
             if (available.TryGetValue(app.Id, out var package))
             {
@@ -57,6 +58,34 @@ public sealed partial class MainWindow
         }
         PageBody.Children.Add(Text("Only apps from the approved Aquarium repositories are listed. FishBowl does not include games, firmware, or emulators.", 13, true));
     }
+    private ComboBox ChannelPicker(CatalogApp app, AppSource source)
+    {
+        var channels = new[] { ReleaseChannel.Default, ReleaseChannel.Stable, ReleaseChannel.Preview };
+        var picker = new ComboBox
+        {
+            Header = "Release channel",
+            ItemsSource = new[] { source.IncludePreview ? "Default · includes previews" : "Default · stable", "Stable", "Preview only" },
+            SelectedIndex = Array.IndexOf(channels, store.GetReleaseChannel(app.Id)),
+            IsEnabled = store.CanSave && installCancellation is null
+        };
+        picker.SelectionChanged += async (_, _) =>
+        {
+            if (picker.SelectedIndex < 0 || installCancellation is not null) return;
+            var channel = channels[picker.SelectedIndex];
+            using var operation = new CancellationTokenSource();
+            installCancellation = operation;
+            try
+            {
+                await store.SetReleaseChannelAsync(app.Id, channel);
+                available.Remove(app.Id);
+                availability[app.Id] = "Channel saved. Look for published apps to refresh.";
+            }
+            catch (Exception ex) { if (!isClosed) ShowNotice("Could not save the release channel: " + ex.Message, InfoBarSeverity.Error); }
+            finally { installCancellation = null; if (!isClosed) Render(); }
+        };
+        return picker;
+    }
+
     private Button UninstallButton(CatalogApp app, InstalledApp installed)
     {
         var button = new Button { Content = "Uninstall", IsEnabled = store.CanSave && installCancellation is null };
@@ -101,14 +130,14 @@ public sealed partial class MainWindow
             {
                 try
                 {
-                    var package = await feeds.FindAsync(source, cancellation.Token);
+                    var package = await feeds.FindAsync(source, cancellation.Token, store.GetReleaseChannel(source.AppId));
                     available[source.AppId] = package;
                     availability[source.AppId] = $"Published {package.Version} · {package.Size / 1048576d:F1} MB · SHA-256 available";
                 }
                 catch (Exception ex) when (ex is not OperationCanceledException)
                 { availability[source.AppId] = "Unavailable: " + ex.Message; }
             }
-            ReportInstall("Public release check finished. Review availability on App install.");
+            ReportInstall("Public release check finished. Review packages on Updates or App install.");
         }
         catch (OperationCanceledException) { ReportInstall("Release check canceled or timed out."); }
         finally { installCancellation = null; if (!isClosed) Render(); }

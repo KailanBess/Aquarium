@@ -215,6 +215,98 @@ public sealed class Appearance
                 box.SelectedItem = value;
         }
 
+        void LoadControls(Preferences theme)
+        {
+            Select(accent, theme.Accent); Select(background, theme.Background); Select(border, theme.WindowBorder);
+            Select(titleBar, theme.TitleBar); Select(corners, theme.CardShape); Select(textSize, theme.TextSize);
+            Select(sidebar, theme.Sidebar); Select(width, theme.ContentWidth); Select(icons, theme.LibraryIcons);
+            customAccent.Text = theme.AccentHex ?? ""; compact.IsOn = theme.Compact;
+            Preview();
+        }
+
+        var presetPath = Path.Combine(Path.GetDirectoryName(path)!, "appearance-presets.json");
+        var presets = new Dictionary<string, Preferences>(StringComparer.OrdinalIgnoreCase);
+        bool presetsWritable = true;
+        try
+        {
+            if (File.Exists(presetPath))
+            {
+                using var input = File.OpenRead(presetPath);
+                if (input.Length > 131072) throw new InvalidDataException("The saved preset list is too large.");
+                var saved = JsonSerializer.Deserialize<Dictionary<string, Preferences>>(input)
+                    ?? throw new InvalidDataException("The saved preset list is empty.");
+                foreach (var entry in saved)
+                    if (entry.Value is not null) presets.TryAdd(entry.Key, entry.Value);
+            }
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or InvalidDataException)
+        {
+            presetsWritable = false;
+            panel.Children.Add(new TextBlock { Text = "Saved presets could not be read and have been preserved.", TextWrapping = TextWrapping.Wrap });
+        }
+
+        var presetChoice = new ComboBox { Header = "Saved appearance presets", ItemsSource = presets.Keys.Order().ToArray() };
+        var presetName = new TextBox { Header = "New preset name", MaxLength = 40, Width = 220, HorizontalAlignment = HorizontalAlignment.Left };
+        var presetActions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
+        var savePreset = new Button { Content = "Save as preset", IsEnabled = presetsWritable };
+        var previewPreset = new Button { Content = "Preview preset", IsEnabled = false };
+        var removePreset = new Button { Content = "Remove preset", IsEnabled = false };
+        void WritePresets(Dictionary<string, Preferences> next)
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(presetPath)!);
+            File.WriteAllText(presetPath + ".tmp", JsonSerializer.Serialize(next));
+            File.Move(presetPath + ".tmp", presetPath, true);
+            presets = next;
+            presetChoice.ItemsSource = presets.Keys.Order().ToArray();
+        }
+        presetChoice.SelectionChanged += (_, _) =>
+        {
+            previewPreset.IsEnabled = presetChoice.SelectedItem is string;
+            removePreset.IsEnabled = presetsWritable && previewPreset.IsEnabled;
+        };
+        savePreset.Click += (_, _) =>
+        {
+            try
+            {
+                string name = presetName.Text.Trim();
+                if (name.Length == 0 || presets.ContainsKey(name) || presets.Count >= 20)
+                    throw new InvalidDataException("Enter a unique preset name. You can save up to 20 presets.");
+                var theme = ReadControls();
+                if (!string.IsNullOrWhiteSpace(theme.AccentHex) && ParseColor(theme.AccentHex) is null)
+                    throw new InvalidDataException("Enter a valid custom accent before saving a preset.");
+                var next = new Dictionary<string, Preferences>(presets, StringComparer.OrdinalIgnoreCase) { [name] = theme };
+                WritePresets(next);
+                presetChoice.SelectedItem = name;
+                presetName.Text = "";
+                status.Text = "Preset saved.";
+            }
+            catch (Exception ex) { error("Could not save the preset. " + ex.Message); }
+        };
+        previewPreset.Click += (_, _) =>
+        {
+            if (presetChoice.SelectedItem is not string name || !presets.TryGetValue(name, out var theme)) return;
+            LoadControls(theme);
+            status.Text = "Preset preview. Apply appearance to save.";
+        };
+        removePreset.Click += (_, _) =>
+        {
+            if (presetChoice.SelectedItem is not string name) return;
+            try
+            {
+                var next = new Dictionary<string, Preferences>(presets, StringComparer.OrdinalIgnoreCase);
+                next.Remove(name);
+                WritePresets(next);
+                status.Text = "Preset removed.";
+            }
+            catch (Exception ex) { error("Could not remove the preset. " + ex.Message); }
+        };
+        presetActions.Children.Add(savePreset);
+        presetActions.Children.Add(previewPreset);
+        presetActions.Children.Add(removePreset);
+        panel.Children.Add(presetChoice);
+        panel.Children.Add(presetName);
+        panel.Children.Add(presetActions);
+
         var export = new Button { Content = "Export theme" };
         export.Click += async (_, _) =>
         {
@@ -252,11 +344,7 @@ public sealed class Appearance
                 if (!string.IsNullOrWhiteSpace(theme.AccentHex) && ParseColor(theme.AccentHex) is null)
                     throw new InvalidDataException("The theme's custom accent is invalid.");
 
-                Select(accent, theme.Accent); Select(background, theme.Background); Select(border, theme.WindowBorder);
-                Select(titleBar, theme.TitleBar); Select(corners, theme.CardShape); Select(textSize, theme.TextSize);
-                Select(sidebar, theme.Sidebar); Select(width, theme.ContentWidth); Select(icons, theme.LibraryIcons);
-                customAccent.Text = theme.AccentHex ?? ""; compact.IsOn = theme.Compact;
-                Preview();
+                LoadControls(theme);
                 status.Text = "Imported a theme preview. Apply appearance to save.";
             }
             catch (Exception ex) { error("Could not import the theme. " + ex.Message); }
