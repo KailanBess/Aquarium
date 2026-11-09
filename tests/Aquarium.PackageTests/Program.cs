@@ -25,6 +25,45 @@ try
     var installer = new PackageInstaller(store, Path.Combine(root, "Apps"));
     var source = GitHubPackages.Sources.Single(s => s.AppId == "aquarium.security");
     var progress = new Progress<string>();
+    var data = new byte[] { 5, 8, 13, 21, 34 };
+    var download = new AppPackage(source, "fixture", "FishTank-desktop-preview.zip",
+        $"https://github.com/{source.Repository}/releases/download/fixture/FishTank-desktop-preview.zip",
+        Convert.ToHexString(SHA256.HashData(data)), data.Length);
+    int requests = 0;
+    var downloadRoot = Path.Combine(root, "resume-fixture");
+    var downloader = new PackageInstaller(store, downloadRoot, () => new HttpClient(new DownloadFixture(request =>
+    {
+        requests++;
+        if (requests == 1)
+        {
+            Check(request.Headers.Range is null, "Fresh download sent a range");
+            return new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = new ByteArrayContent(data[..2]) };
+        }
+        Check(request.Headers.Range?.ToString() == "bytes=2-", "Retry did not request the remaining bytes");
+        var response = new HttpResponseMessage(System.Net.HttpStatusCode.PartialContent) { Content = new ByteArrayContent(data[2..]) };
+        response.Content.Headers.ContentRange = new System.Net.Http.Headers.ContentRangeHeaderValue(2, 4, data.Length);
+        return response;
+    })));
+    try
+    {
+        await downloader.DownloadAsync(download, progress, default, file => File.ReadAllBytesAsync(file));
+        throw new Exception("Incomplete download was accepted.");
+    }
+    catch (EndOfStreamException) { checks++; }
+    var resumed = await downloader.DownloadAsync(download, progress, default, file => File.ReadAllBytesAsync(file));
+    Check(resumed.SequenceEqual(data) && requests == 2, "Resumed package did not match the approved digest");
+    Check(!Directory.EnumerateFiles(Path.Combine(downloadRoot, ".downloads"), "*.part").Any(), "Successful retry left partial bytes");
+    var partial = Path.Combine(downloadRoot, ".downloads", download.Sha256.ToLowerInvariant() + ".part");
+    await File.WriteAllBytesAsync(partial, data[..2]);
+    var invalidRange = new PackageInstaller(store, downloadRoot, () => new HttpClient(new DownloadFixture(_ =>
+    {
+        var response = new HttpResponseMessage(System.Net.HttpStatusCode.PartialContent) { Content = new ByteArrayContent(data[1..]) };
+        response.Content.Headers.ContentRange = new System.Net.Http.Headers.ContentRangeHeaderValue(1, 4, data.Length);
+        return response;
+    })));
+    await Refuses(() => invalidRange.DownloadAsync(download, progress, default, file => File.ReadAllBytesAsync(file)), "incorrect resume offset");
+    Check(!File.Exists(partial), "Incorrect range left partial bytes available for retry");
+
     PackageInstaller.RequireSpace(root, 0);
     try
     {
@@ -112,4 +151,13 @@ finally
     var expected = Path.GetFullPath(Path.GetTempPath()).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar;
     if (!Path.GetFullPath(root).StartsWith(expected, StringComparison.OrdinalIgnoreCase) || !Path.GetFileName(root).StartsWith("Aquarium-package-tests-")) throw new Exception("Unsafe fixture cleanup path.");
     Directory.Delete(root, true);
+}
+
+sealed class DownloadFixture(Func<HttpRequestMessage, HttpResponseMessage> respond) : HttpMessageHandler
+{
+    protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        return Task.FromResult(respond(request));
+    }
 }
