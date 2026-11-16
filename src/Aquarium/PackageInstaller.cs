@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.IO.Compression;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 
 namespace Aquarium;
@@ -270,11 +271,55 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null, F
         return store.RecordInstallationAsync(previous);
     }
 
-    public void Launch(InstalledApp app)
+    public bool Launch(InstalledApp app)
     {
         var executable = InstalledExecutable(app);
-        Process.Start(new ProcessStartInfo(executable) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(executable)! })?.Dispose();
+        var running = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(executable));
+        try
+        {
+            foreach (var process in running)
+            {
+                nint window;
+                try
+                {
+                    if (!string.Equals(process.MainModule?.FileName, executable, StringComparison.OrdinalIgnoreCase))
+                        continue;
+                    window = process.MainWindowHandle;
+                }
+                catch (Exception ex) when (ex is InvalidOperationException or System.ComponentModel.Win32Exception)
+                {
+                    continue;
+                }
+
+                if (window == 0) continue;
+                if (IsIconic(window)) ShowWindowAsync(window, 9); // SW_RESTORE
+                return SetForegroundWindow(window);
+            }
+        }
+        finally
+        {
+            foreach (var process in running) process.Dispose();
+        }
+
+        using var started = Process.Start(new ProcessStartInfo(executable)
+        {
+            UseShellExecute = false,
+            WorkingDirectory = Path.GetDirectoryName(executable)!
+        }) ?? throw new InvalidOperationException("Windows did not start the app.");
+        return true;
     }
+
+    [DllImport("user32.dll", ExactSpelling = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsIconic(nint window);
+
+    [DllImport("user32.dll", ExactSpelling = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool ShowWindowAsync(nint window, int command);
+
+    [DllImport("user32.dll", ExactSpelling = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool SetForegroundWindow(nint window);
     internal static void RequireWithin(string root, string path)
     {
         if (!Path.GetFullPath(path).StartsWith(Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Path is outside the app directory.");
