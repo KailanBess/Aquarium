@@ -21,6 +21,10 @@ jobs:
         run: dotnet run --project tests/Aquarium.LauncherTests/Aquarium.LauncherTests.csproj -c Release
       - name: Build standalone File Organizer
         run: dotnet build tools/FileOrganizer/FileOrganizer.csproj -c Release
+      - name: Build standalone Device Inventory
+        run: dotnet build tools/DeviceInventory/DeviceInventory.csproj -c Release
+      - name: Build standalone Workspace Launcher
+        run: dotnet build tools/WorkspaceLauncher/WorkspaceLauncher.csproj -c Release
       - name: Publish Aquarium
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project src/Aquarium/Aquarium.csproj -PublishDirectory artifacts/Aquarium -LogName aquarium-build
