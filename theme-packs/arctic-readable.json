@@ -1,0 +1,13 @@
+{
+  "Accent": "Aquarium Blue",
+  "AccentHex": "#91CEFF",
+  "Background": "Arctic",
+  "Compact": false,
+  "WindowBorder": "System",
+  "TitleBar": "Match background",
+  "CardShape": "Rounded",
+  "TextSize": "Large",
+  "Sidebar": "Standard",
+  "ContentWidth": "Standard",
+  "LibraryIcons": "Large"
+}
