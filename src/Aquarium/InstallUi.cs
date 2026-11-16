@@ -205,7 +205,11 @@ public sealed partial class MainWindow
     }
     private void LaunchInstalled(InstalledApp app)
     {
-        try { installer.Launch(app); }
+        try
+        {
+            if (!installer.Launch(app))
+                ShowNotice("The app is already open. Select it on the Windows taskbar to switch to it.", InfoBarSeverity.Informational);
+        }
         catch (Exception ex) { ShowNotice("Could not open the app: " + ex.Message, InfoBarSeverity.Error); }
     }
     private async Task InstallBundledAsync(string? requestedAppId = null)
