@@ -1,0 +1,13 @@
+{
+  "Accent": "Aquarium Mint",
+  "AccentHex": "#67E8D3",
+  "Background": "Midnight",
+  "Compact": false,
+  "WindowBorder": "System",
+  "TitleBar": "Match background",
+  "CardShape": "Rounded",
+  "TextSize": "Standard",
+  "Sidebar": "Standard",
+  "ContentWidth": "Standard",
+  "LibraryIcons": "Standard"
+}
