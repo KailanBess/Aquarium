@@ -1,0 +1,13 @@
+{
+  "Accent": "Aquarium Coral",
+  "AccentHex": "#FFAA96",
+  "Background": "Reef",
+  "Compact": true,
+  "WindowBorder": "System",
+  "TitleBar": "Match background",
+  "CardShape": "Rounded",
+  "TextSize": "Standard",
+  "Sidebar": "Standard",
+  "ContentWidth": "Standard",
+  "LibraryIcons": "Standard"
+}
