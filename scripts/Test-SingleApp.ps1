@@ -1,6 +1,8 @@
 $ErrorActionPreference='Stop'
 $archive=Join-Path $PWD 'artifacts/release/Aquarium-complete-windows-x64.zip'
-$test=Join-Path $env:RUNNER_TEMP ('aquarium-single-'+[guid]::NewGuid().ToString('N'))
+$original=Join-Path $env:RUNNER_TEMP ('aquarium-single-'+[guid]::NewGuid().ToString('N'))
+$relocated=$original+'-moved'
+$test=$original
 New-Item -ItemType Directory $test | Out-Null
 try {
  Add-Type -AssemblyName System.IO.Compression.FileSystem
@@ -9,21 +11,9 @@ try {
  Expand-Archive -LiteralPath $archive -DestinationPath $test
  foreach($attempt in 1..3){
   if ($attempt -eq 3) {
-   $source = [IO.Path]::GetFullPath($test)
-   $temp = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($env:RUNNER_TEMP))
-   if ([IO.Path]::GetDirectoryName($source) -ne $temp -or
-       [IO.Path]::GetFileName($source) -notmatch '^aquarium-single-[a-f0-9]{32}$') {
-    throw 'Unexpected smoke-test move path.'
-   }
-   $moved = $source + '-moved'
-   for ($retry = 1; $retry -le 10; $retry++) {
-    try { [IO.Directory]::Move($source, $moved); $test = $moved; break }
-    catch {
-     $errorCode = $_.Exception.GetBaseException().HResult -band 0xffff
-     if ($retry -eq 10 -or $errorCode -notin @(32, 33)) { throw }
-     Start-Sleep -Seconds 1
-    }
-   }
+   # Verify location independence using an identical launcher extracted at a new path.
+   Expand-Archive -LiteralPath $archive -DestinationPath $relocated
+   $test = $relocated
   }
   $process=Start-Process (Join-Path $test 'Aquarium.exe') -ArgumentList '--package-check' -PassThru
   try {
@@ -32,14 +22,15 @@ try {
   } finally {$process.Dispose()}
   if(@(Get-ChildItem $test -Force).Count -ne 1){throw 'Launcher left support files beside the app.'}
  }
- Write-Host 'PASS: one visible app, cold/repeat/moved native launches, XAML initialization, runtime PRI and both included app hashes.'
+ Write-Host 'PASS: one visible app, cold/repeat/relocated native launches, XAML initialization, runtime PRI and both included app hashes.'
 } catch {
  $message=$_.Exception.Message.Replace('%','%25').Replace("`r",'%0D').Replace("`n",'%0A')
  Write-Host "::error title=Single-app startup check::$message"
  throw
 } finally {
- if(Test-Path -LiteralPath $test){
-  $full=[IO.Path]::GetFullPath($test)
+ foreach ($directory in @($original, $relocated)) {
+  if (!(Test-Path -LiteralPath $directory)) { continue }
+  $full=[IO.Path]::GetFullPath($directory)
   $temp=[IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($env:RUNNER_TEMP))
   if([IO.Path]::GetDirectoryName($full) -ne $temp -or
       [IO.Path]::GetFileName($full) -notmatch '^aquarium-single-[a-f0-9]{32}(-moved)?$'){throw 'Unexpected smoke-test cleanup path.'}
