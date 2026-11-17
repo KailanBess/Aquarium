@@ -19,29 +19,23 @@ jobs:
         run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
       - name: Test single-app extraction and integrity
         run: dotnet run --project tests/Aquarium.LauncherTests/Aquarium.LauncherTests.csproj -c Release
-      - name: Build standalone File Organizer
-        run: dotnet build tools/FileOrganizer/FileOrganizer.csproj -c Release
-      - name: Build standalone Device Inventory
-        run: dotnet build tools/DeviceInventory/DeviceInventory.csproj -c Release
-      - name: Build standalone Workspace Launcher
-        run: dotnet build tools/WorkspaceLauncher/WorkspaceLauncher.csproj -c Release
       - name: Publish Aquarium
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project src/Aquarium/Aquarium.csproj -PublishDirectory artifacts/Aquarium -LogName aquarium-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: d57780cfbb58c330e649bdb78fb11d4414fb744d
+          ref: aa985e04ebfca8a2cc93a540b5e15994de8b5539
           path: companion/FishNet
-      - name: Publish included FishNet 0.3.6 runtime
+      - name: Publish included FishNet 0.3.7 runtime
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project companion/FishNet/src/FishNet/FishNet.csproj -PublishDirectory artifacts/FishNet -LogName fishnet-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishTank
-          ref: 876e9b08cb248bf072538550500eba56f0c9f49b
+          ref: 6b8ae7704d7fcf0ea70855793a83d0803c2c9eb8
           path: companion/FishTank
-      - name: Validate included FishTank 0.16.4 Windows source
+      - name: Validate included FishTank 0.16.5 Windows source
         shell: pwsh
         run: |
           $root=Join-Path $PWD 'companion/FishTank'
@@ -67,6 +61,22 @@ jobs:
           $tag='v'+[string]$project.Project.PropertyGroup.Version
           if($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag){throw 'Release tag/source mismatch.'}
           ./scripts/Package-Release.ps1 -PublishDirectory artifacts/Aquarium -OutputDirectory artifacts/release -Tag $tag
+      - name: Publish and checksum standalone Windows tools
+        shell: pwsh
+        run: |
+          $checksums = foreach ($tool in @('FileOrganizer', 'DeviceInventory', 'WorkspaceLauncher')) {
+            $output = "artifacts/tools/$tool"
+            dotnet publish "tools/$tool/$tool.csproj" -c Release -r win-x64 --self-contained true -o $output | Out-Host
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+            if (!(Test-Path -LiteralPath "$output/$tool.exe") -or !(Test-Path -LiteralPath "$output/coreclr.dll")) {
+              throw "The standalone runtime for $tool is incomplete."
+            }
+            $name = "$tool-windows-x64.zip"
+            Compress-Archive -Path "$output/*" -DestinationPath "artifacts/release/$name"
+            $sha = (Get-FileHash "artifacts/release/$name" -Algorithm SHA256).Hash.ToLowerInvariant()
+            "$sha  $name"
+          }
+          $checksums | Set-Content artifacts/release/SHA256SUMS-tools.txt -Encoding utf8NoBOM
       - name: Verify clean download and native startup
         shell: pwsh
         run: ./scripts/Test-SingleApp.ps1
@@ -104,10 +114,31 @@ jobs:
           $line=(Get-Content release/SHA256SUMS.txt).Trim()
           if($line -notmatch '^([a-f0-9]{64})  Aquarium-complete-windows-x64.zip$'){throw 'Invalid release manifest.'}
           if((Get-FileHash release/Aquarium-complete-windows-x64.zip -Algorithm SHA256).Hash -ne $Matches[1]){throw 'Release archive digest mismatch.'}
-          $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.4 and FishNet 0.3.6 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
+          $toolAssets = @()
+          $toolManifest = @(Get-Content release/SHA256SUMS-tools.txt)
+          if ($toolManifest.Count -ne 3) { throw 'Invalid tools checksum manifest.' }
+          foreach ($tool in @('FileOrganizer', 'DeviceInventory', 'WorkspaceLauncher')) {
+            $name = "$tool-windows-x64.zip"
+            $entry = @($toolManifest | Where-Object { $_ -match ('^[a-f0-9]{64}  ' + [regex]::Escape($name) + ' unsigned Aquarium Windows x64 hub, including FishTank 0.16.5 and FishNet 0.3.7 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. File Organizer, Device Inventory, and Workspace Launcher are available as separate ZIPs. Extract each ZIP before running its executable. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
-          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.8') { return }
+          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.9') { return }
+          gh release view $tag *> $null
+          if ($LASTEXITCODE -eq 0) { return }
+          gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json ./release/SHA256SUMS-tools.txt @toolAssets --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+          gh release edit $tag --draft=false --latest
+          if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
+) })
+            if ($entry.Count -ne 1) { throw "Missing checksum for $name" }
+            $sha = (Get-FileHash "release/$name" -Algorithm SHA256).Hash
+            if ($sha -ne $entry[0].Substring(0, 64)) { throw "Checksum failed for $name" }
+            $toolAssets += "./release/$name"
+          }
+          $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.5 and FishNet 0.3.7 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
+          $notes | Set-Content release/notes.txt -Encoding utf8
+          $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
+          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.9') { return }
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) { return }
           gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
