@@ -11,7 +11,11 @@ internal static class Program
     private static void Main()
     {
         ApplicationConfiguration.Initialize();
-        try { Application.Run(new WorkspaceWindow()); }
+        try
+        {
+            using var profile = WorkspaceWindow.OpenProfile();
+            Application.Run(new WorkspaceWindow());
+        }
         catch (Exception ex) { MessageBox.Show(ex.Message, "Aquarium Workspace Launcher"); }
     }
 }
@@ -30,6 +34,13 @@ internal sealed class WorkspaceWindow : Form
     private readonly FlowLayoutPanel actions = new() { Dock = DockStyle.Top, AutoSize = true };
     private readonly TextBox status = new() { ReadOnly = true, Multiline = true, Dock = DockStyle.Bottom, Height = 118, ScrollBars = ScrollBars.Vertical };
     private List<Workspace> workspaces;
+
+    internal static FileStream OpenProfile()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(StorePath)!);
+        try { return File.Open(StorePath + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+        catch (IOException ex) { throw new IOException("The workspace profile is in use or unavailable.", ex); }
+    }
 
     internal WorkspaceWindow()
     {
