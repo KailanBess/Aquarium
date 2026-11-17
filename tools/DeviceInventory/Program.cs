@@ -8,7 +8,11 @@ internal static class Program
     private static void Main()
     {
         ApplicationConfiguration.Initialize();
-        try { Application.Run(new InventoryWindow()); }
+        try
+        {
+            using var profile = InventoryWindow.OpenProfile();
+            Application.Run(new InventoryWindow());
+        }
         catch (Exception ex) { MessageBox.Show(ex.Message, "Aquarium Device Inventory"); }
     }
 }
@@ -29,6 +33,13 @@ internal sealed class InventoryWindow : Form
     private readonly Label reminders = new() { AutoSize = true, Dock = DockStyle.Top };
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 60_000 };
     private List<Device> devices;
+
+    internal static FileStream OpenProfile()
+    {
+        Directory.CreateDirectory(Path.GetDirectoryName(StorePath)!);
+        try { return File.Open(StorePath + ".lock", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None); }
+        catch (IOException ex) { throw new IOException("The inventory profile is in use or unavailable.", ex); }
+    }
 
     internal InventoryWindow()
     {
