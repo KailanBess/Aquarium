@@ -25,17 +25,17 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: aa985e04ebfca8a2cc93a540b5e15994de8b5539
+          ref: fb2702b5aebbb053e6ccfa6795b0b9dd0651f8ca
           path: companion/FishNet
-      - name: Publish included FishNet 0.3.7 runtime
+      - name: Publish included FishNet 0.3.8 runtime
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project companion/FishNet/src/FishNet/FishNet.csproj -PublishDirectory artifacts/FishNet -LogName fishnet-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishTank
-          ref: 6b8ae7704d7fcf0ea70855793a83d0803c2c9eb8
+          ref: e880e07bcd30ef9ba9fab939ea8759b028ed1cb4
           path: companion/FishTank
-      - name: Validate included FishTank 0.16.5 Windows source
+      - name: Validate included FishTank 0.16.6 Windows source
         shell: pwsh
         run: |
           $root=Join-Path $PWD 'companion/FishTank'
@@ -125,10 +125,10 @@ jobs:
             if ($sha -ne $entry[0].Substring(0, 64)) { throw "Checksum failed for $name" }
             $toolAssets += "./release/$name"
           }
-          $notes='Fixes the in-app updater reporting that Aquarium.exe already exists. Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.5 and FishNet 0.3.7 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. File Organizer, Device Inventory, and Workspace Launcher are available as separate ZIPs. Extract each ZIP before running its executable. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
+          $notes='Fixes the in-app updater reporting that Aquarium.exe already exists. Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.6 and FishNet 0.3.8 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. File Organizer, Device Inventory, and Workspace Launcher are available as separate ZIPs. Extract each ZIP before running its executable. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
-          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.10') { return }
+          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.11') { return }
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) { return }
           gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json ./release/SHA256SUMS-tools.txt @toolAssets --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
