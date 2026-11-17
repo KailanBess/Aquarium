@@ -125,10 +125,10 @@ jobs:
             if ($sha -ne $entry[0].Substring(0, 64)) { throw "Checksum failed for $name" }
             $toolAssets += "./release/$name"
           }
-          $notes='Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.5 and FishNet 0.3.7 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. File Organizer, Device Inventory, and Workspace Launcher are available as separate ZIPs. Extract each ZIP before running its executable. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
+          $notes='Fixes the in-app updater reporting that Aquarium.exe already exists. Complete unsigned Aquarium Windows x64 hub, including FishTank 0.16.5 and FishNet 0.3.7 built from pinned source revisions. Extract the ZIP: it contains only Aquarium.exe. Run it to prepare verified support files automatically under your Windows LocalAppData/Aquarium/Runtime folder. Your settings and installed apps remain separate. Included apps install only after hash verification and are not auto-launched. FishBowl is optional from its separate Windows/Linux release. File Organizer, Device Inventory, and Workspace Launcher are available as separate ZIPs. Extract each ZIP before running its executable. Native physical-device acceptance remains a manual check; user profiles, games, firmware and emulator builds are excluded.'
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
-          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.9') { return }
+          if ($env:GITHUB_REF_TYPE -eq 'branch' -and $tag -ne 'v0.4.10') { return }
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) { return }
           gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json ./release/SHA256SUMS-tools.txt @toolAssets --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
