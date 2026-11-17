@@ -21,6 +21,23 @@ string Zip(string name, params string[] paths)
 string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
 try
 {
+    var updateFixture = Path.Combine(root, "aquarium-update.zip");
+    // Use the test assembly's version resource. This fixture is never launched.
+    var launcherFixture = typeof(AquariumSelfUpdate).Assembly.Location;
+    var launcherVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(launcherFixture).ProductVersion!.Split('+')[0];
+    using (var archive = ZipFile.Open(updateFixture, ZipArchiveMode.Create))
+        archive.CreateEntryFromFile(launcherFixture, "Aquarium.exe");
+    var shellPackage = new AppPackage(GitHubPackages.Shell, "v" + launcherVersion, "aquarium-update.zip",
+        "https://example.invalid/aquarium-update.zip", Hash(updateFixture), new FileInfo(updateFixture).Length);
+    var updateRoot = Path.Combine(root, "self-update");
+    var staged = await AquariumSelfUpdate.StageAsync(shellPackage, updateFixture, default, updateRoot);
+    Check(Directory.GetFiles(staged).Length == 1 &&
+          Hash(Path.Combine(staged, "Aquarium.exe")) == Hash(launcherFixture),
+        "The self-update must extract the one verified launcher exactly once");
+    await Refuses(() => AquariumSelfUpdate.StageAsync(shellPackage with { Version = "v0.0.0" },
+        updateFixture, default, updateRoot), "an Aquarium launcher with a mismatched version");
+    Check(Directory.GetDirectories(updateRoot).Length == 1, "A rejected update left a staging directory");
+
     var store = new LocalStore(Path.Combine(root, "registry")); await store.LoadAsync();
     var installer = new PackageInstaller(store, Path.Combine(root, "Apps"));
     var source = GitHubPackages.Sources.Single(s => s.AppId == "aquarium.security");
