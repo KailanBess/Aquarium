@@ -17,7 +17,7 @@ public sealed partial class MainWindow
     private void ApplyAppearance()
     {
         var accent = new SolidColorBrush(appearance.Accent);
-        Wordmark.Foreground = PageEyebrow.Foreground = accent;
+        Wordmark.Foreground = accent;
         Navigation.Background = appearance.SurfaceBrush;
         PageScroll.Background = Root.Background = appearance.PageBrush;
         PageTitle.FontSize = appearance.TitleSize;
