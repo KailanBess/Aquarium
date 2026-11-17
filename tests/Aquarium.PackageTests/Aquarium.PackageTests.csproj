@@ -5,6 +5,7 @@
     <Compile Include="../../src/Aquarium/LocalStore.cs" Link="LocalStore.cs"/>
     <Compile Include="../../src/Aquarium/GitHubPackages.cs" Link="GitHubPackages.cs"/>
     <Compile Include="../../src/Aquarium/PackageInstaller.cs" Link="PackageInstaller.cs"/>
+    <Compile Include="../../src/Aquarium/AquariumSelfUpdate.cs" Link="AquariumSelfUpdate.cs"/>
     <Content Include="../../src/Aquarium/Data/catalog.json" Link="Data/catalog.json" CopyToOutputDirectory="PreserveNewest"/>
   </ItemGroup>
 </Project>
