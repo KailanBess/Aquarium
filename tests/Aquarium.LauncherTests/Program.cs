@@ -17,13 +17,17 @@ try {
     var files = new Dictionary<string, byte[]> { ["Aquarium.exe"] = "inert fixture"u8.ToArray(), ["Aquarium.pri"] = "resources"u8.ToArray(), ["Bundled/FishTank.zip"] = "inert companion"u8.ToArray() };
     var payload = Zip(files);
     var manifest = new PayloadManifest("0.4.2", hash(payload), files.Select(f => new PayloadFile(f.Key, f.Value.Length, hash(f.Value))).ToArray());
-    string Prepare(byte[] bytes, PayloadManifest m) => RuntimeCache.Prepare(new MemoryStream(bytes), m, root);
+    int preparationCount = 0;
+    string Prepare(byte[] bytes, PayloadManifest m) => RuntimeCache.Prepare(new MemoryStream(bytes), m, root, () => preparationCount++);
     var exe = Prepare(payload, manifest);
     Check(File.ReadAllBytes(exe).SequenceEqual(files["Aquarium.exe"]), "cold extraction and included files");
+    Check(preparationCount == 1, "first launch requests preparation UI once");
     var stamp = File.GetLastWriteTimeUtc(exe);
     Check(Prepare(payload, manifest) == exe && File.GetLastWriteTimeUtc(exe) == stamp, "repeat launch reuses verified cache");
+    Check(preparationCount == 1, "verified repeat launch requests no preparation UI");
     File.WriteAllText(exe, "tampered");
     Check(Prepare(payload, manifest) == exe && File.ReadAllBytes(exe).SequenceEqual(files["Aquarium.exe"]), "corrupt cache repaired");
+    Check(preparationCount == 2, "cache repair requests preparation UI");
     File.WriteAllText(Path.Combine(Path.GetDirectoryName(exe)!, "unexpected.dll"), "extra");
     Check(Prepare(payload, manifest) == exe && !File.Exists(Path.Combine(Path.GetDirectoryName(exe)!, "unexpected.dll")), "unlisted runtime file repaired");
     Reject(() => Prepare(payload, manifest with { Sha256 = new string('0', 64) }), "payload digest mismatch");
