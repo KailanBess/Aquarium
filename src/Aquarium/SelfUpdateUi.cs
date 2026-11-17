@@ -10,8 +10,8 @@ public sealed partial class MainWindow
 
     private void RenderSelfUpdate()
     {
-        var check = new Button { Content = "Check for Aquarium update", IsEnabled = !shellUpdateRunning };
-        var repair = new Button { Content = "Repair Aquarium shortcuts", IsEnabled = !shellUpdateRunning };
+        var check = new Button { Content = "Check for Aquarium update", IsEnabled = !shellUpdateRunning && installCancellation is null };
+        var repair = new Button { Content = "Repair Aquarium shortcuts", IsEnabled = !shellUpdateRunning && installCancellation is null };
         var status = Text(shellUpdateStatus, 14, true);
         PageBody.Children.Add(Text($"Aquarium {AquariumSelfUpdate.CurrentVersion}", 20));
         PageBody.Children.Add(new StackPanel
@@ -30,7 +30,7 @@ public sealed partial class MainWindow
         };
         check.Click += async (_, _) =>
         {
-            if (shellUpdateRunning) return;
+            if (shellUpdateRunning || installCancellation is not null) return;
             shellUpdateRunning = true;
             check.IsEnabled = repair.IsEnabled = false;
             void Report(string message)

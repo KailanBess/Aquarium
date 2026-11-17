@@ -7,6 +7,15 @@ public sealed record UpdateReport(string Output, int ExitCode, DateTimeOffset Ch
 
 public sealed class UpdateService
 {
+    public static bool IsAvailable => File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "WindowsApps", "winget.exe"));
+
+    public void StartOutsideUpdateAll()
+    {
+        var start = new ProcessStartInfo(WingetPath) { UseShellExecute = true };
+        foreach (var argument in new[] { "upgrade", "--all", "--source", "winget", "--interactive", "--wait" }) start.ArgumentList.Add(argument);
+        using var process = Process.Start(start) ?? throw new InvalidOperationException("WinGet did not start.");
+    }
+
     private static string WingetPath
     {
         get

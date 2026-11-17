@@ -15,8 +15,9 @@ internal static class AquariumSelfUpdate
 
     private static (Version Version, int Preview) ParseVersion(string value)
     {
+        if (value.StartsWith("preview-v", StringComparison.Ordinal)) value = value[9..] + "-preview";
         var match = Regex.Match(value, @"\Av?(\d+\.\d+\.\d+)(?:-preview(?:\.(\d+))?)?\z");
-        if (!match.Success) throw new InvalidDataException($"Unsupported Aquarium version: {value}");
+        if (!match.Success) throw new InvalidDataException($"Unsupported app version: {value}");
         var preview = match.Groups[2];
         return (Version.Parse(match.Groups[1].Value),
             preview.Success ? int.Parse(preview.Value) : value.Contains("-preview") ? 0 : int.MaxValue);

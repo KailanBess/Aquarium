@@ -12,6 +12,7 @@ public sealed partial class MainWindow
 
     private void RenderUpdates()
     {
+        RenderBulkUpdate();
         RenderSelfUpdate();
         Empty("Aquarium app updates", "Check approved GitHub releases and review the installed and published packages before changing versions.");
         var own = new Button { Content = "Check Aquarium apps", IsEnabled = installCancellation is null };
@@ -50,7 +51,7 @@ public sealed partial class MainWindow
 
         Empty("Windows app updates", "WinGet checks apps it can match to its community source. Other apps may still update themselves.");
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
-        var check = new Button { Content = "Check outside apps", IsEnabled = updateCancellation is null };
+        var check = new Button { Content = "Check outside apps", IsEnabled = updateCancellation is null && installCancellation is null };
         var cancel = new Button { Content = "Cancel check", IsEnabled = updateCancellation is not null };
         check.Click += async (_, _) => await RunOutsideCheck();
         cancel.Click += (_, _) => updateCancellation?.Cancel();
@@ -61,7 +62,7 @@ public sealed partial class MainWindow
         PageBody.Children.Add(report);
         PageBody.Children.Add(Text("Results are original WinGet output, including errors and unmatched-app limitations. If source agreements are required, run winget upgrade in a terminal to review them, then check again. No check accepts agreements automatically.", 13, true));
         var id = new TextBox { Header = "Exact package ID from the results", PlaceholderText = "e.g. Spotify.Spotify", MaxLength = 200 };
-        var install = new Button { Content = "Review and start selected update", IsEnabled = updateCancellation is null };
+        var install = new Button { Content = "Review and start selected update", IsEnabled = updateCancellation is null && installCancellation is null };
         install.Click += async (_, _) =>
         {
             var packageId = id.Text.Trim();
@@ -80,7 +81,7 @@ public sealed partial class MainWindow
     }
     private async Task RunOutsideCheck()
     {
-        if (updateCancellation is not null) return;
+        if (updateCancellation is not null || installCancellation is not null) return;
         using var cancellation = new CancellationTokenSource(TimeSpan.FromMinutes(2));
         updateCancellation = cancellation;
         updateOutput = "Checking WinGet…";

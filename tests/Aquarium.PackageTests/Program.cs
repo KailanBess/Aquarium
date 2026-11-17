@@ -21,6 +21,13 @@ string Zip(string name, params string[] paths)
 string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
 try
 {
+    Check(AquariumSelfUpdate.IsNewer("v1.29.12", "1.29.11"), "FishBowl update was skipped");
+    Check(!AquariumSelfUpdate.IsNewer("v0.3.8", "0.3.8"), "A current FishNet package would be reinstalled");
+    Check(!AquariumSelfUpdate.IsNewer("v0.3.7", "v0.3.8"), "Bulk updates would downgrade FishNet");
+    Check(AquariumSelfUpdate.IsNewer("preview-v0.16.6", "0.16.5"), "FishTank preview tag was not recognized");
+    Check(!AquariumSelfUpdate.IsNewer("preview-v0.16.6", "0.16.6"), "A bundled FishTank version would be replaced with the same preview");
+    Check(!AquariumSelfUpdate.IsNewer("preview-v0.16.5", "preview-v0.16.6"), "Bulk updates would downgrade a FishTank preview");
+    Check(AquariumSelfUpdate.IsNewer("v0.4.12", "0.4.12-preview.2"), "A stable release should supersede its preview");
     var updateFixture = Path.Combine(root, "aquarium-update.zip");
     // Use the test assembly's version resource. This fixture is never launched.
     var launcherFixture = typeof(AquariumSelfUpdate).Assembly.Location;
