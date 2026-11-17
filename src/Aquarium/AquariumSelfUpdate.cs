@@ -43,9 +43,9 @@ internal static class AquariumSelfUpdate
         }
     }
 
-    internal static async Task<string> StageAsync(AppPackage package, string file, CancellationToken token)
+    internal static async Task<string> StageAsync(AppPackage package, string file, CancellationToken token, string? stagingRoot = null)
     {
-        var root = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Updates");
+        var root = stagingRoot ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "Updates");
         var directory = Path.Combine(root, Guid.NewGuid().ToString("N"));
         PackageInstaller.RefuseLinks(directory);
         await using var stream = new FileStream(file, FileMode.Open, FileAccess.Read, FileShare.Read);
@@ -57,7 +57,6 @@ internal static class AquariumSelfUpdate
         try
         {
             using var archive = new ZipArchive(stream, ZipArchiveMode.Read, leaveOpen: true);
-            await PackageInstaller.ExtractAsync(archive, directory, token);
             if (archive.Entries.Count != 1 || archive.Entries[0].FullName != "Aquarium.exe")
                 throw new InvalidDataException("Expected a single Aquarium launcher.");
             await PackageInstaller.ExtractAsync(archive, directory, token);
