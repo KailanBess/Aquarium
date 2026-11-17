@@ -9,7 +9,7 @@ public sealed record PayloadManifest(string Version, string Sha256, PayloadFile[
 public static class RuntimeCache
 {
     const long MaxBytes = 2L * 1024 * 1024 * 1024;
-    public static string Prepare(Stream payload, PayloadManifest manifest, string root)
+    public static string Prepare(Stream payload, PayloadManifest manifest, string root, Action? preparing = null)
     {
         if (!System.Text.RegularExpressions.Regex.IsMatch(manifest.Version, @"^\d+\.\d+\.\d+$") ||
             !ValidHash(manifest.Sha256) || manifest.Files.Length is < 1 or > 5000)
@@ -36,6 +36,7 @@ public static class RuntimeCache
             if (!expected.ContainsKey("Aquarium.exe") || !expected.ContainsKey("Aquarium.pri"))
                 throw new InvalidDataException("The Aquarium runtime is incomplete.");
             if (Directory.Exists(target) && Verify(target, expected)) return System.IO.Path.Combine(target, "Aquarium.exe");
+            preparing?.Invoke();
             using (var sha = SHA256.Create())
                 if (!Convert.ToHexString(sha.ComputeHash(payload)).Equals(manifest.Sha256, StringComparison.OrdinalIgnoreCase))
                     throw new InvalidDataException("The embedded Aquarium package failed its integrity check. Download Aquarium again.");
