@@ -27,6 +27,8 @@ The download checksum protects integrity from the trusted repository's metadata;
 
 ## Updates
 
+Use **Update all apps** to check Aquarium and installed companion apps using their saved release channels. It skips pinned and current versions, asks for one review, verifies each download, and continues after an individual failure. Cancel stops remaining work. Aquarium stages its own update last and prompts you to reopen it. The review can also start interactive WinGet updates for supported Windows apps. Recheck Windows apps when those installers finish.
+
 Aquarium owns the shared update UI. Its Updates page links to managed app installs/updates and can check public Aquarium-family releases. For outside apps it runs read-only `winget upgrade --source winget --disable-interactivity`, displays original output and offers an exact-ID interactive update after confirmation. Checks do not install anything or accept agreements. WinGet cannot cover every app, and vendor self-updaters are not disabled. FishNet has no separate updater. Existing released FishTank/FishBowl behavior is retained.
 
 ## Appearance and scope
@@ -64,8 +66,7 @@ CI checks cold and repeat launcher startup, launch after moving the file, runtim
 ## Updating Aquarium
 
 Open **Updates → Check for Aquarium update**. After you approve an available release, Aquarium downloads the Windows package from this repository, checks its SHA-256 digest, and stages the new launcher in your local profile. Close Aquarium and reopen it from the updated desktop or Start menu shortcut. Your app library and settings stay in your profile. The previous launcher is retained.
-
-Use **Updates → Repair Aquarium shortcuts** to create or refresh the desktop and Start menu shortcuts for the current launcher. The launcher and runtime executable carry the Aquarium icon in their Windows file resources.
+se **Updates → Repair Aquarium shortcuts** to create or refresh the desktop and Start menu shortcuts for the current launcher. The launcher and runtime executable carry the Aquarium icon in their Windows file resources.
 
 To make a source change available through the updater, raise the runtime and launcher project versions together, then tag that commit with the matching version (for example, v0.4.4). Publish the draft produced by the Windows release workflow after verification. Git commits alone are not installable updates.
 
@@ -76,3 +77,4 @@ Choose **Uninstall** on an installed app in **Library** or **App install**. Clos
 ### Previewing appearance
 
 Open **Settings** to preview colors, title bar, frame, card corners, heading size, sidebar width, and spacing. **Apply appearance** saves your choices. Leaving Settings discards unapplied choices. Library cards display the installed executable's Windows icon when available.
+pdates offers **Update all apps** to check Aquarium and installed companion apps using their saved release channels. It skips pinned and current versions, asks for one review, verifies each download, and continues after an individual failure. Cancel stops remaining work. Aquarium stages its own update last and prompts you to reopen it. The review can also start interactive WinGet updates for supported Windows apps. Recheck Windows apps when those installers finish.
