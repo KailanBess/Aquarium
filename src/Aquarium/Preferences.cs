@@ -118,6 +118,7 @@ public sealed class Appearance
 
     public StackPanel Editor(nint owner, Action changed, Action<string> error)
     {
+        var previousPath = path + ".previous";
         var panel = new StackPanel { Spacing = 12 };
         var controls = new StackPanel { Spacing = 10 };
         panel.Children.Add(controls);
@@ -150,9 +151,11 @@ public sealed class Appearance
         var actions = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
         var save = new Button { Content = "Apply appearance", IsEnabled = writable };
         var reset = new Button { Content = "Preview defaults" };
+        var undo = new Button { Content = "Undo last appearance change", IsEnabled = writable && File.Exists(previousPath) };
         var status = new TextBlock { Text = "Changes preview immediately. Apply appearance saves them." };
         actions.Children.Add(save);
         actions.Children.Add(reset);
+        actions.Children.Add(undo);
         panel.Children.Add(actions);
         panel.Children.Add(status);
         var transfer = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 8 };
@@ -192,19 +195,28 @@ public sealed class Appearance
         {
             controls.IsHitTestVisible = save.IsEnabled = reset.IsEnabled = false;
             var next = ReadControls();
+            var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                File.WriteAllText(path + ".tmp", JsonSerializer.Serialize(next));
-                File.Move(path + ".tmp", path, true);
+                File.WriteAllText(temporary, JsonSerializer.Serialize(next));
+                if (!File.Exists(path)) File.WriteAllText(path, JsonSerializer.Serialize(current));
+                File.Replace(temporary, path, previousPath);
                 current = next;
                 preview = null;
+                undo.IsEnabled = true;
                 status.Text = "Appearance saved.";
                 changed();
             }
             catch (Exception ex) { error("Appearance was not saved: " + ex.Message); }
             finally
             {
+                if (File.Exists(temporary))
+                {
+                    try { File.Delete(temporary); }
+                    catch (IOException) { }
+                    catch (UnauthorizedAccessException) { }
+                }
                 controls.IsHitTestVisible = reset.IsEnabled = true;
                 save.IsEnabled = writable;
             }
@@ -223,6 +235,29 @@ public sealed class Appearance
             customAccent.Text = theme.AccentHex ?? ""; compact.IsOn = theme.Compact;
             Preview();
         }
+
+        undo.Click += (_, _) =>
+        {
+            try
+            {
+                Preferences restored;
+                using (var stream = File.OpenRead(previousPath))
+                {
+                    if (stream.Length > 32768) throw new InvalidDataException("The previous appearance file is too large.");
+                    restored = JsonSerializer.Deserialize<Preferences>(stream) ?? throw new InvalidDataException("The previous appearance is empty.");
+                }
+                if (!string.IsNullOrWhiteSpace(restored.AccentHex) && ParseColor(restored.AccentHex) is null)
+                    throw new InvalidDataException("The previous appearance contains an invalid custom accent.");
+                File.Move(previousPath, path, true);
+                current = restored;
+                LoadControls(restored);
+                preview = null;
+                undo.IsEnabled = false;
+                status.Text = "Previous appearance restored.";
+                changed();
+            }
+            catch (Exception ex) { error("Could not restore the previous appearance. " + ex.Message); }
+        };
 
         var presetPath = Path.Combine(Path.GetDirectoryName(path)!, "appearance-presets.json");
         var presets = new Dictionary<string, Preferences>(StringComparer.OrdinalIgnoreCase);
