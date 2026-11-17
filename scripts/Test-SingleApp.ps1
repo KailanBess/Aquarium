@@ -8,7 +8,23 @@ try {
  try {if($zip.Entries.Count -ne 1 -or $zip.Entries[0].FullName -ne 'Aquarium.exe'){throw 'The extracted download must contain only Aquarium.exe.'}} finally {$zip.Dispose()}
  Expand-Archive -LiteralPath $archive -DestinationPath $test
  foreach($attempt in 1..3){
-  if($attempt -eq 3){$moved=$test+'-moved';Move-Item $test $moved;$test=$moved}
+  if ($attempt -eq 3) {
+   $source = [IO.Path]::GetFullPath($test)
+   $temp = [IO.Path]::TrimEndingDirectorySeparator([IO.Path]::GetFullPath($env:RUNNER_TEMP))
+   if ([IO.Path]::GetDirectoryName($source) -ne $temp -or
+       [IO.Path]::GetFileName($source) -notmatch '^aquarium-single-[a-f0-9]{32}$') {
+    throw 'Unexpected smoke-test move path.'
+   }
+   $moved = $source + '-moved'
+   for ($retry = 1; $retry -le 10; $retry++) {
+    try { [IO.Directory]::Move($source, $moved); $test = $moved; break }
+    catch {
+     $errorCode = $_.Exception.GetBaseException().HResult -band 0xffff
+     if ($retry -eq 10 -or $errorCode -notin @(32, 33)) { throw }
+     Start-Sleep -Seconds 1
+    }
+   }
+  }
   $process=Start-Process (Join-Path $test 'Aquarium.exe') -ArgumentList '--package-check' -PassThru
   try {
    if(!$process.WaitForExit(180000)){$process.Kill($true);$process.WaitForExit(5000)|Out-Null;throw "Launcher startup timed out on attempt $attempt."}
