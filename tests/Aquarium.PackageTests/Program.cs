@@ -21,6 +21,7 @@ string Zip(string name, params string[] paths)
 string Hash(string path) => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path)));
 try
 {
+    await ReliabilityChecks.Run(root);
     Check(AquariumSelfUpdate.IsNewer("v1.29.12", "1.29.11"), "FishBowl update was skipped");
     Check(!AquariumSelfUpdate.IsNewer("v0.3.8", "0.3.8"), "A current FishNet package would be reinstalled");
     Check(!AquariumSelfUpdate.IsNewer("v0.3.7", "v0.3.8"), "Bulk updates would downgrade FishNet");

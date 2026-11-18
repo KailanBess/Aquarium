@@ -45,7 +45,7 @@ internal sealed class WorkspaceWindow : Form
     internal WorkspaceWindow()
     {
         workspaces = File.Exists(StorePath)
-            ? JsonSerializer.Deserialize<List<Workspace>>(File.ReadAllText(StorePath)) ?? throw new InvalidDataException("Workspace data is empty.")
+            ? Aquarium.Tools.FamilyWindow.ReadRecords<List<Workspace>>(StorePath, records => records.Count <= 200 && records.All(w => w is not null && !string.IsNullOrWhiteSpace(w.Name) && w.Name.Length <= 100 && w.Apps is not null && w.Apps.Length <= 100 && w.Apps.All(a => a is not null && Path.IsPathFullyQualified(a.Executable) && Path.GetExtension(a.Executable).Equals(".exe", StringComparison.OrdinalIgnoreCase) && a.Width > 0 && a.Height > 0)))
             : [];
         Text = "Aquarium Workspace Launcher";
         Size = new Size(900, 580);
@@ -67,6 +67,7 @@ internal sealed class WorkspaceWindow : Form
         AddAction("Remove workspace…", () => { RemoveWorkspace(); return Task.CompletedTask; });
         ReloadSaved(-1);
         RefreshWindows();
+        Aquarium.Tools.FamilyWindow.Apply(this);
     }
 
     private void AddAction(string text, Func<Task> run)

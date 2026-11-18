@@ -44,7 +44,7 @@ internal sealed class InventoryWindow : Form
     internal InventoryWindow()
     {
         devices = File.Exists(StorePath)
-            ? JsonSerializer.Deserialize<List<Device>>(File.ReadAllText(StorePath)) ?? throw new InvalidDataException("Inventory data is empty.")
+            ? Aquarium.Tools.FamilyWindow.ReadRecords<List<Device>>(StorePath, records => records.Count <= 10000 && records.All(d => d is not null && !string.IsNullOrWhiteSpace(d.Name) && d.Name.Length <= 150 && d.Serial is not null && d.Serial.Length <= 200 && d.Receipt is not null))
             : [];
         Text = "Aquarium Device Inventory";
         Size = new Size(820, 460);
@@ -83,6 +83,7 @@ internal sealed class InventoryWindow : Form
         FormClosed += (_, _) => timer.Dispose();
         Reload(-1);
         timer.Start();
+        Aquarium.Tools.FamilyWindow.Apply(this);
     }
 
     private static void AddField(TableLayoutPanel editor, string label, Control field)

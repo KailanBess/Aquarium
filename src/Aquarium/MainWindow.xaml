@@ -11,10 +11,12 @@
         <NavigationViewItem Content="Library" Tag="Library" Icon="Library"/>
         <NavigationViewItem Content="Downloads" Tag="Downloads" Icon="Download"/>
         <NavigationViewItem Content="Updates" Tag="Updates" Icon="Refresh"/>
+        <NavigationViewItem Content="Recovery" Tag="Recovery" Icon="Repair"/>
       </NavigationView.MenuItems>      <ScrollViewer x:Name="PageScroll">
         <StackPanel x:Name="PageContent" Margin="36,32,36,40" Spacing="22" MaxWidth="1200" HorizontalAlignment="Stretch">          <TextBlock x:Name="PageTitle" FontSize="36" FontWeight="SemiBold" Text="Home" TextWrapping="Wrap"/>
           <TextBlock x:Name="PageSubtitle" Foreground="#A0B8C3" TextWrapping="Wrap"/>
           <InfoBar x:Name="Notice" IsOpen="False" IsClosable="True" />
+          <AutoSuggestBox x:Name="SuiteSearch" PlaceholderText="Find an app or tool" TextChanged="SearchSuite" SuggestionChosen="ChooseSuiteResult" QueryIcon="Find"/>
           <StackPanel x:Name="PageBody" Spacing="16"/>
         </StackPanel>
       </ScrollViewer>

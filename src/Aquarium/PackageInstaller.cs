@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace Aquarium;
 
-public sealed class PackageInstaller(LocalStore store, string? appRoot = null, Func<HttpClient>? clientFactory = null)
+public sealed partial class PackageInstaller(LocalStore store, string? appRoot = null, Func<HttpClient>? clientFactory = null)
 {
     private const long MaxDownloadBytes = 512L * 1024 * 1024;
     private const long MaxExpandedBytes = 1024L * 1024 * 1024;
@@ -268,6 +268,7 @@ public sealed class PackageInstaller(LocalStore store, string? appRoot = null, F
         if (!store.Registry.InstallationHistory.Contains(previous))
             throw new InvalidOperationException("That version is no longer in Aquarium’s retained history.");
         _ = InstalledExecutable(previous);
+        RequireAppClosed(previous.AppId);
         return store.RecordInstallationAsync(previous);
     }
 
