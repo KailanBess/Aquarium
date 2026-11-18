@@ -32,7 +32,7 @@ The shared search finds Aquarium pages and companion apps by name/category/descr
 
 ## Standalone tools
 
-Separate release ZIPs contain **File Organizer**, **Device Inventory** and **Workspace Launcher**. Extract each complete ZIP before running its executable. They use the family palette and Windows High Contrast on startup.
+Optional **App install** entries and separate release ZIPs provide **File Organizer**, **Device Inventory** and **Workspace Launcher**. Managed copies participate in Library, repair, rollback and Update all apps. Their managed package versions follow Aquarium suite release tags; the tool executable version is independent. Extract each complete ZIP before running its executable. They use the family palette and Windows High Contrast on startup.
 
 - File Organizer previews rename/move operations, refuses overwrites/linked paths, compares duplicates without deleting them, keeps in-session undo and persistent source/destination recovery records. Recovery records are not file-content backups. Moves run without freezing the UI, and closing waits for an active move.
 - Device Inventory records devices, serials, receipt links, warranty and maintenance dates. Receipt files stay external.
@@ -42,7 +42,7 @@ Separate release ZIPs contain **File Organizer**, **Device Inventory** and **Wor
 
 Packages require GitHub asset digests or matching SHA256SUMS entries, bounded extraction and contained executable paths. Traversal, duplicate paths, symlinks and oversized packages are rejected. Registry saves are atomic; unreadable registries are preserved with edits disabled. A process-lifetime profile lease prevents simultaneous Aquarium writers.
 
-Release packaging can sign and verify Aquarium's runtime/launcher and standalone tools using genuine publisher credentials. Configure repository secrets `WINDOWS_SIGNING_PFX_BASE64` and `WINDOWS_SIGNING_PASSWORD`, and variable `WINDOWS_TIMESTAMP_URL` with the provider's HTTPS RFC 3161 endpoint. Only tag releases receive those credentials. Missing configuration yields an explicitly unsigned package; partial configuration or failed signature/timestamp verification stops packaging. `BUILD-INFO.json` records the actual hub signature state. No signing credentials are included in source or releases. Companion signature states are independent.
+Release packaging can sign and verify Aquarium's runtime/launcher and standalone tools using genuine publisher credentials. Configure repository secrets `WINDOWS_SIGNING_PFX_BASE64` and `WINDOWS_SIGNING_PASSWORD`, and variable `WINDOWS_TIMESTAMP_URL` with the provider's HTTPS RFC 3161 endpoint. Only main/tag release packaging receives those credentials. Missing configuration yields an explicitly unsigned package; partial configuration or failed signature/timestamp verification stops packaging. `BUILD-INFO.json` records the actual hub signature state. No signing credentials are included in source or releases. Companion signature states are independent.
 
 Checksums verify consistency with trusted repository metadata; they are not independent publisher authentication. Windows builds remain unsigned until genuine signing configuration is supplied. Signing is not a security audit.
 
@@ -56,4 +56,4 @@ dotnet run --project tests/Aquarium.PackageTests -c Release
 dotnet run --project tests/Aquarium.LauncherTests -c Release
 ```
 
-CI builds the complete runtime and tools, tests package/registry integrity, encrypted backups and restore failure, profile leases, family-palette preservation, quiet hours and launcher startup. Published releases require a matching tag on reviewed main source and passing packaging checks. A source commit alone is not an installable update. Physical display/screen-reader acceptance, live companion interaction and interruption testing remain manual checks. No private VPN, network-management or iOS integration is included.
+CI builds the complete runtime and tools, tests package/registry integrity, encrypted backups and restore failure, profile leases, family-palette preservation, quiet hours and launcher startup. Publication from reviewed main source or a matching tag requires passing packaging checks and creates a versioned release. A source commit alone is not an installable update. Physical display/screen-reader acceptance, live companion interaction and interruption testing remain manual checks. No private VPN, network-management or iOS integration is included.

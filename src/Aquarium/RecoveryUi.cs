@@ -106,7 +106,7 @@ public sealed partial class MainWindow
                     RequireCompanionsClosed(review.Apps);
                     await Task.Run(() =>
                     {
-                        var previous = SuiteBackup.Capture(ProfileRoot, review.Apps);
+                        var previous = SuiteBackup.Capture(ProfileRoot, review.Apps, requireReadableJson: false);
                         try { SuiteBackup.Save(file.Path + ".before-restore-" + Guid.NewGuid().ToString("N") + ".aqbackup", previous, passphrase); }
                         finally { SuiteBackup.Clear(previous); }
                         SuiteBackup.Restore(ProfileRoot, chosen, () => RequireCompanionsClosed(review.Apps));

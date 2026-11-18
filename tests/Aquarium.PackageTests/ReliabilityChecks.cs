@@ -36,6 +36,11 @@ internal static class ReliabilityChecks
         Refuses(() => SuiteBackup.Encrypt([new("FishTank", "access.json", Encoding.UTF8.GetBytes("{}"))], password));
         Refuses(() => SuiteBackup.Encrypt([records[0], records[0]], password));
         var target = Path.Combine(profiles, "FishNet", "media-library.json");
+        File.WriteAllText(target, "{corrupt original}");
+        var corruptBefore = SuiteBackup.Capture(profiles, ["FishNet"], requireReadableJson: false);
+        var recoveredEvidence = SuiteBackup.Decrypt(SuiteBackup.Encrypt(corruptBefore, password), password);
+        Check(Encoding.UTF8.GetString(recoveredEvidence.First(r => r.File == "media-library.json").Data) == "{corrupt original}", "Before-restore recovery failed to preserve a corrupt original.");
+        SuiteBackup.Clear(corruptBefore); SuiteBackup.Clear(recoveredEvidence);
         File.WriteAllText(target, "[1]");
         SuiteBackup.Restore(profiles, decoded);
         Check(File.ReadAllText(target) == "[]", "Restore did not publish the reviewed record.");
@@ -75,6 +80,19 @@ internal static class ReliabilityChecks
         try { installer.FindUnusedInstallations(); throw new Exception("Cleanup offered portable data."); }
         catch (InvalidOperationException) { }
         File.Delete(Path.Combine(unused, "portable.flag"));
+        foreach (var tool in GitHubPackages.Sources.Where(s => s.AssetName.Length > 0))
+        {
+            Check(store.Catalog.Any(a => a.Id == tool.AppId) && tool.Repository == "KailanBess/Aquarium" && tool.ChecksumName == "SHA256SUMS-tools.txt", "Optional tool is outside its approved catalog/checksum source.");
+            var archivePath = Path.Combine(root, tool.Executable + ".zip");
+            using (var archive = System.IO.Compression.ZipFile.Open(archivePath, System.IO.Compression.ZipArchiveMode.Create))
+            { using var writer = new StreamWriter(archive.CreateEntry(tool.Executable).Open()); writer.Write("Inert tool fixture, never executed."); }
+            var hash = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(archivePath)));
+            var installed = await installer.InstallZipAsync(tool, "v0.5.0", archivePath, hash, new Progress<string>(), default);
+            Check(File.Exists(Path.Combine(installed.InstallDirectory, tool.Executable)), "An approved standalone tool package could not be installed.");
+        }
+        await store.SetVersionPinAsync(source.AppId, true);
+        await store.RecordInstallationAsync(store.Registry.Installations.Single(i => i.AppId == source.AppId) with { Version = "retained-fixture" });
+        Check(store.GetVersionPin(source.AppId) == "retained-fixture", "A version pin did not follow an explicitly selected retained build.");
         // Do not invoke process-aware deletion when a real companion might be running.
         SuiteBackup.Clear(records); SuiteBackup.Clear(decoded);
         Console.WriteLine("Suite encryption, tamper rejection, restore rollback, profile lease and cleanup preservation checks passed.");

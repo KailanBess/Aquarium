@@ -37,7 +37,7 @@ public static class SuiteBackup
         return target;
     }
 
-    public static List<ProfileBackup> Capture(string root, IEnumerable<string> apps)
+    public static List<ProfileBackup> Capture(string root, IEnumerable<string> apps, bool requireReadableJson = true)
     {
         var entries = new List<ProfileBackup>();
         foreach (var app in apps.Distinct())
@@ -57,15 +57,15 @@ public static class SuiteBackup
                 if (entries.Count >= 10020 || new FileInfo(path).Length > MaxBytes - entries.Sum(e => (long)e.Data.Length))
                     throw new InvalidDataException("App records exceed the 64 MB backup limit.");
                 var data = File.ReadAllBytes(path);
-                using var document = JsonDocument.Parse(data);
+                if (requireReadableJson) { using var document = JsonDocument.Parse(data); }
                 entries.Add(new(app, name, data));
             }
         }
-        Validate(entries);
+        Validate(entries, requireReadableJson);
         return entries;
     }
 
-    private static void Validate(List<ProfileBackup> entries)
+    private static void Validate(List<ProfileBackup> entries, bool requireReadableJson = true)
     {
         if (entries.Count > 10020 || entries.Any(e => e is null || e.Data is null || e.App is null || e.File is null) ||
             entries.Sum(e => (long)e.Data.Length) > MaxBytes ||
@@ -74,13 +74,13 @@ public static class SuiteBackup
         foreach (var entry in entries)
         {
             if (!Allowed(entry.App, entry.File)) throw new InvalidDataException("The backup contains an unsupported file.");
-            using var document = JsonDocument.Parse(entry.Data);
+            if (requireReadableJson) { using var document = JsonDocument.Parse(entry.Data); }
         }
     }
 
     public static byte[] Encrypt(List<ProfileBackup> entries, string passphrase)
     {
-        Validate(entries);
+        Validate(entries, false); // Before-restore evidence can include a corrupt original record.
         if (passphrase.Length < 12 || passphrase.Length > 1024) throw new InvalidDataException("Use a passphrase of 12–1,024 characters.");
         var plain = JsonSerializer.SerializeToUtf8Bytes(entries);
         var salt = RandomNumberGenerator.GetBytes(16);
@@ -108,7 +108,7 @@ public static class SuiteBackup
             using var aes = new AesGcm(key, 16);
             aes.Decrypt(envelope.AsSpan(24, 12), envelope.AsSpan(52), envelope.AsSpan(36, 16), plain, envelope.AsSpan(0, 36));
             var entries = JsonSerializer.Deserialize<List<ProfileBackup>>(plain) ?? throw new InvalidDataException("Empty backup.");
-            Validate(entries);
+            Validate(entries, false); // Review and Restore independently require readable JSON before applying.
             return entries;
         }
         catch (CryptographicException) { throw new InvalidDataException("The passphrase is incorrect or the backup has changed."); }
@@ -152,13 +152,19 @@ public static class SuiteBackup
                 published.Add((item.Target, item.Previous));
             }
         }
-        catch
+        catch (Exception failure)
         {
+            var rollbackFailures = new List<string>();
             foreach (var item in published.AsEnumerable().Reverse())
             {
-                if (item.Previous is null) File.Delete(item.Target);
-                else File.WriteAllBytes(item.Target, item.Previous);
+                try
+                {
+                    if (item.Previous is null) File.Delete(item.Target);
+                    else File.WriteAllBytes(item.Target, item.Previous);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { rollbackFailures.Add(Path.GetFileName(item.Target)); }
             }
+            if (rollbackFailures.Count > 0) throw new IOException("Restore stopped and some records require recovery from the encrypted before-restore backup: " + string.Join(", ", rollbackFailures), failure);
             throw;
         }
         finally

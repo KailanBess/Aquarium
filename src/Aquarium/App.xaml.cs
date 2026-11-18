@@ -34,7 +34,7 @@ public partial class App : Application
         {
             profileLease = ProfileLease.Acquire(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium"));
         }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
         {
             window = new Window { Title = "Aquarium profile unavailable", Content = new Microsoft.UI.Xaml.Controls.TextBlock
                 { Text = "Aquarium is already open, or its profile is unavailable. Close the other copy before trying again.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(24) } };

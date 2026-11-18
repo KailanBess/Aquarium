@@ -6,7 +6,8 @@ namespace Aquarium;
 
 public enum ReleaseChannel { Default, Stable, Preview }
 
-public sealed record AppSource(string AppId, string Repository, string Executable, bool IncludePreview, bool IncludedByDefault);
+public sealed record AppSource(string AppId, string Repository, string Executable, bool IncludePreview, bool IncludedByDefault,
+    string AssetName = "", string ChecksumName = "SHA256SUMS.txt");
 public sealed record AppPackage(AppSource Source, string Version, string AssetName, string DownloadUrl, string Sha256, long Size);
 public sealed record BundledPackage(string AppId, string Version, string File, string Sha256);
 
@@ -17,12 +18,15 @@ public sealed class GitHubPackages
     [
         new("aquarium.security", "KailanBess/FishTank", "FishTank.exe", true, true),
         new("aquarium.media", "KailanBess/FishNet", "FishNet.exe", false, true),
-        new("aquarium.emulation", "KailanBess/FishBowl", "FishBowl.exe", false, false)
+        new("aquarium.emulation", "KailanBess/FishBowl", "FishBowl.exe", false, false),
+        new("aquarium.organizer", "KailanBess/Aquarium", "FileOrganizer.exe", false, false, "FileOrganizer-windows-x64.zip", "SHA256SUMS-tools.txt"),
+        new("aquarium.devices", "KailanBess/Aquarium", "DeviceInventory.exe", false, false, "DeviceInventory-windows-x64.zip", "SHA256SUMS-tools.txt"),
+        new("aquarium.workspaces", "KailanBess/Aquarium", "WorkspaceLauncher.exe", false, false, "WorkspaceLauncher-windows-x64.zip", "SHA256SUMS-tools.txt")
     ];
     internal static HttpClient Client()
     {
         var client = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
-        client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/0.4");
+        client.DefaultRequestHeaders.UserAgent.ParseAdd("Aquarium/" + AquariumSelfUpdate.CurrentVersion);
         return client;
     }
     public async Task<AppPackage> FindAsync(AppSource source, CancellationToken token, ReleaseChannel channel = ReleaseChannel.Default)
@@ -36,7 +40,7 @@ public sealed class GitHubPackages
         if (release.ValueKind == JsonValueKind.Undefined) throw new InvalidOperationException(channel == ReleaseChannel.Default ? "No published release is available yet." : $"No published {channel.ToString().ToLowerInvariant()} release is available yet.");
         var version = release.GetProperty("tag_name").GetString() ?? throw new InvalidDataException("Missing release tag.");
         var assets = release.GetProperty("assets").EnumerateArray().ToArray();
-        var wanted = source.AppId switch
+        var wanted = source.AssetName.Length > 0 ? source.AssetName : source.AppId switch
         {
             "aquarium.shell" => "Aquarium-complete-windows-x64.zip",
             "aquarium.security" => "FishTank-desktop-preview.zip",
@@ -51,7 +55,7 @@ public sealed class GitHubPackages
         if (asset.TryGetProperty("digest", out var digest) && digest.ValueKind == JsonValueKind.String && digest.GetString()!.StartsWith("sha256:")) hash = digest.GetString()![7..];
         if (!IsHash(hash))
         {
-            var checksums = assets.SingleOrDefault(a => a.GetProperty("name").GetString() == "SHA256SUMS.txt");
+            var checksums = assets.SingleOrDefault(a => a.GetProperty("name").GetString() == source.ChecksumName);
             if (checksums.ValueKind == JsonValueKind.Undefined) throw new InvalidDataException("The release has no SHA-256 package checksum. Installation is unavailable.");
             var checksumUrl = checksums.GetProperty("browser_download_url").GetString()!;
             ValidateAssetUrl(source, checksumUrl);

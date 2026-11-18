@@ -160,6 +160,7 @@ public sealed class LocalStore
                 VersionPins = new(Registry.VersionPins)
             };
             next.Installations.Add(installation);
+            if (next.VersionPins.ContainsKey(installation.AppId)) next.VersionPins[installation.AppId] = installation.Version;
             if (!next.LibraryAppIds.Contains(installation.AppId)) next.LibraryAppIds.Add(installation.AppId);
             await CommitAsync(next);
         }

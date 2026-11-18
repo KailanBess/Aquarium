@@ -25,5 +25,23 @@
     "description": "FishNet is the Media app. It is included in the complete Aquarium bundle. Browsers are added externally; there is no built-in browser. Future published releases can be installed through Aquarium.",
     "moduleId": "media",
     "stage": "Included"
+  },
+  {
+    "id": "aquarium.organizer", "name": "File Organizer", "category": "Files",
+    "summary": "Preview renames and moves, compare duplicates and review recovery records.",
+    "description": "Optional Aquarium tool. Reviews file changes, refuses overwrites, retains session undo and records source/destination paths for recovery. Recovery records are not file-content backups.",
+    "moduleId": "organizer", "stage": "Optional"
+  },
+  {
+    "id": "aquarium.devices", "name": "Device Inventory", "category": "Devices",
+    "summary": "Track warranty, maintenance, serial numbers and receipt links.",
+    "description": "Optional Aquarium tool with local device records. Receipt files remain external. Its settings and records can be backed up through Aquarium Recovery.",
+    "moduleId": "devices", "stage": "Optional"
+  },
+  {
+    "id": "aquarium.workspaces", "name": "Workspace Launcher", "category": "Workspaces",
+    "summary": "Save desktop app groups and review their window layouts before opening.",
+    "description": "Optional Aquarium tool. Starts reviewed desktop executables and positions their windows. Missing apps are reported separately, and arbitrary command lines are not stored.",
+    "moduleId": "workspaces", "stage": "Optional"
   }
 ]
