@@ -1,80 +1,59 @@
 # Aquarium
 
-Native C# / .NET 8 / WinUI 3 Windows desktop hub with a private Aquarium-only app catalog, GitHub release installation, local Library, Downloads, Updates and customization.
+Aquarium is a native .NET 8 / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.5.0** adds a Recovery workspace, encrypted app-record backups, reviewed family colors, shared quiet hours and suite search.
 
-## Release 0.4.2
+## Install and launch
 
-The tagged release workflow publishes `Aquarium-complete-windows-x64.zip`, SHA-256 checksums and build metadata after native Windows publishing and package tests pass. The single-app unsigned download includes Aquarium, FishTank 0.16.0 and FishNet 0.3.1 from pinned source revisions. FishBowl 1.29.5 is released separately for Windows/Linux and remains optional in App install. Native playback, app interaction and physical display acceptance still require manual verification.
+Download `Aquarium-complete-windows-x64.zip` from [Releases](../../releases), extract its single `Aquarium.exe`, and run it. The launcher verifies and caches the full runtime under `%LOCALAPPDATA%\Aquarium\Runtime`. Preparation appears for a new runtime or a damaged cache, and is skipped for a verified cached launch. Settings and managed apps are stored separately.
 
-## Complete bundle
+The complete bundle includes FishTank and FishNet built from immutable source revisions recorded in `BUILD-INFO.json`. FishBowl is optional under **App install**. Included apps are registered after package verification and never started automatically. No games, firmware, keys or emulators are bundled.
 
-The `Aquarium-complete-windows-x64` build artifact includes Aquarium, FishTank and FishNet. Extract the ZIP and run its only file, `Aquarium.exe`. The launcher prepares the full runtime automatically under `%LOCALAPPDATA%\Aquarium\Runtime` and checks its SHA-256 file hashes before every launch. A preparation window appears when a new version is extracted or a damaged cache is rebuilt. A verified cached launch opens without that window. No support files are created beside the downloaded app. Damaged runtime caches are preserved and replaced; your settings and installed apps are kept separately. Moving the launcher to another folder works without moving runtime files. Old runtime versions are retained; this release does not remove them automatically. On first launch, Aquarium verifies and installs its two included app packages into its managed app folder. A brand-new FishTank profile receives the Aquarium colors using its released custom-palette support; existing appearance and security preferences are never replaced. It never launches them automatically. FishBowl is **not** included and remains an optional install from App install.
+**App install** reads only the approved public releases of `KailanBess/FishTank`, `FishNet` and `FishBowl`. Review each package before installing. Downloads shows progress, cancellation and results. Library launches standalone apps. Uninstall removes managed program folders after the app closes and keeps its profile; an explicitly removed bundled app stays removed.
 
-The companion apps are built from the immutable source revisions pinned in the workflow. The bundle records their actual versions and SHA-256 hashes; it does not depend on an older downloaded preview. Windows builds are unsigned.
+## Updates and recovery
 
-## App install and Library
+**Update all apps** checks Aquarium and installed companions using saved release channels, skips pinned/current/older versions, presents one review, verifies each package and continues after an individual failure. Cancel stops remaining work. Aquarium stages itself last and asks you to reopen it. Optional interactive WinGet updates cover only outside apps WinGet can identify; recheck after their installers finish.
 
-1. Open **App install** and choose **Look for published apps**.
-2. Aquarium reads public release metadata for `KailanBess/FishTank`, `KailanBess/FishNet` and `KailanBess/FishBowl` only. Draft releases are excluded. FishTank permits published previews because it has no stable release; the other apps use stable releases.
-3. Review the version/source and click Install. The confirmation describes the download and local install. GitHub's asset SHA-256 digest is used where available; otherwise a matching release `SHA256SUMS.txt` entry is required.
-4. Downloads shows real activity, cancel controls, failures and session history. An installation enters Library only after extraction and registry persistence succeed. Use **Open** to start it.
+**Recovery** exposes package verification/repair and retained-version rollback. Close a companion before rollback. Older versions may interpret newer profile data differently. **Review unused program folders** offers only unregistered GUID version folders and preserves all current and retained rollback versions. Linked paths and portable FishBowl data block cleanup. Runtime caches are retained and are not cleaned by this command.
 
-Latest release checks require internet access and may fail due to GitHub rate limits. Missing releases, missing Windows packages and missing checksums are reported as unavailable. CI artifacts are not represented as public releases in the App install page. For future FishNet releases, publish `FishNet-windows-x64.zip` containing its complete publish directory, with a GitHub digest or matching `SHA256SUMS.txt`. No arbitrary outside repositories are executable store entries.
+**Encrypted app records** lets you choose profiles and a passphrase of at least 12 characters. Backups use authenticated AES-256-GCM encryption with PBKDF2-SHA256 (600,000 iterations). Restore previews the apps/file count, preserves an encrypted before-restore backup beside the selected archive, and rolls back completed record writes if a later write fails. A running FishBowl/FishNet profile lease blocks conflicting recovery in supporting versions. Close selected companions first.
 
-App versions use separate managed folders under `%LOCALAPPDATA%\Aquarium\Apps`. Failed installs preserve the previous registry entry; successful replacements retain old program folders. Games, media, accounts and application profiles stay in their apps' existing locations. No destructive uninstall or old-version cleanup is implemented yet. Do not move or alter managed folders while apps are running. The initial bundle skips default apps that are already registered.
+Backups include Aquarium settings/registry, FishBowl library records, FishNet catalog/playlists/queue/preferences/podcast subscriptions/playback positions, and Device Inventory/Workspace Launcher records. **They do not copy referenced games, saves, media, artwork, receipt files, downloaded podcasts, portable profiles or programs. FishTank includes appearance only.** Use FishBowl's save backups and FishTank's authenticated encrypted backup/restore tools for those data. Paths may need repair on another computer; Windows-account-protected credentials may need reenrollment. The record limit is 64 MB. Keep the passphrase separately; there is no passphrase recovery service.
 
-The download checksum protects integrity from the trusted repository's metadata; it is not independent publisher-signature authentication. Install sources are explicitly allowlisted. Packages reject traversal paths, duplicates, symlinks and excessive sizes/counts; launch paths are contained within managed directories. Apps are started as standalone processes and run as the current Windows user.
+**Preview support report** shows exactly the versions, platform, registry state and counts to be saved. It excludes paths, library contents, credentials and raw logs. Nothing is sent automatically.
 
-## Updates
+## Appearance and navigation
 
-Use **Update all apps** to check Aquarium and installed companion apps using their saved release channels. It skips pinned and current versions, asks for one review, verifies each download, and continues after an individual failure. Cancel stops remaining work. Aquarium stages its own update last and prompts you to reopen it. The review can also start interactive WinGet updates for supported Windows apps. Recheck Windows apps when those installers finish.
+Settings previews Aquarium colors, corners, spacing, headings, sidebar and frame. Apply saves; leaving Settings discards unapplied previews. **Apply a family palette** reviews Ocean/Midnight/Slate with Mint/Blue/Coral for initialized, closed companion profiles. It preserves unrelated settings and future JSON fields, disables custom palettes while retaining their stored colors, and keeps `.family-before.bak` records beside changed files. Each app can still be customized independently afterward.
 
-Aquarium owns the shared update UI. Its Updates page links to managed app installs/updates and can check public Aquarium-family releases. For outside apps it runs read-only `winget upgrade --source winget --disable-interactivity`, displays original output and offers an exact-ID interactive update after confirmation. Checks do not install anything or accept agreements. WinGet cannot cover every app, and vendor self-updaters are not disabled. FishNet has no separate updater. Existing released FishTank/FishBowl behavior is retained.
+**Shared quiet hours** is optional. Supporting FishBowl versions defer informational release/save-review balloons while retaining review items. FishTank release announcements honor the policy; security warnings and errors retain their own controls. Aquarium, FishNet and the smaller tools do not currently emit background desktop notices. Equal start/end hours leave notices enabled all day.
 
-## Appearance and scope
+The shared search finds Aquarium pages and companion apps by name/category/description. It opens the relevant hub page; companion tools remain available inside their own app.
 
-Ocean/Midnight/Slate backgrounds, Mint/Blue/Coral accents and compact spacing persist in Settings. Store search and saved bookmarks remain available independently from installations. FishTank = Security, FishBowl = Emulation, FishNet = Media. No private VPN, network-management or Tailscale project integration is included.
+## Standalone tools
 
-## Build
+Separate release ZIPs contain **File Organizer**, **Device Inventory** and **Workspace Launcher**. Extract each complete ZIP before running its executable. They use the family palette and Windows High Contrast on startup.
 
-Requires Windows 10 build 19041+ x64 and the .NET 8 SDK. Microsoft Windows App SDK 1.8.260921001 and Windows build tools 10.0.26100.4654 are restored from NuGet; no system runtime is required for the complete bundle. Visual Studio is optional. `global.json` selects .NET 8.
+- File Organizer previews rename/move operations, refuses overwrites/linked paths, compares duplicates without deleting them, keeps in-session undo and persistent source/destination recovery records. Recovery records are not file-content backups. Moves run without freezing the UI, and closing waits for an active move.
+- Device Inventory records devices, serials, receipt links, warranty and maintenance dates. Receipt files stay external.
+- Workspace Launcher records selected desktop executable windows and reviews their paths before launching/positioning them. Missing or inaccessible apps are reported individually. It never stores arbitrary command lines.
 
-```powershell
-dotnet build .\src\Aquarium\Aquarium.csproj -c Debug -p:Platform=x64
-& .\src\Aquarium\bin\x64\Debug\net8.0-windows10.0.19041.0\win-x64\Aquarium.exe
-```
+## Integrity and signing
 
-A source-only build has no Bundled folder; it still provides the App install page. The GitHub workflow publishes a complete self-contained hub, builds pinned FishNet source, downloads/verifies the inspected FishTank release, and generates its bundled-app hash manifest. It embeds the complete runtime in a self-contained single-file launcher and uploads only that app. The bundle does not require a system .NET runtime or MSIX registration.
+Packages require GitHub asset digests or matching SHA256SUMS entries, bounded extraction and contained executable paths. Traversal, duplicate paths, symlinks and oversized packages are rejected. Registry saves are atomic; unreadable registries are preserved with edits disabled. A process-lifetime profile lease prevents simultaneous Aquarium writers.
 
-## Architecture and validation
+Release packaging can sign and verify Aquarium's runtime/launcher and standalone tools using genuine publisher credentials. Configure repository secrets `WINDOWS_SIGNING_PFX_BASE64` and `WINDOWS_SIGNING_PASSWORD`, and variable `WINDOWS_TIMESTAMP_URL` with the provider's HTTPS RFC 3161 endpoint. Only tag releases receive those credentials. Missing configuration yields an explicitly unsigned package; partial configuration or failed signature/timestamp verification stops packaging. `BUILD-INFO.json` records the actual hub signature state. No signing credentials are included in source or releases. Companion signature states are independent.
 
-`GitHubPackages`: approved app sources and published Windows package discovery. `PackageInstaller`: checksum verification, bounded extraction, standalone launching. `LocalStore`: serialized, atomic registry writes. `InstallUi`: install selection, included-app setup, download/cancel states. `UpdateService`: outside-app checks. `Preferences`: independent appearance storage.
+Checksums verify consistency with trusted repository metadata; they are not independent publisher authentication. Windows builds remain unsigned until genuine signing configuration is supplied. Signing is not a security audit.
 
-`registry.json` and `appearance.json` live under `%LOCALAPPDATA%\Aquarium`. Invalid registries are preserved with writes disabled. Editing assumes one Aquarium process; cross-process coordination and signed self-updating remain future work.
+## Build and verification
+
+Requires Windows 10 build 19041+ x64 and the .NET 8 SDK. The complete bundle is self-contained; Visual Studio is optional.
 
 ```powershell
-dotnet run --project .\tests\Aquarium.PackageTests\Aquarium.PackageTests.csproj -c Release
+dotnet build src/Aquarium/Aquarium.csproj -c Release -p:Platform=x64
+dotnet run --project tests/Aquarium.PackageTests -c Release
+dotnet run --project tests/Aquarium.LauncherTests -c Release
 ```
 
-The tests use generated, never-executed fixture files and isolated temporary directories. They exercise package integrity, traversal/duplicate rejection, expected executables, registry persistence, failure rollback, previous-version retention and concurrent bookmarks. Check the current GitHub workflow result for actual build status.
-
-Windows smoke checks: extract the single-app bundle, launch Aquarium, confirm FishTank/FishNet are registered and FishBowl is absent, open each included app, check public packages and optionally install FishBowl. Verify cancel/error recovery and persistent Library after restart. Runtime visual/playback behavior requires a real Windows desktop.
-
-CI checks cold and repeat launcher startup, launch after moving the file, runtime integrity and bundled-app availability. Visual interaction and physical-device acceptance remain manual checks.
-
-
-## Updating Aquarium
-
-Open **Updates → Check for Aquarium update**. After you approve an available release, Aquarium downloads the Windows package from this repository, checks its SHA-256 digest, and stages the new launcher in your local profile. Close Aquarium and reopen it from the updated desktop or Start menu shortcut. Your app library and settings stay in your profile. The previous launcher is retained.
-se **Updates → Repair Aquarium shortcuts** to create or refresh the desktop and Start menu shortcuts for the current launcher. The launcher and runtime executable carry the Aquarium icon in their Windows file resources.
-
-To make a source change available through the updater, raise the runtime and launcher project versions together, then tag that commit with the matching version (for example, v0.4.4). Publish the draft produced by the Windows release workflow after verification. Git commits alone are not installable updates.
-
-### Uninstalling a managed app
-
-Choose **Uninstall** on an installed app in **Library** or **App install**. Close the app first. Aquarium removes its managed program versions and keeps the app profile and library bookmark. An explicitly uninstalled bundled app stays removed on restart. Use **Install included version** or a published package in **App install** to reinstall it.
-
-### Previewing appearance
-
-Open **Settings** to preview colors, title bar, frame, card corners, heading size, sidebar width, and spacing. **Apply appearance** saves your choices. Leaving Settings discards unapplied choices. Library cards display the installed executable's Windows icon when available.
-pdates offers **Update all apps** to check Aquarium and installed companion apps using their saved release channels. It skips pinned and current versions, asks for one review, verifies each download, and continues after an individual failure. Cancel stops remaining work. Aquarium stages its own update last and prompts you to reopen it. The review can also start interactive WinGet updates for supported Windows apps. Recheck Windows apps when those installers finish.
+CI builds the complete runtime and tools, tests package/registry integrity, encrypted backups and restore failure, profile leases, family-palette preservation, quiet hours and launcher startup. Published releases require a matching tag on reviewed main source and passing packaging checks. A source commit alone is not an installable update. Physical display/screen-reader acceptance, live companion interaction and interruption testing remain manual checks. No private VPN, network-management or iOS integration is included.

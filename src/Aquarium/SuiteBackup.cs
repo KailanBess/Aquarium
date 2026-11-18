@@ -15,9 +15,9 @@ public static class SuiteBackup
     public static readonly string[] Apps = ["Aquarium", "FishBowl", "FishNet", "FishTank", "AquariumDeviceInventory", "AquariumWorkspaceLauncher"];
     private static readonly Dictionary<string, string[]> Files = new()
     {
-        ["Aquarium"] = ["registry.json", "appearance.json", "appearance-presets.json"],
+        ["Aquarium"] = ["registry.json", "appearance.json", "appearance-presets.json", "notification-policy.json"],
         ["FishBowl"] = ["library.json", "window-layout.json"],
-        ["FishNet"] = ["media-library.json", "playlists.json", "play-queue.json", "linked-library.json", "appearance.json", "watched-folders.json", "continue-watching.json", "Podcasts/subscriptions.json"],
+        ["FishNet"] = ["media-library.json", "playlists.json", "play-queue.json", "linked-library.json", "appearance.json", "watched-folders.json", "continue-watching.json", "audio-output.json", "Podcasts/subscriptions.json"],
         ["FishTank"] = ["appearance.json"],
         ["AquariumDeviceInventory"] = ["inventory.json"],
         ["AquariumWorkspaceLauncher"] = ["workspaces.json"]

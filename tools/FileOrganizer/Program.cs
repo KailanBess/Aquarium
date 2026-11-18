@@ -38,13 +38,15 @@ internal sealed class OrganizerWindow : Form
         AddAction("Preview rename", PreviewRename);
         AddAction("Preview move…", PreviewMove);
         AddAction("Find duplicates", FindDuplicates);
+        AddAction("Review recovery records", () => review.Text = MoveJournal.Review());
         actions.Controls.Add(apply);
         actions.Controls.Add(undo);
-        apply.Click += (_, _) => Run(Apply);
-        undo.Click += (_, _) => Run(Undo);
+        apply.Click += async (_, _) => await ApplyAsync();
+        undo.Click += async (_, _) => await UndoAsync();
         prefix.TextChanged += (_, _) => ClearPreview();
         files.SelectedIndexChanged += (_, _) => ClearPreview();
         review.Text = "Choose files, then preview a rename or move. Select individual files to limit the operation.";
+        Aquarium.Tools.FamilyWindow.Apply(this);
     }
 
     private void AddAction(string name, Action action)
@@ -134,19 +136,19 @@ internal sealed class OrganizerWindow : Form
         finally { if (!IsDisposed) actions.Enabled = files.Enabled = true; }
     }
 
-    private void Apply()
+    private async Task ApplyAsync()
     {
         var moves = preview;
         if (moves.Length == 0) return;
-        Execute(moves);
+        if (!await ExecuteResponsive(moves)) return;
         history.Push(moves.Select(move => new FileMove(move.Target, move.Source)).Reverse().ToArray());
         UpdatePaths(moves);
     }
 
-    private void Undo()
+    private async Task UndoAsync()
     {
         if (!history.TryPeek(out var moves)) return;
-        Execute(moves);
+        if (!await ExecuteResponsive(moves)) return;
         history.Pop();
         UpdatePaths(moves);
     }
@@ -161,7 +163,7 @@ internal sealed class OrganizerWindow : Form
                 files.Items[index] = replacement;
         }
         undo.Enabled = history.Count > 0;
-        review.Text = $"Updated {moves.Length} file path(s). Undo history lasts until this window closes.";
+        review.Text = $"Updated {moves.Length} file path(s). Undo history lasts until this window closes. Source/destination recovery records persist under Review recovery records; they do not copy file contents.";
     }
 
     private static void Validate(FileMove[] moves)
@@ -187,6 +189,7 @@ internal sealed class OrganizerWindow : Form
     private static void Execute(FileMove[] moves)
     {
         Validate(moves);
+        var journal = new MoveJournal(moves.Select(move => (move.Source, move.Target)));
         var completed = new Stack<FileMove>();
         try
         {
@@ -194,7 +197,9 @@ internal sealed class OrganizerWindow : Form
             {
                 File.Move(move.Source, move.Target);
                 completed.Push(move);
+                journal.Record("In progress", completed.Count, "");
             }
+            journal.Record("Completed", completed.Count, "");
         }
         catch (Exception failure)
         {
@@ -205,10 +210,31 @@ internal sealed class OrganizerWindow : Form
                 catch (Exception ex) { rollbackFailures.Add(move.Target + ": " + ex.Message); }
             }
             if (rollbackFailures.Count > 0)
+            {
+                journal.Record("Manual recovery needed", completed.Count, string.Join(Environment.NewLine, rollbackFailures));
                 throw new IOException(failure.Message + Environment.NewLine + "Restore these files manually:" +
                     Environment.NewLine + string.Join(Environment.NewLine, rollbackFailures), failure);
+            }
+            journal.Record("Rolled back", 0, failure.Message);
             throw;
         }
+    }
+
+    private bool moving;
+    private async Task<bool> ExecuteResponsive(FileMove[] moves)
+    {
+        if (moving) return false;
+        moving = true; actions.Enabled = files.Enabled = false;
+        review.Text = "Applying the reviewed file operation…";
+        try { await Task.Run(() => Execute(moves)); return true; }
+        catch (Exception ex) { if (!IsDisposed) MessageBox.Show(this, ex.Message, Text, MessageBoxButtons.OK, MessageBoxIcon.Error); return false; }
+        finally { moving = false; if (!IsDisposed) actions.Enabled = files.Enabled = true; }
+    }
+
+    protected override void OnFormClosing(FormClosingEventArgs e)
+    {
+        if (moving) { e.Cancel = true; review.Text = "Wait for the reviewed file operation to finish before closing."; }
+        base.OnFormClosing(e);
     }
 
     private sealed record FileMove(string Source, string Target);

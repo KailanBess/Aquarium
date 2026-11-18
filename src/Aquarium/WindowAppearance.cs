@@ -34,7 +34,7 @@ public sealed partial class MainWindow
         if (AppWindowTitleBar.IsCustomizationSupported())
         {
             var titleBar = AppWindow.TitleBar;
-            bool useSystem = appearance.TitleBar == "System";
+            bool useSystem = appearance.TitleBar == "System" || new Windows.UI.ViewManagement.AccessibilitySettings().HighContrast;
             bool useAccent = appearance.TitleBar == "Accent";
             Windows.UI.Color? background = useSystem ? null : useAccent ? appearance.Accent : appearance.PageBrush.Color;
             Windows.UI.Color? foreground = useSystem ? null : useAccent ? CaptionForeground(appearance.Accent) : Colors.White;

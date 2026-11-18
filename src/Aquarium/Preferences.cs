@@ -40,6 +40,8 @@ public sealed class Appearance
     public void EndPreview() => preview = null;
     public void Load()
     {
+        writable = true;
+        Warning = null;
         try
         {
             if (File.Exists(path)) current = JsonSerializer.Deserialize<Preferences>(File.ReadAllText(path)) ?? throw new InvalidDataException("Empty preferences.");
@@ -113,8 +115,10 @@ public sealed class Appearance
         _ => (ColorHelper.FromArgb(255, 9, 21, 29), ColorHelper.FromArgb(255, 16, 36, 47))
     };
 
-    public SolidColorBrush PageBrush => new(Background.Page);
-    public SolidColorBrush SurfaceBrush => new(Background.Surface);
+    public SolidColorBrush PageBrush => new(new Windows.UI.ViewManagement.AccessibilitySettings().HighContrast
+        ? new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Background) : Background.Page);
+    public SolidColorBrush SurfaceBrush => new(new Windows.UI.ViewManagement.AccessibilitySettings().HighContrast
+        ? new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Background) : Background.Surface);
 
     public StackPanel Editor(nint owner, Action changed, Action<string> error)
     {

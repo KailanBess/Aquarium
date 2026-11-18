@@ -8,7 +8,8 @@
     <Compile Include="../../src/Aquarium/PackageMaintenance.cs" Link="PackageMaintenance.cs"/>
     <Compile Include="../../src/Aquarium/ProfileLease.cs" Link="ProfileLease.cs"/>
     <Compile Include="../../src/Aquarium/SuiteBackup.cs" Link="SuiteBackup.cs"/>
+    <Compile Include="../../src/Aquarium/FamilyAppearance.cs" Link="FamilyAppearance.cs"/>
     <Compile Include="../../src/Aquarium/AquariumSelfUpdate.cs" Link="AquariumSelfUpdate.cs"/>
     <Content Include="../../src/Aquarium/Data/catalog.json" Link="Data/catalog.json" CopyToOutputDirectory="PreserveNewest"/>
-  </ItemGroup>
+  <Compile Include="../../src/Aquarium/SuiteNoticePolicy.cs" Link="SuiteNoticePolicy.cs" /></ItemGroup>
 </Project>

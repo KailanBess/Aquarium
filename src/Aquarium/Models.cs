@@ -8,6 +8,8 @@ public sealed record InstalledApp(string AppId, string Version, string InstallDi
     string EntryPoint = "", string PackageSha256 = "", string Repository = "");
 public sealed class LocalRegistry
 {
+    [System.Text.Json.Serialization.JsonExtensionData]
+    public Dictionary<string, System.Text.Json.JsonElement>? AdditionalFields { get; set; }
     public int SchemaVersion { get; set; } = 1;
     public List<string> LibraryAppIds { get; set; } = [];
     public List<InstalledApp> Installations { get; set; } = [];

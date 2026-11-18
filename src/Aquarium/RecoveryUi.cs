@@ -11,10 +11,13 @@ public sealed partial class MainWindow
     private static readonly string ProfileRoot = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
     private bool recoveryRunning;
 
-    private void RequireCompanionsClosed()
+    private void RequireCompanionsClosed(IEnumerable<string>? selected = null)
     {
-        foreach (var name in new[] { "FishBowl", "FishNet", "FishTank", "DeviceInventory", "WorkspaceLauncher" })
+        var apps = selected?.ToHashSet() ?? SuiteBackup.Apps.ToHashSet();
+        foreach (var entry in new[] { ("FishBowl", "FishBowl"), ("FishNet", "FishNet"), ("FishTank", "FishTank"), ("AquariumDeviceInventory", "DeviceInventory"), ("AquariumWorkspaceLauncher", "WorkspaceLauncher") })
         {
+            if (!apps.Contains(entry.Item1)) continue;
+            var name = entry.Item2;
             var processes = Process.GetProcessesByName(name);
             try { if (processes.Any(p => !p.HasExited)) throw new InvalidOperationException("Close " + name + " before backing up or restoring app records."); }
             finally { foreach (var process in processes) process.Dispose(); }
@@ -84,7 +87,7 @@ public sealed partial class MainWindow
             List<ProfileBackup>? records = null;
             try
             {
-                RequireCompanionsClosed();
+                RequireCompanionsClosed(selected);
                 if (restoring)
                 {
                     var picker = new FileOpenPicker(); picker.FileTypeFilter.Add(".aqbackup");
@@ -95,17 +98,18 @@ public sealed partial class MainWindow
                     var chosen = records.Where(r => selected.Contains(r.App)).ToList();
                     var review = SuiteBackup.Review(chosen);
                     if (review.Files == 0) throw new InvalidDataException("The backup has no records for the selected profiles.");
+                    using var profileLeases = new CompanionLeases(ProfileRoot, review.Apps);
                     var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, Title = "Restore reviewed app records?",
                         Content = string.Join(", ", review.Apps) + $"\n{review.Files} files · {review.Bytes / 1024d:F1} KB\nExisting records with the same names will be replaced. Referenced file paths may need repair on another computer. An encrypted before-restore backup will be saved beside the selected backup using the same passphrase.",
                         PrimaryButtonText = "Restore records", CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Close };
                     if (await dialog.ShowAsync() != ContentDialogResult.Primary || isClosed) return;
-                    RequireCompanionsClosed();
+                    RequireCompanionsClosed(review.Apps);
                     await Task.Run(() =>
                     {
                         var previous = SuiteBackup.Capture(ProfileRoot, review.Apps);
                         try { SuiteBackup.Save(file.Path + ".before-restore-" + Guid.NewGuid().ToString("N") + ".aqbackup", previous, passphrase); }
                         finally { SuiteBackup.Clear(previous); }
-                        SuiteBackup.Restore(ProfileRoot, chosen, RequireCompanionsClosed);
+                        SuiteBackup.Restore(ProfileRoot, chosen, () => RequireCompanionsClosed(review.Apps));
                     });
                     await store.LoadAsync(); appearance.Load(); ApplyAppearance();
                     ShowNotice("Reviewed app records restored. An encrypted before-restore backup was saved beside the backup you selected.", InfoBarSeverity.Success);
@@ -116,6 +120,8 @@ public sealed partial class MainWindow
                     picker.FileTypeChoices.Add("Encrypted Aquarium app records", new List<string> { ".aqbackup" });
                     WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
                     var file = await picker.PickSaveFileAsync(); if (file is null || isClosed) return;
+                    using var profileLeases = new CompanionLeases(ProfileRoot, selected);
+                    RequireCompanionsClosed(selected);
                     records = await Task.Run(() => SuiteBackup.Capture(ProfileRoot, selected));
                     var review = SuiteBackup.Review(records);
                     if (review.Files == 0) throw new InvalidDataException("The selected profiles have no records yet.");

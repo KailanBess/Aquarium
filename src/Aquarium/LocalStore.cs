@@ -25,10 +25,22 @@ public sealed class LocalStore
         if (!File.Exists(RegistryPath)) return;
         try
         {
+            if (new FileInfo(RegistryPath).Length > 1024 * 1024) throw new InvalidDataException("The installation registry is too large.");
             var registry = JsonSerializer.Deserialize<LocalRegistry>(await File.ReadAllTextAsync(RegistryPath), Json)
                 ?? throw new InvalidDataException("Registry is empty.");
             if (registry.SchemaVersion != 1 || registry.LibraryAppIds is null || registry.Installations is null || registry.UninstalledAppIds is null || registry.InstallationHistory is null || registry.ReleaseChannels is null || registry.VersionPins is null)
                 throw new InvalidDataException("Unsupported or invalid registry schema.");
+            var ids = Catalog.Select(a => a.Id).ToHashSet(StringComparer.Ordinal);
+            bool InvalidInstallation(InstalledApp item) => item is null || !ids.Contains(item.AppId) || string.IsNullOrWhiteSpace(item.Version) || item.Version.Length > 128 ||
+                string.IsNullOrWhiteSpace(item.InstallDirectory) || !Path.IsPathFullyQualified(item.InstallDirectory) || item.EntryPoint is null || item.PackageSha256 is null || item.Repository is null;
+            if (registry.Installations.Count > ids.Count || registry.InstallationHistory.Count > ids.Count * 5 ||
+                registry.Installations.Any(InvalidInstallation) || registry.InstallationHistory.Any(InvalidInstallation) ||
+                registry.Installations.Select(i => i.AppId).Distinct().Count() != registry.Installations.Count ||
+                registry.LibraryAppIds.Count > ids.Count || registry.UninstalledAppIds.Count > ids.Count ||
+                registry.LibraryAppIds.Concat(registry.UninstalledAppIds).Any(id => !ids.Contains(id)) ||
+                registry.ReleaseChannels.Any(p => !ids.Contains(p.Key) || !Enum.IsDefined(p.Value)) ||
+                registry.VersionPins.Any(p => !ids.Contains(p.Key) || string.IsNullOrWhiteSpace(p.Value) || p.Value.Length > 128))
+                throw new InvalidDataException("The registry contains invalid or duplicate app records.");
             Registry = registry;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or InvalidDataException)
@@ -58,6 +70,7 @@ public sealed class LocalStore
                 throw new ArgumentException("Unknown app or release channel.");
             var next = new LocalRegistry
             {
+                AdditionalFields = Registry.AdditionalFields is null ? null : new(Registry.AdditionalFields),
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
@@ -88,6 +101,7 @@ public sealed class LocalStore
             if (pin && installed is null) throw new InvalidOperationException("Install the app before pinning a version.");
             var next = new LocalRegistry
             {
+                AdditionalFields = Registry.AdditionalFields is null ? null : new(Registry.AdditionalFields),
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
@@ -111,7 +125,8 @@ public sealed class LocalStore
         if (!Catalog.Any(a => a.Id == id)) throw new ArgumentException("Unknown catalog app.");
         var next = new LocalRegistry
         {
-            LibraryAppIds = Registry.LibraryAppIds.Where(x => x != id).ToList(),
+            AdditionalFields = Registry.AdditionalFields is null ? null : new(Registry.AdditionalFields),
+                LibraryAppIds = Registry.LibraryAppIds.Where(x => x != id).ToList(),
             Installations = Registry.Installations.ToList(),
             UninstalledAppIds = Registry.UninstalledAppIds.ToList(),
             InstallationHistory = Registry.InstallationHistory.ToList(),
@@ -136,6 +151,7 @@ public sealed class LocalStore
                 .DistinctBy(item => item.InstallDirectory, StringComparer.OrdinalIgnoreCase).Take(5);
             var next = new LocalRegistry
             {
+                AdditionalFields = Registry.AdditionalFields is null ? null : new(Registry.AdditionalFields),
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.Where(item => item.AppId != installation.AppId).ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.Where(id => id != installation.AppId).ToList(),
@@ -159,6 +175,7 @@ public sealed class LocalStore
                 throw new InvalidOperationException("The installation record changed. Refresh Aquarium and try again.");
             var next = new LocalRegistry
             {
+                AdditionalFields = Registry.AdditionalFields is null ? null : new(Registry.AdditionalFields),
                 LibraryAppIds = Registry.LibraryAppIds.ToList(),
                 Installations = Registry.Installations.Where(app => app.AppId != installation.AppId).ToList(),
                 UninstalledAppIds = Registry.UninstalledAppIds.Append(installation.AppId).Distinct().ToList(),
