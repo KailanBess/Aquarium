@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
       - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
       - uses: microsoft/setup-msbuild@v2
       - name: Test package safety and registry persistence
         run: dotnet run --project tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj -c Release
@@ -28,15 +28,15 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: 2d395b7a64527f56794152c6ed643f652c1368bf
+          ref: 206fdfe622ae2b507e985a286039483cefb38f9f
           path: companion/FishNet
-      - name: Publish included FishNet 0.4.0 runtime
+      - name: Publish included FishNet 0.4.1 runtime
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project companion/FishNet/src/FishNet/FishNet.csproj -PublishDirectory artifacts/FishNet -LogName fishnet-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishTank
-          ref: a458a04e6123025bd9e1089aaa1f38397631a08f
+          ref: 7240c17c29c8fe8f2da442f575089b1d66420617
           path: companion/FishTank
       - name: Validate included FishTank 0.17.0 Windows source
         shell: pwsh
@@ -138,7 +138,7 @@ jobs:
             $toolAssets += "./release/$name"
           }
           $signature = if ((Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).signed) { 'Publisher-signed hub; timestamp and trust checks passed.' } else { 'Unsigned development hub; genuine publisher signing is not configured.' }
-          $notes="Aquarium 0.5.0 adds Recovery with encrypted app-record backup/restore, package repair/rollback, safe unused-version cleanup, private support reports, reviewed family colors, shared informational quiet hours and suite search. File Organizer, Device Inventory and Workspace Launcher are optional managed catalog apps and participate in Update all apps. Includes tested FishTank 0.17.0 and FishNet 0.4.0 from pinned source. FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe; verified runtime preparation is skipped on cached launches. Your installed apps and profiles were not changed by development. Backups contain records only, not referenced games/media/saves or FishTank security data. Physical-device/live-server acceptance and independent security review remain external checks. Standalone tools are also attached as complete ZIPs."
+          $notes="Aquarium 0.5.0 uses supported .NET 10 LTS and adds Recovery with encrypted app-record backup/restore, package repair/rollback, safe unused-version/runtime-cache cleanup, private support reports, reviewed family colors, shared informational quiet hours and suite search. File Organizer, Device Inventory and Workspace Launcher are optional managed catalog apps and participate in Update all apps. Includes tested FishTank 0.17.0 and FishNet 0.4.1 from pinned source. FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe; verified runtime preparation is skipped on cached launches. Your installed apps and profiles were not changed by development. Backups contain records only, not referenced games/media/saves or FishTank security data. Physical-device/live-server acceptance and independent security review remain external checks. Standalone tools are also attached as complete ZIPs."
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
           gh release view $tag *> $null

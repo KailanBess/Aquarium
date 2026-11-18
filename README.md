@@ -1,6 +1,6 @@
 # Aquarium
 
-Aquarium is a native .NET 8 / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.5.0** adds a Recovery workspace, encrypted app-record backups, reviewed family colors, shared quiet hours and suite search.
+Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.5.0** adds a Recovery workspace, encrypted app-record backups, reviewed family colors, shared quiet hours and suite search.
 
 ## Install and launch
 
@@ -14,7 +14,7 @@ The complete bundle includes FishTank and FishNet built from immutable source re
 
 **Update all apps** checks Aquarium and installed companions using saved release channels, skips pinned/current/older versions, presents one review, verifies each package and continues after an individual failure. Cancel stops remaining work. Aquarium stages itself last and asks you to reopen it. Optional interactive WinGet updates cover only outside apps WinGet can identify; recheck after their installers finish.
 
-**Recovery** exposes package verification/repair and retained-version rollback. Close a companion before rollback. Older versions may interpret newer profile data differently. **Review unused program folders** offers only unregistered GUID version folders and preserves all current and retained rollback versions. Linked paths and portable FishBowl data block cleanup. Runtime caches are retained and are not cleaned by this command.
+**Recovery** exposes package verification/repair and retained-version rollback. Close a companion before rollback. Older versions may interpret newer profile data differently. **Review unused program folders** offers only unregistered GUID version folders and preserves all current and retained rollback versions. Linked paths and portable FishBowl data block cleanup. Reviewed cleanup also offers older named runtime caches, keeps the active/current version and newest previous cache, and requires exclusive access to every candidate file before deletion. Older launchers can prepare a removed cache again. Preparing/damaged or unrecognized folders are left alone.
 
 **Encrypted app records** lets you choose profiles and a passphrase of at least 12 characters. Backups use authenticated AES-256-GCM encryption with PBKDF2-SHA256 (600,000 iterations). Restore previews the apps/file count, preserves an encrypted before-restore backup beside the selected archive, and rolls back completed record writes if a later write fails. A running FishBowl/FishNet profile lease blocks conflicting recovery in supporting versions. Close selected companions first.
 
@@ -48,7 +48,7 @@ Checksums verify consistency with trusted repository metadata; they are not inde
 
 ## Build and verification
 
-Requires Windows 10 build 19041+ x64 and the .NET 8 SDK. The complete bundle is self-contained; Visual Studio is optional.
+Requires Windows 10 build 19041+ x64 and the .NET 10 LTS SDK. The complete bundle is self-contained; Visual Studio is optional.
 
 ```powershell
 dotnet build src/Aquarium/Aquarium.csproj -c Release -p:Platform=x64

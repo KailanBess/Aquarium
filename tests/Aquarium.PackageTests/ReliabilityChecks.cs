@@ -93,6 +93,23 @@ internal static class ReliabilityChecks
         await store.SetVersionPinAsync(source.AppId, true);
         await store.RecordInstallationAsync(store.Registry.Installations.Single(i => i.AppId == source.AppId) with { Version = "retained-fixture" });
         Check(store.GetVersionPin(source.AppId) == "retained-fixture", "A version pin did not follow an explicitly selected retained build.");
+        var runtimeRoot = Path.Combine(Path.GetDirectoryName(store.RegistryPath)!, "Runtime");
+        foreach (var version in new[] { "0.0.1", "0.0.2", "0.0.3" })
+        {
+            var directory = Path.Combine(runtimeRoot, version + "-0123456789abcdef"); Directory.CreateDirectory(directory);
+            foreach (var file in new[] { "Aquarium.exe", "Aquarium.pri", "Aquarium.runtimeconfig.json" }) File.WriteAllText(Path.Combine(directory, file), "inert runtime fixture; never executed");
+        }
+        var oldCaches = installer.FindUnusedRuntimes();
+        Check(oldCaches.Count == 2 && oldCaches.All(c => !c.Directory.Contains("0.0.3-")), "Runtime cleanup offered the newest previous cache.");
+        var oldCache = oldCaches.First();
+        using (var heldRuntime = File.Open(Path.Combine(oldCache.Directory, "Aquarium.exe"), FileMode.Open, FileAccess.Read, FileShare.Read))
+        {
+            bool refused = false;
+            try { await installer.RemoveUnusedRuntimeAsync(oldCache); } catch (IOException) { refused = true; } catch (UnauthorizedAccessException) { refused = true; }
+            Check(refused && Directory.GetFiles(oldCache.Directory).Length == 3, "Cleanup changed a runtime before proving exclusive file access.");
+        }
+        await installer.RemoveUnusedRuntimeAsync(oldCache);
+        Check(!Directory.Exists(oldCache.Directory) && Directory.Exists(Path.Combine(runtimeRoot, "0.0.3-0123456789abcdef")), "Runtime cleanup failed or removed the retained previous cache.");
         // Do not invoke process-aware deletion when a real companion might be running.
         SuiteBackup.Clear(records); SuiteBackup.Clear(decoded);
         Console.WriteLine("Suite encryption, tamper rejection, restore rollback, profile lease and cleanup preservation checks passed.");

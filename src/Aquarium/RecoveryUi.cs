@@ -46,12 +46,14 @@ public sealed partial class MainWindow
             try
             {
                 var candidates = await Task.Run(installer.FindUnusedInstallations);
-                if (candidates.Count == 0) { ShowNotice("No unused managed program folders were found. All current and retained rollback versions are kept.", InfoBarSeverity.Informational); return; }
+                var runtimes = await Task.Run(installer.FindUnusedRuntimes);
+                if (candidates.Count + runtimes.Count == 0) { ShowNotice("No unused managed program folders or older runtime caches were found. Current and retained rollback versions are kept.", InfoBarSeverity.Informational); return; }
                 var confirm = new ContentDialog { XamlRoot = Root.XamlRoot, Title = "Remove unused program folders?",
-                    Content = $"{candidates.Count} unused folders · {candidates.Sum(c => c.Bytes) / 1048576d:F1} MB\n" + string.Join("\n", candidates.Select(c => c.AppId + " / " + Path.GetFileName(c.Directory))) + "\nCurrent installations, retained rollback versions and app profiles are kept.",
+                    Content = $"{candidates.Count} unused program folders and {runtimes.Count} older runtime caches · {(candidates.Sum(c => c.Bytes) + runtimes.Sum(c => c.Bytes)) / 1048576d:F1} MB\n" + string.Join("\n", candidates.Select(c => c.AppId + " / " + Path.GetFileName(c.Directory)).Concat(runtimes.Select(r => "Aquarium runtime / " + Path.GetFileName(r.Directory)))) + "\nCurrent installations, retained app rollback versions, the newest previous runtime and app profiles are kept. In-use runtime files block deletion. An older launcher can prepare its cache again if needed.",
                     PrimaryButtonText = "Remove reviewed folders", CloseButtonText = "Cancel", DefaultButton = ContentDialogButton.Close };
                 if (await confirm.ShowAsync() != ContentDialogResult.Primary) return;
                 foreach (var candidate in candidates) await installer.RemoveUnusedInstallationAsync(candidate);
+                foreach (var runtime in runtimes) await installer.RemoveUnusedRuntimeAsync(runtime);
                 ShowNotice("Reviewed unused program folders removed.", InfoBarSeverity.Success);
             }
             catch (Exception ex) { if (!isClosed) ShowNotice("Cleanup stopped. " + ex.Message, InfoBarSeverity.Error); }
