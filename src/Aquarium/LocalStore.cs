@@ -12,15 +12,12 @@ public sealed class LocalStore
     public LocalRegistry Registry { get; private set; } = new();
     public string? LoadWarning { get; private set; }
     public bool CanSave { get; private set; } = true;
-    public IReadOnlyDictionary<string, IAquariumModule> Modules { get; } = new Dictionary<string, IAquariumModule>
-    {
-        ["security"] = new PendingModule("security"),
-        ["emulation"] = new PendingModule("emulation"),
-        ["media"] = new PendingModule("media")
-    };
 
     public async Task LoadAsync()
     {
+        CanSave = true;
+        LoadWarning = null;
+        Registry = new();
         Catalog = JsonSerializer.Deserialize<List<CatalogApp>>(await File.ReadAllTextAsync(Path.Combine(AppContext.BaseDirectory, "Data", "catalog.json")), Json)
             ?? throw new InvalidDataException("The catalog is empty or invalid.");
         if (Catalog.Select(a => a.Id).Distinct().Count() != Catalog.Count)

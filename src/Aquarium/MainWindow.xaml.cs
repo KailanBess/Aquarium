@@ -130,6 +130,9 @@ public sealed partial class MainWindow : Window
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
                 break;
+            case "Recovery":
+                RenderRecovery();
+                break;
         }
     }
 
