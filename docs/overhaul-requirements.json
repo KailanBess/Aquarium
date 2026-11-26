@@ -16,7 +16,12 @@
   "provenance": {
     "conversation": "App Ecosystem Overhaul",
     "date": "2026-11-25",
-    "note": "Extracted from the available retrieved feature lists and tables; overlapping requirements retained when wording differs. Some long source messages were truncated by chat retrieval. Status needs-audit does not imply a feature is absent. The private-network scope is superseded by the user's exclusion."
+    "note": "Earlier chat lists and tables are supplemented by the complete user-supplied 2026-11-26 attachment covering sections 3–16. These sections were read in full. Earlier sections remain sourced from the retrieved chat. Overlapping requirements are retained when wording differs. needs-audit does not imply the feature is absent. Tailscale/private-network requirements remain excluded by the user's earlier clarification.",
+    "attachment": {
+      "name": "Pasted text.txt",
+      "sections": "3–16",
+      "readInFull": true
+    }
   },
   "implementedThisBranch": [
     {
@@ -33,6 +38,16 @@
         "src/Aquarium/OfflinePackages.cs",
         "src/Aquarium/OfflinePackagesUi.cs",
         "tests/Aquarium.PackageTests/OfflineChecks.cs"
+      ],
+      "status": "tested-locally"
+    },
+    {
+      "feature": "Versioned Settings SDK and Aquarium appearance adoption",
+      "evidence": [
+        "src/Aquarium.Core/JsonSettingsStore.cs",
+        "src/Aquarium/PreferencesModel.cs",
+        "tests/Aquarium.CoreTests/SettingsChecks.cs",
+        "tests/Aquarium.PackageTests/AppearanceSettingsChecks.cs"
       ],
       "status": "tested-locally"
     }
@@ -4714,6 +4729,1806 @@
       "section": "5.3 Video playback",
       "requirement": "Video snapshots — Capture still frames from supported local videos.",
       "status": "needs-audit"
+    },
+    {
+      "id": "MEDIA-114",
+      "area": "media",
+      "section": "5.3 Video playback",
+      "requirement": "Display selection — Choose which monitor displays fullscreen video.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-115",
+      "area": "media",
+      "section": "5.3 Video playback",
+      "requirement": "Aspect ratio controls — Adjust supported video scaling behavior.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-116",
+      "area": "media",
+      "section": "5.3 Video playback",
+      "requirement": "DVD playback — Support compatible, legally accessible disc content.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-117",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Movie library — Organize local movies into a searchable collection.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-118",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Television library — Organize shows by season and episode.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-119",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Metadata retrieval — Retrieve supported titles, descriptions and release information.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-120",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Poster artwork — Display movie and television posters.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-121",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Continue watching — Resume partially watched content.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-122",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Watch history — Maintain local viewing history.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-123",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Watchlists — Organize content intended for later viewing.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-124",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Collections — Group movies and television series.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-125",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Multiple editions — Group different versions of the same movie.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-126",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Multiple resolutions — Choose between available media versions.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-127",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Library monitoring — Detect newly added or removed files.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-128",
+      "area": "media",
+      "section": "5.4 Movie and television libraries",
+      "requirement": "Manual corrections — Allow users to correct incorrectly identified media.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-129",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Image viewer — Open common image formats.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-130",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Photo library — Index and organize selected image directories.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-131",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Albums — Create photo collections.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-132",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "GIF playback — Display supported animated images.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-133",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "RAW previews — Preview supported camera RAW formats.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-134",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Metadata viewer — Display available image metadata.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-135",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Basic editing — Crop, rotate and adjust images.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-136",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Slideshow — Display selected images automatically.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-137",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Duplicate detection — Identify potentially duplicate images.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-138",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Screenshot organizer — Automatically categorize imported screenshots.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-139",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Wallpaper integration — Set supported images as desktop backgrounds.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-140",
+      "area": "media",
+      "section": "5.5 Photo and image management",
+      "requirement": "Privacy controls — Offer metadata removal when exporting images.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-141",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Tabs — Open and manage multiple websites.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-142",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Bookmarks — Organize saved websites.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-143",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "History — Maintain configurable browsing history.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-144",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Downloads — Manage supported browser downloads.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-145",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Browser profiles — Separate browsing configurations and data.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-146",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Private browsing — Avoid retaining normal local browsing history for private sessions.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-147",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Website permissions — Manage supported website access to sensitive resources.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-148",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Media browsing — Provide shortcuts to supported music and video services.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-149",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Picture-in-picture — Display compatible online videos in floating windows.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-150",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Media session integration — Connect supported online playback to system media controls.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-151",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Session recovery — Restore tabs after an unexpected shutdown.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-152",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Hardware acceleration — Use supported graphics acceleration.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-153",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Browser security — Retain the underlying browser engine's security protections.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-154",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Independent updates — Update the browser engine without waiting for unrelated media features.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-155",
+      "area": "media",
+      "section": "5.6 Integrated browser",
+      "requirement": "Website shortcuts — Save frequently used websites as application shortcuts.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-156",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Local server — Make selected media libraries available to authorized devices.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-157",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Device discovery — Discover compatible local media clients.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-158",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Authentication — Require authorized access to private libraries.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-159",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "User profiles — Maintain separate viewing preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-160",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Library permissions — Control which libraries individual users can access.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-161",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Direct playback — Stream original media when compatible.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-162",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Transcoding — Convert media during playback when necessary.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-163",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Hardware transcoding — Use supported GPU acceleration.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-164",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Remote playback — Provide securely configured remote access.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-165",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Casting — Stream to supported televisions and media devices.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-166",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Playback synchronization — Synchronize supported playback positions.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-167",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Server monitoring — Display connected clients and resource consumption.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-168",
+      "area": "media",
+      "section": "5.7 Media server",
+      "requirement": "Bandwidth controls — Configure streaming quality and bandwidth limits.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-169",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Format conversion — Convert supported audio, video and image formats.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-170",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Batch conversion — Queue multiple conversion tasks.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-171",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Video trimming — Perform basic non-destructive editing.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-172",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Audio trimming — Extract selected audio sections.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-173",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Audio extraction — Extract audio from supported local video files.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-174",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Screen recording — Record user-selected screens or windows with appropriate permissions.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-175",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Audio recording — Record authorized microphone or audio sources.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-176",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "PDF viewer — Open and navigate local PDF documents.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-177",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Storage management — Display library storage usage.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-178",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Library backups — Back up metadata, playlists and application settings.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-179",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Device synchronization — Optionally synchronize selected media and metadata.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "MEDIA-180",
+      "area": "media",
+      "section": "5.8 Media utilities",
+      "requirement": "Media diagnostics — Identify playback errors and unsupported formats.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-080",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Core Runtime — Application initialization, lifecycle and capability discovery.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-081",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "UI Framework — Shared controls, layouts, themes and animations.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-082",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Settings SDK — Read, write, validate and migrate application settings.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-083",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Notification SDK — Deliver consistent application and system notifications.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-084",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Update SDK — Verify, install and recover application updates.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-085",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Package SDK — Read manifests and verify distributed packages.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-086",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Storage SDK — Manage application data and storage locations.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-087",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Database SDK — Provide consistent local database functionality.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-088",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Backup SDK — Export and restore supported application data.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-089",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Logging SDK — Standardize application logs and error reporting.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-090",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Diagnostics SDK — Collect relevant troubleshooting information.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-091",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Permissions SDK — Request and validate supported application capabilities.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-092",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Credential SDK — Access native secure credential storage.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-093",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Hardware SDK — Discover supported hardware capabilities.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-094",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Network SDK — Provide reusable secure network communication.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-095",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Extension SDK — Define plugin interfaces and capabilities.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-096",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Search SDK — Index and retrieve supported application content.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-097",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Localization SDK — Manage translations and regional preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-098",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Accessibility SDK — Provide consistent accessibility support.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-099",
+      "area": "core",
+      "section": "7.1 Shared framework modules",
+      "requirement": "Integration SDK — Allow applications to discover and communicate with each other.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-100",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Aquarium → Security — Request verification of a downloaded package.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-101",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Aquarium → Gaming — Install an approved emulator component.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-102",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Gaming → Media — Register newly captured gameplay recordings.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-103",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Media → Security — Request verification of a downloaded file.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-104",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Security → Aquarium — Report that an installed application requires an update.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-105",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Core → Applications — Distribute supported theme and language preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-106",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Applications → Core — Register notifications and diagnostic events.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-107",
+      "area": "core",
+      "section": "7.2 Inter-application communication",
+      "requirement": "Recovery → Applications — Restore supported application configurations.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-108",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Application settings — JSON or TOML",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-109",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Library metadata — SQLite",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-110",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Sensitive credentials — Native secure credential storage",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-111",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Logs — Structured, rotating log files",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-112",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Cached content — Dedicated cache directories",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-113",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Backups — Versioned backup packages",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-114",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Application manifests — Versioned structured manifests",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-115",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "User-generated content — User-selected directories",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-116",
+      "area": "core",
+      "section": "7.3 Application data standards",
+      "requirement": "Shared preferences — Optional shared configuration service",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-001",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Navigation — Consistent placement of primary navigation controls.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-002",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Settings — Shared settings layout and category structure.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-003",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Search — Consistent search behavior across applications.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-004",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Dark mode — Fully supported dark appearance.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-005",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Light mode — Fully supported light appearance.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-006",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Custom themes — Configurable colors and supported appearance settings.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-007",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "System themes — Automatically follow OS appearance preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-008",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Animations — Smooth transitions without delaying functionality.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-009",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Responsive layouts — Adapt to different window and display sizes.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-010",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "High-DPI support — Maintain sharp rendering at different scaling levels.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-011",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Touch support — Provide appropriately sized interactive controls.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-012",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Keyboard navigation — Make major features accessible without a mouse.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-013",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Controller support — Provide controller navigation where relevant.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-014",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Accessibility — Support screen readers and accessible contrast.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-015",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Reduced motion — Allow unnecessary animations to be disabled.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-016",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Context menus — Provide consistent right-click actions.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-017",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Notifications — Use understandable and consistent notification designs.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-018",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Loading states — Explain ongoing operations without freezing the interface.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-019",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Empty states — Explain how to begin using an unused feature.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-020",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Error states — Provide meaningful errors and recovery options.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-021",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "First-time setup — Guide users through essential configuration.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-022",
+      "area": "design",
+      "section": "8.1 Universal interface requirements",
+      "requirement": "Advanced settings — Separate technical controls from everyday settings.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-021",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "System Center — Device information, OS information, service status and system health.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-022",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Settings — Appearance, accounts, displays, audio, accessibility and application preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-023",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "File Manager — Tabs, file previews, bookmarks, search, network locations and file operations.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-024",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "System Monitor — CPU, GPU, RAM, storage, processes, temperatures and performance history.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-025",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Recovery Center — Application repair, configuration restoration and supported OS recovery.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-026",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Backup Center — Scheduled backups, incremental backups, version history and restoration.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-027",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Device Manager — Hardware inventory, supported driver information and device diagnostics.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-028",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Control Center — Volume, brightness, connectivity and supported power settings.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-029",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "System Search — Search applications, files, settings and indexed content.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-030",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Notification Center — Notification history, filtering and per-application preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-031",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Terminal — Multiple tabs, profiles, command history and supported shell integration.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-032",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Text Editor — Plain text editing, syntax highlighting, tabs and recovery.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-033",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Archive Manager — Create, inspect and extract supported archive formats.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-034",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Software Installer — Install and verify supported standalone application packages.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-035",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Screenshot Tool — Screen, window and region capture with basic annotation.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-036",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Clipboard Manager — Configurable clipboard history with sensitive-data protections.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-037",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Disk Manager — Storage inventory, filesystem information and supported disk management.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-038",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Password Manager — Encrypted credential management using established, audited technologies.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-039",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Desktop Customization — Wallpapers, themes, icons and supported desktop preferences.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "UTILITIES-040",
+      "area": "utilities",
+      "section": "9. Future operating system utilities",
+      "requirement": "Virtual Machine Manager — Create and manage virtual machines through established hypervisors.",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-001",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Background services — Windows Service Manager — systemd",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-002",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Notifications — Windows notification APIs — Desktop notification service",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-003",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Audio — WASAPI — PipeWire",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-004",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Display management — Windows display APIs — Wayland-compatible interfaces",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-005",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Hardware discovery — Windows device APIs — udev and supported Linux interfaces",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-006",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Credential storage — Windows secure storage — Secret Service or equivalent",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-007",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Firewall — Windows Firewall — Supported Linux firewall infrastructure",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-008",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Application packages — Signed installers or MSIX — Flatpak or native packages",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-009",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "File associations — Windows application registration — XDG MIME associations",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-010",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Power management — Windows power APIs — Supported Linux power services",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-011",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Media controls — Windows media session APIs — MPRIS",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-012",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Recovery — Windows recovery facilities — OS-specific recovery services",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "PLATFORM-013",
+      "area": "platform",
+      "section": "Platform abstraction",
+      "requirement": "Application communication — Authenticated local IPC — D-Bus or authenticated local IPC",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-001",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Performance-critical services — Rust or suitable existing native code",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-002",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Desktop application interfaces — Qt / QML",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-003",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Lightweight application interfaces — Tauri",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-004",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Shared UI components — Reusable design system",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-005",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Local databases — SQLite",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-006",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Media processing — FFmpeg",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-007",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Media playback — libmpv or another maintained playback engine",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-008",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Browser engine — WebView2 or Qt WebEngine",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-009",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Emulation — Standalone emulators and Libretro",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-010",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Service communication — Authenticated native IPC or gRPC",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-011",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Configuration — JSON / TOML",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-012",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Windows background services — Windows Service Manager",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-013",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Linux background services — systemd",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-014",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Linux audio — PipeWire",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-015",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Linux display integration — Wayland",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-016",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Windows distribution — Signed installers or MSIX",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-017",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Linux distribution — Flatpak or native packages",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-018",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Automated testing — Unit, integration and end-to-end tests",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-019",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Release automation — CI/CD pipelines",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-020",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Dependency security — Dependency auditing and signed releases",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-021",
+      "area": "architecture",
+      "section": "11. Recommended technology architecture",
+      "requirement": "Documentation — Versioned developer and user documentation",
+      "status": "needs-audit",
+      "source": "User-supplied detailed specification (2026-11-26)"
+    }
+  ],
+  "roadmap": [
+    {
+      "phase": 1,
+      "name": "Existing project audit",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Review all application source code",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Document existing functionality",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Identify incomplete or simulated features",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Identify architectural problems",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Review dependencies and licenses",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Establish performance baselines",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Preserve working functionality",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Shared foundation",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Create Aquarium Core libraries",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Define versioned application APIs",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Build platform abstraction interfaces",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Create shared design system",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement logging and diagnostics",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement configuration and storage standards",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement signed update infrastructure",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Establish automated testing",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Aquarium overhaul",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Build application catalog",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement package management",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement installation and repair",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement update channels and rollback",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement download management",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement application health monitoring",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement ecosystem backup and restoration",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "Security overhaul",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Integrate established protection engines",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement scanning and detection management",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement system integrity monitoring",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement application security",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement network and privacy dashboards",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement quarantine and recovery",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Perform independent security validation",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Gaming overhaul",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Build universal game library",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement emulator adapter architecture",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement emulator installation and updates",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement save management",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement performance monitoring",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Build desktop and console interfaces",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement dual-screen and handheld support",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Integrate PC games and media capture",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 6,
+      "name": "Media overhaul",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Build shared playback engine",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement music library",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement video playback",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement movie and television libraries",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement photo and document viewers",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Integrate maintained browser engine",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement optional media server",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement media conversion and recording",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 7,
+      "name": "Private Network overhaul",
+      "status": "excluded",
+      "tasks": [
+        {
+          "requirement": "Improve Tailscale integration",
+          "status": "excluded"
+        },
+        {
+          "requirement": "Implement device management",
+          "status": "excluded"
+        },
+        {
+          "requirement": "Implement connection diagnostics",
+          "status": "excluded"
+        },
+        {
+          "requirement": "Implement infrastructure monitoring",
+          "status": "excluded"
+        },
+        {
+          "requirement": "Implement authorized remote management",
+          "status": "excluded"
+        },
+        {
+          "requirement": "Implement configuration backup",
+          "status": "excluded"
+        },
+        {
+          "requirement": "Maintain independent private distribution",
+          "status": "excluded"
+        }
+      ]
+    },
+    {
+      "phase": 8,
+      "name": "Production readiness",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Test independent installation",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Test optional application integrations",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Verify update and rollback behavior",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Perform performance optimization",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Perform accessibility testing",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Perform security testing",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Complete user and developer documentation",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 9,
+      "name": "Additional utilities",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Develop System Center",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Develop Settings",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Develop File Manager",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Develop System Monitor",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Develop Backup and Recovery",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Develop remaining native utilities",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 10,
+      "name": "Future OS integration",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Select operating system foundation",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement native platform adapters",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Integrate application packages",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement desktop and gaming sessions",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement native system services",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Test hardware compatibility",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Validate installation and recovery",
+          "status": "needs-audit"
+        }
+      ]
     }
   ]
 }

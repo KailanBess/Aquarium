@@ -6,21 +6,6 @@ using Microsoft.UI.Xaml.Media;
 
 namespace Aquarium;
 
-public sealed class Preferences
-{
-    public string Accent { get; set; } = "Aquarium Mint";
-    public string AccentHex { get; set; } = "";
-    public string Background { get; set; } = "Ocean";
-    public bool Compact { get; set; }
-    public string WindowBorder { get; set; } = "System";
-    public string TitleBar { get; set; } = "Accent";
-    public string CardShape { get; set; } = "Rounded";
-    public string TextSize { get; set; } = "Standard";
-    public string Sidebar { get; set; } = "Standard";
-    public string ContentWidth { get; set; } = "Standard";
-    public string LibraryIcons { get; set; } = "Standard";
-}
-
 // Separate from the catalog and library so appearance never rewrites app records.
 public sealed class Appearance
 {
@@ -29,6 +14,8 @@ public sealed class Appearance
     private Preferences? preview;
     private Preferences Active => preview ?? current;
     private bool writable = true;
+    private Core.JsonSettingsStore<Preferences>? settingsStore;
+    private Core.SettingsSnapshot<Preferences>? settingsSnapshot;
     public string? Warning { get; private set; }
     public bool Compact => Active.Compact;
     public string TitleBar => Active.TitleBar;
@@ -44,7 +31,9 @@ public sealed class Appearance
         Warning = null;
         try
         {
-            if (File.Exists(path)) current = JsonSerializer.Deserialize<Preferences>(File.ReadAllText(path)) ?? throw new InvalidDataException("Empty preferences.");
+            settingsStore = AppearanceSettings.Create(path);
+            settingsSnapshot = settingsStore.Load();
+            current = settingsSnapshot.Value;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or JsonException or InvalidDataException)
         { writable = false; Warning = "Appearance settings could not be read and were preserved. " + ex.Message; }
@@ -195,17 +184,15 @@ public sealed class Appearance
             customAccent.Text = defaults.AccentHex; width.SelectedItem = defaults.ContentWidth; icons.SelectedItem = defaults.LibraryIcons;
             Preview();
         };
-        save.Click += (_, _) =>
+        save.Click += async (_, _) =>
         {
             controls.IsHitTestVisible = save.IsEnabled = reset.IsEnabled = false;
+            undo.IsEnabled = false;
             var next = ReadControls();
-            var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
             try
             {
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                File.WriteAllText(temporary, JsonSerializer.Serialize(next));
-                if (!File.Exists(path)) File.WriteAllText(path, JsonSerializer.Serialize(current));
-                File.Replace(temporary, path, previousPath);
+                if (settingsStore is null || settingsSnapshot is null) throw new InvalidOperationException("Reload appearance settings before saving.");
+                settingsSnapshot = await settingsStore.SaveAsync(settingsSnapshot, next, keepPrevious: true);
                 current = next;
                 preview = null;
                 undo.IsEnabled = true;
@@ -215,14 +202,9 @@ public sealed class Appearance
             catch (Exception ex) { error("Appearance was not saved: " + ex.Message); }
             finally
             {
-                if (File.Exists(temporary))
-                {
-                    try { File.Delete(temporary); }
-                    catch (IOException) { }
-                    catch (UnauthorizedAccessException) { }
-                }
                 controls.IsHitTestVisible = reset.IsEnabled = true;
                 save.IsEnabled = writable;
+                undo.IsEnabled = writable && File.Exists(previousPath);
             }
         };
         void Select(ComboBox box, string? value)
@@ -240,20 +222,15 @@ public sealed class Appearance
             Preview();
         }
 
-        undo.Click += (_, _) =>
+        undo.Click += async (_, _) =>
         {
+            controls.IsHitTestVisible = save.IsEnabled = reset.IsEnabled = undo.IsEnabled = false;
             try
             {
-                Preferences restored;
-                using (var stream = File.OpenRead(previousPath))
-                {
-                    if (stream.Length > 32768) throw new InvalidDataException("The previous appearance file is too large.");
-                    restored = JsonSerializer.Deserialize<Preferences>(stream) ?? throw new InvalidDataException("The previous appearance is empty.");
-                }
-                if (!string.IsNullOrWhiteSpace(restored.AccentHex) && ParseColor(restored.AccentHex) is null)
-                    throw new InvalidDataException("The previous appearance contains an invalid custom accent.");
-                File.Move(previousPath, path, true);
-                current = restored;
+                if (settingsStore is null || settingsSnapshot is null) throw new InvalidOperationException("Reload appearance settings before restoring.");
+                settingsSnapshot = await settingsStore.RestorePreviousAsync(settingsSnapshot);
+                current = settingsSnapshot.Value;
+                var restored = current;
                 LoadControls(restored);
                 preview = null;
                 undo.IsEnabled = false;
@@ -261,6 +238,12 @@ public sealed class Appearance
                 changed();
             }
             catch (Exception ex) { error("Could not restore the previous appearance. " + ex.Message); }
+            finally
+            {
+                controls.IsHitTestVisible = reset.IsEnabled = true;
+                save.IsEnabled = writable;
+                undo.IsEnabled = writable && File.Exists(previousPath);
+            }
         };
 
         var presetPath = Path.Combine(Path.GetDirectoryName(path)!, "appearance-presets.json");

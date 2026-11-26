@@ -54,6 +54,8 @@ The first shared infrastructure lives in `src/Aquarium.Core`. This portable .NET
 
 The broader work is tracked in `docs/overhaul-requirements.json`. A `needs-audit` status does not mean the capability is absent. Tailscale and private networking are excluded. This branch implements the initial Core infrastructure and offline packages; it does not complete the entire ecosystem overhaul.
 
+Core also provides `JsonSettingsStore<T>` for bounded, versioned JSON settings. Explicit migrations run in memory; only a requested save publishes them. Unknown object properties survive ordinary saves. Unsupported newer schemas, duplicate JSON keys and invalid settings are preserved and refused. Revision checks and an exclusive record-writer lock reject stale or conflicting saves. Optional `.previous` records support validated restoration. Aquarium appearance uses this SDK for Apply and Undo, retaining existing flat JSON settings and custom colors. A failed or canceled write retains the active record. Other settings files have not all migrated to this SDK yet; cooperating callers must use its writer protocol, and it is not an OS sandbox.
+
 Requires Windows 10 build 19041+ x64 and the .NET 10 LTS SDK. The complete bundle is self-contained; Visual Studio is optional.
 
 ```powershell

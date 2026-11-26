@@ -23,6 +23,7 @@ try
 {
     await ReliabilityChecks.Run(root);
     await OfflineChecks.Run(root);
+    await AppearanceSettingsChecks.Run(root);
     Check(AquariumSelfUpdate.IsNewer("v1.29.12", "1.29.11"), "FishBowl update was skipped");
     Check(!AquariumSelfUpdate.IsNewer("v0.3.8", "0.3.8"), "A current FishNet package would be reinstalled");
     Check(!AquariumSelfUpdate.IsNewer("v0.3.7", "v0.3.8"), "Bulk updates would downgrade FishNet");
