@@ -5,10 +5,6 @@ internal static class ProfileLease
 {
     internal static FileStream Acquire(string directory)
     {
-        PackageInstaller.RefuseLinks(directory);
-        Directory.CreateDirectory(directory);
-        var path = Path.Combine(directory, "profile.lock");
-        PackageInstaller.RefuseLinks(path);
-        return new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None);
+        return Core.ProfileLock.Acquire(directory);
     }
 }

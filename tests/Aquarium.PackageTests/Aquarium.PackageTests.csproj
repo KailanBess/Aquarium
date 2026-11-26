@@ -1,7 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="../../src/Aquarium.Core/Aquarium.Core.csproj" />
+    <Compile Include="../../src/Aquarium/OfflinePackages.cs" Link="OfflinePackages.cs"/>
     <Compile Include="../../src/Aquarium/Models.cs" Link="Models.cs"/>
+    <Compile Include="../../src/Aquarium/PreferencesModel.cs" Link="PreferencesModel.cs"/>
     <Compile Include="../../src/Aquarium/LocalStore.cs" Link="LocalStore.cs"/>
     <Compile Include="../../src/Aquarium/GitHubPackages.cs" Link="GitHubPackages.cs"/>
     <Compile Include="../../src/Aquarium/PackageInstaller.cs" Link="PackageInstaller.cs"/>

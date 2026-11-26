@@ -323,11 +323,10 @@ public sealed partial class PackageInstaller(LocalStore store, string? appRoot =
     private static extern bool SetForegroundWindow(nint window);
     internal static void RequireWithin(string root, string path)
     {
-        if (!Path.GetFullPath(path).StartsWith(Path.GetFullPath(root).TrimEnd(Path.DirectorySeparatorChar) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase)) throw new InvalidDataException("Path is outside the app directory.");
+        Core.PathSafety.RequireWithin(root, path);
     }
     internal static void RefuseLinks(string path)
     {
-        for (var current = Path.GetFullPath(path); !string.IsNullOrEmpty(current); current = Path.GetDirectoryName(current))
-            if ((Directory.Exists(current) || File.Exists(current)) && (File.GetAttributes(current) & FileAttributes.ReparsePoint) != 0) throw new InvalidDataException("Linked installation paths are not supported.");
+        Core.PathSafety.RefuseLinks(path);
     }
 }

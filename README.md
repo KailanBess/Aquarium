@@ -1,6 +1,8 @@
 # Aquarium
 
-Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.5.0** adds a Recovery workspace, encrypted app-record backups, reviewed family colors, shared quiet hours and suite search.
+Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.6.0** adds offline companion packages, a reusable Core/Settings SDK, appearance field preservation and validated undo, and backup coverage for FishNet radio stations. The complete bundle includes FishNet 0.5.0 with Internet radio and FishTank 0.17.0.
+
+The broader roadmap comes from the [shared ecosystem specification](https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e) and its supplied full text. The versioned requirements tracker records implemented work separately from the remaining overhaul. Tailscale and private networking are excluded.
 
 ## Install and launch
 
@@ -12,13 +14,15 @@ The complete bundle includes FishTank and FishNet built from immutable source re
 
 ## Updates and recovery
 
+**Offline packages:** after checking published apps, choose **Save offline package** to download and checksum-verify a companion release into one `.aqpkg` file without installing it. On another PC, use **App install → Install an offline package** and review the app, version, size and checksum before installation. No network is needed for this import. Version pins remain enforced, previous program versions and profiles are kept, and nothing launches automatically. The package contains program files and metadata, not app profiles or media. Its included checksum detects inconsistency; it does not independently authenticate its publisher. Use a package saved from a trusted release. Canceled or invalid imports do not register an installation.
+
 **Update all apps** checks Aquarium and installed companions using saved release channels, skips pinned/current/older versions, presents one review, verifies each package and continues after an individual failure. Cancel stops remaining work. Aquarium stages itself last and asks you to reopen it. Optional interactive WinGet updates cover only outside apps WinGet can identify; recheck after their installers finish.
 
 **Recovery** exposes package verification/repair and retained-version rollback. Close a companion before rollback. Older versions may interpret newer profile data differently. **Review unused program folders** offers only unregistered GUID version folders and preserves all current and retained rollback versions. Linked paths and portable FishBowl data block cleanup. Reviewed cleanup also offers older named runtime caches, keeps the active/current version and newest previous cache, and requires exclusive access to every candidate file before deletion. Older launchers can prepare a removed cache again. Preparing/damaged or unrecognized folders are left alone.
 
 **Encrypted app records** lets you choose profiles and a passphrase of at least 12 characters. Backups use authenticated AES-256-GCM encryption with PBKDF2-SHA256 (600,000 iterations). Restore previews the apps/file count, preserves an encrypted before-restore backup beside the selected archive, and rolls back completed record writes if a later write fails. A running FishBowl/FishNet profile lease blocks conflicting recovery in supporting versions. Close selected companions first.
 
-Backups include Aquarium settings/registry, FishBowl library records, FishNet catalog/playlists/queue/preferences/podcast subscriptions/playback positions, and Device Inventory/Workspace Launcher records. **They do not copy referenced games, saves, media, artwork, receipt files, downloaded podcasts, portable profiles or programs. FishTank includes appearance only.** Use FishBowl's save backups and FishTank's authenticated encrypted backup/restore tools for those data. Paths may need repair on another computer; Windows-account-protected credentials may need reenrollment. The record limit is 64 MB. Keep the passphrase separately; there is no passphrase recovery service.
+Backups include Aquarium settings/registry, FishBowl library records, FishNet catalog/playlists/queue/preferences/podcast subscriptions/radio stations/playback positions, and Device Inventory/Workspace Launcher records. **They do not copy referenced games, saves, media, artwork, receipt files, downloaded podcasts, portable profiles or programs. FishTank includes appearance only.** Use FishBowl's save backups and FishTank's authenticated encrypted backup/restore tools for those data. Paths may need repair on another computer; Windows-account-protected credentials may need reenrollment. The record limit is 64 MB. Keep the passphrase separately; there is no passphrase recovery service.
 
 **Preview support report** shows exactly the versions, platform, registry state and counts to be saved. It excludes paths, library contents, credentials and raw logs. Nothing is sent automatically.
 
@@ -47,6 +51,12 @@ Release packaging can sign and verify Aquarium's runtime/launcher and standalone
 Checksums verify consistency with trusted repository metadata; they are not independent publisher authentication. Windows builds remain unsigned until genuine signing configuration is supplied. Signing is not a security audit.
 
 ## Build and verification
+
+The first shared infrastructure lives in `src/Aquarium.Core`. This portable .NET 10 library has no WinUI, running-hub or account dependency. Aquarium uses its atomic registry writes, exclusive profile leases and path checks. Consumers still own their schemas and hold the profile lease while writing; path checks are not an OS sandbox or protection against a malicious process racing filesystem operations. Same-directory rename avoids partial records, but is not a guarantee against every filesystem or power failure. Run `dotnet run --project tests/Aquarium.CoreTests -c Release`; CI checks Windows and Linux. Legacy .NET Framework apps need a compatible adapter before adopting this library.
+
+The broader work is tracked in `docs/overhaul-requirements.json`. A `needs-audit` status does not mean the capability is absent. Tailscale and private networking are excluded. This branch implements the initial Core infrastructure and offline packages; it does not complete the entire ecosystem overhaul.
+
+Core also provides `JsonSettingsStore<T>` for bounded, versioned JSON settings. Explicit migrations run in memory; only a requested save publishes them. Unknown object properties survive ordinary saves. Unsupported newer schemas, duplicate JSON keys and invalid settings are preserved and refused. Revision checks and an exclusive record-writer lock reject stale or conflicting saves. Optional `.previous` records support validated restoration. Aquarium appearance uses this SDK for Apply and Undo, retaining existing flat JSON settings and custom colors. A failed or canceled write retains the active record. Other settings files have not all migrated to this SDK yet; cooperating callers must use its writer protocol, and it is not an OS sandbox.
 
 Requires Windows 10 build 19041+ x64 and the .NET 10 LTS SDK. The complete bundle is self-contained; Visual Studio is optional.
 
