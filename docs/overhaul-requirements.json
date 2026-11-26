@@ -15,6 +15,8 @@
   ],
   "provenance": {
     "conversation": "App Ecosystem Overhaul",
+    "sharedConversationUrl": "https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e",
+    "sharedLinkNote": "User identified this shared chat as the source. Automated access returned the share preview only; requirements use the full text supplied in the attachment and the earlier retrieved chat.",
     "date": "2026-11-25",
     "note": "Earlier chat lists and tables are supplemented by the complete user-supplied 2026-11-26 attachment covering sections 3–16. These sections were read in full. Earlier sections remain sourced from the retrieved chat. Overlapping requirements are retained when wording differs. needs-audit does not imply the feature is absent. Tailscale/private-network requirements remain excluded by the user's earlier clarification.",
     "attachment": {

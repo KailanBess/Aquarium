@@ -1,6 +1,8 @@
 # Aquarium
 
-Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.5.0** adds a Recovery workspace, encrypted app-record backups, reviewed family colors, shared quiet hours and suite search.
+Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.6.0** adds offline companion packages, a reusable Core/Settings SDK, appearance field preservation and validated undo, and backup coverage for FishNet radio stations. The complete bundle includes FishNet 0.5.0 with Internet radio and FishTank 0.17.0.
+
+The broader roadmap comes from the [shared ecosystem specification](https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e) and its supplied full text. The versioned requirements tracker records implemented work separately from the remaining overhaul. Tailscale and private networking are excluded.
 
 ## Install and launch
 

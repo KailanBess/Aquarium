@@ -28,9 +28,9 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: 206fdfe622ae2b507e985a286039483cefb38f9f
+          ref: bfb6da9342ee7777d98876608e6f1d30b56a112c
           path: companion/FishNet
-      - name: Publish included FishNet 0.4.1 runtime
+      - name: Publish included FishNet 0.5.0 runtime
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project companion/FishNet/src/FishNet/FishNet.csproj -PublishDirectory artifacts/FishNet -LogName fishnet-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -89,6 +89,15 @@ jobs:
             "$sha  $name"
           }
           $checksums | Set-Content artifacts/release/SHA256SUMS-tools.txt -Encoding utf8NoBOM
+      - name: Package reusable Aquarium Core
+        shell: pwsh
+        run: |
+          dotnet pack src/Aquarium.Core/Aquarium.Core.csproj -c Release -o artifacts/release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $packages = @(Get-ChildItem artifacts/release/Aquarium.Core.*.nupkg)
+          if ($packages.Count -ne 1) { throw 'Expected one Core library package.' }
+          $package = $packages[0]
+          ((Get-FileHash $package.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $package.Name) | Set-Content artifacts/release/SHA256SUMS-core.txt -Encoding ascii
       - name: Verify clean download and native startup
         shell: pwsh
         run: ./scripts/Test-SingleApp.ps1
@@ -138,12 +147,16 @@ jobs:
             $toolAssets += "./release/$name"
           }
           $signature = if ((Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).signed) { 'Publisher-signed hub; timestamp and trust checks passed.' } else { 'Unsigned development hub; genuine publisher signing is not configured.' }
-          $notes="Aquarium 0.5.0 uses supported .NET 10 LTS and adds Recovery with encrypted app-record backup/restore, package repair/rollback, safe unused-version/runtime-cache cleanup, private support reports, reviewed family colors, shared informational quiet hours and suite search. File Organizer, Device Inventory and Workspace Launcher are optional managed catalog apps and participate in Update all apps. Includes tested FishTank 0.17.0 and FishNet 0.4.1 from pinned source. FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe; verified runtime preparation is skipped on cached launches. Your installed apps and profiles were not changed by development. Backups contain records only, not referenced games/media/saves or FishTank security data. Physical-device/live-server acceptance and independent security review remain external checks. Standalone tools are also attached as complete ZIPs."
+          $coreLine = (Get-Content release/SHA256SUMS-core.txt).Trim()
+          if ($coreLine -notmatch '^([a-f0-9]{64})  (Aquarium\.Core\.\d+\.\d+\.\d+\.nupkg)$') { throw 'Invalid Core checksum manifest.' }
+          $coreName = $Matches[2]
+          if ((Get-FileHash "release/$coreName" -Algorithm SHA256).Hash -ne $Matches[1]) { throw 'Core package checksum mismatch.' }
+          $notes="Aquarium 0.6.0 adds verified offline companion packages and portable Aquarium Core 0.2.0, including versioned JSON settings with unknown-field preservation, schema validation, prior-record recovery and conflicting-save rejection. Appearance Apply/Undo uses the Settings SDK. Encrypted app-record recovery includes FishNet radio stations. Includes FishTank 0.17.0 and FishNet 0.5.0 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
           gh release view $tag *> $null
           if ($LASTEXITCODE -eq 0) { return }
-          gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json ./release/SHA256SUMS-tools.txt @toolAssets --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
+          gh release create $tag ./release/Aquarium-complete-windows-x64.zip ./release/SHA256SUMS.txt ./release/BUILD-INFO.json ./release/SHA256SUMS-tools.txt @toolAssets "./release/$coreName" ./release/SHA256SUMS-core.txt --target $env:GITHUB_SHA --draft --title "Aquarium $tag" --notes-file release/notes.txt
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
           gh release edit $tag --draft=false --latest
           if($LASTEXITCODE -ne 0){exit $LASTEXITCODE}
