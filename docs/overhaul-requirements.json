@@ -18,48 +18,25 @@
     "sharedConversationUrl": "https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e",
     "sharedLinkNote": "User identified this shared chat as the source. Automated access returned the share preview only; requirements use the full text supplied in the attachment and the earlier retrieved chat.",
     "date": "2026-11-25",
-    "note": "Earlier chat lists and tables are supplemented by the complete user-supplied 2026-11-26 attachment covering sections 3–16. These sections were read in full. Earlier sections remain sourced from the retrieved chat. Overlapping requirements are retained when wording differs. needs-audit does not imply the feature is absent. Tailscale/private-network requirements remain excluded by the user's earlier clarification.",
+    "note": "Both user-supplied attachments were read in full: the original high-level specification (sections 1–13) and the detailed specification (sections 3–16). Both roadmaps are retained; the detailed roadmap remains the expanded plan. Overlapping wording is preserved when useful. Tailscale/private networking remains excluded by the user's clarification. needs-audit does not imply a capability is absent.",
     "attachment": {
       "name": "Pasted text.txt",
       "sections": "3–16",
       "readInFull": true
+    },
+    "originalAttachment": {
+      "name": "Pasted text.txt",
+      "scope": "Complete original high-level specification, sections 1–13",
+      "readInFull": true
     }
   },
-  "implementedThisBranch": [
-    {
-      "feature": "Aquarium Core atomic writes, profile leases and path boundaries",
-      "evidence": [
-        "src/Aquarium.Core",
-        "tests/Aquarium.CoreTests"
-      ],
-      "status": "tested-locally"
-    },
-    {
-      "feature": "Aquarium offline package export, review and installation",
-      "evidence": [
-        "src/Aquarium/OfflinePackages.cs",
-        "src/Aquarium/OfflinePackagesUi.cs",
-        "tests/Aquarium.PackageTests/OfflineChecks.cs"
-      ],
-      "status": "tested-locally"
-    },
-    {
-      "feature": "Versioned Settings SDK and Aquarium appearance adoption",
-      "evidence": [
-        "src/Aquarium.Core/JsonSettingsStore.cs",
-        "src/Aquarium/PreferencesModel.cs",
-        "tests/Aquarium.CoreTests/SettingsChecks.cs",
-        "tests/Aquarium.PackageTests/AppearanceSettingsChecks.cs"
-      ],
-      "status": "tested-locally"
-    }
-  ],
   "companionWork": [
     {
       "repository": "KailanBess/FishNet",
       "branch": "feature/internet-radio",
       "feature": "Saved HTTPS internet radio stations and explicit playback",
-      "status": "tests-and-windows-build-pass"
+      "status": "published-in-fishnet-0.5.0",
+      "release": "https://github.com/KailanBess/FishNet/releases/tag/v0.5.0"
     }
   ],
   "requirements": [
@@ -6171,6 +6148,326 @@
       "requirement": "Documentation — Versioned developer and user documentation",
       "status": "needs-audit",
       "source": "User-supplied detailed specification (2026-11-26)"
+    },
+    {
+      "id": "CORE-117",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Package Manager — Installation and dependencies",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-118",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Update Engine — Updates and rollback",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-119",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Permission Manager — Access control",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-120",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Notification Service — Unified notifications",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-121",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Storage Service — Shared data management",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-122",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Settings Engine — Configuration management",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-123",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "UI Framework — Themes and components",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-124",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Diagnostics — Health and performance",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-125",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Backup Engine — Recovery and restoration",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-126",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Extension API — Modular integrations",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-127",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Credential Storage — Secure secrets management",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "CORE-128",
+      "area": "core",
+      "section": "Aquarium Core",
+      "requirement": "Hardware API — Device capabilities",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-023",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Primary branding — Purple",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-024",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Aquarium — Purple and violet",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-025",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Security — Blue and cyan",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-026",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Gaming — Purple and orange",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-027",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Media — Pink and purple",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-028",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "System utilities — Teal",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-029",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Recovery — Orange",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-030",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Backgrounds — Deep charcoal",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-031",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Animations — Smooth and responsive",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-032",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Navigation — Consistent across applications",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-033",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Icons — Unified rounded iconography",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "DESIGN-034",
+      "area": "design",
+      "section": "Proposed design language",
+      "requirement": "Themes — Dark, light and custom",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-022",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "System services — Rust",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-023",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Desktop UI — Qt / QML",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-024",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Lightweight desktop apps — Tauri",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-025",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Local database — SQLite",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-026",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Service communication — gRPC or native IPC",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-027",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Linux services — systemd",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-028",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Windows services — Windows Service Manager",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-029",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Media playback — FFmpeg / libmpv",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-030",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Browser — WebView2 / Qt WebEngine",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-031",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Emulation — Standalone emulators / Libretro",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-032",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Credential storage — Native OS credential stores",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-033",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Configuration — TOML / JSON",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-034",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Testing — Automated unit and integration tests",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-035",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Linux desktop foundation — Wayland",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-036",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Linux application packaging — Flatpak or native packages",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
+    },
+    {
+      "id": "ARCHITECTURE-037",
+      "area": "architecture",
+      "section": "10. Recommended development technologies",
+      "requirement": "Windows packaging — MSIX or signed installers",
+      "status": "needs-audit",
+      "source": "Original high-level specification supplied in full (2026-11-26)"
     }
   ],
   "roadmap": [
@@ -6531,6 +6828,180 @@
           "status": "needs-audit"
         }
       ]
+    }
+  ],
+  "originalRoadmap": [
+    {
+      "phase": 1,
+      "name": "Foundation",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Audit all existing application source code",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Identify reusable components",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Create Aquarium Core",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Define common APIs",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Create the shared UI framework",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Establish security and testing standards",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 2,
+      "name": "Aquarium",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Build the package management system",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement signed updates and rollback",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Create application management interfaces",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Integrate existing applications",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 3,
+      "name": "Application overhauls",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Rebuild the Security architecture",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Expand the Emulator Hub into a gaming platform",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Build the complete Media environment",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Improve private Network infrastructure",
+          "status": "excluded"
+        }
+      ]
+    },
+    {
+      "phase": 4,
+      "name": "System integration",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Create Windows and Linux platform adapters",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement native OS integrations",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Build system settings and diagnostics",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Create recovery and backup infrastructure",
+          "status": "needs-audit"
+        }
+      ]
+    },
+    {
+      "phase": 5,
+      "name": "Operating system",
+      "status": "not-complete",
+      "tasks": [
+        {
+          "requirement": "Integrate the applications into the OS image",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Build first-time setup",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Implement desktop and gaming sessions",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Test installation and recovery",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Test hardware compatibility",
+          "status": "needs-audit"
+        },
+        {
+          "requirement": "Perform independent security and reliability testing",
+          "status": "needs-audit"
+        }
+      ]
+    }
+  ],
+  "completedMilestones": [
+    {
+      "feature": "Aquarium Core atomic writes, profile leases and path boundaries",
+      "evidence": [
+        "src/Aquarium.Core",
+        "tests/Aquarium.CoreTests"
+      ],
+      "status": "published-in-aquarium-0.6.0"
+    },
+    {
+      "feature": "Aquarium offline package export, review and installation",
+      "evidence": [
+        "src/Aquarium/OfflinePackages.cs",
+        "src/Aquarium/OfflinePackagesUi.cs",
+        "tests/Aquarium.PackageTests/OfflineChecks.cs"
+      ],
+      "status": "published-in-aquarium-0.6.0"
+    },
+    {
+      "feature": "Versioned Settings SDK and Aquarium appearance adoption",
+      "evidence": [
+        "src/Aquarium.Core/JsonSettingsStore.cs",
+        "src/Aquarium/PreferencesModel.cs",
+        "tests/Aquarium.CoreTests/SettingsChecks.cs",
+        "tests/Aquarium.PackageTests/AppearanceSettingsChecks.cs"
+      ],
+      "status": "published-in-aquarium-0.6.0"
+    }
+  ],
+  "workInProgress": [
+    {
+      "feature": "Portable diagnostics API and support-report adoption",
+      "evidence": [
+        "src/Aquarium.Core/Diagnostics.cs",
+        "src/Aquarium/SupportDiagnostics.cs",
+        "tests/Aquarium.CoreTests/DiagnosticChecks.cs",
+        "tests/Aquarium.PackageTests/SupportDiagnosticChecks.cs"
+      ],
+      "status": "tested-locally-not-released"
     }
   ]
 }

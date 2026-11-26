@@ -144,13 +144,26 @@ public sealed partial class MainWindow
         body.Children.Add(export); body.Children.Add(restore); PageBody.Children.Add(Panel(body));
     }
 
+    private bool supportReportRunning;
     private async Task ExportSupportReport()
     {
+        if (supportReportRunning) return;
+        supportReportRunning = true;
+        try
+        {
+        var installations = store.Registry.Installations.ToArray();
+        var registryReadable = store.CanSave;
+        var retainedVersions = store.Registry.InstallationHistory.Count;
+        var operationActive = installCancellation is not null || shellUpdateRunning;
+        var diagnostics = await SupportDiagnostics.CollectAsync(registryReadable, operationActive,
+            installations, AquariumSelfUpdate.CurrentVersion);
+        if (isClosed) return;
         var report = JsonSerializer.Serialize(new { schema = 1, aquariumVersion = AquariumSelfUpdate.CurrentVersion,
             os = Environment.OSVersion.Version.ToString(), architecture = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString(),
-            registryReadable = store.CanSave, operationActive = installCancellation is not null || shellUpdateRunning,
-            apps = store.Registry.Installations.Select(i => new { id = i.AppId, version = i.Version, checksumRecorded = GitHubPackages.IsHash(i.PackageSha256) }),
-            retainedVersions = store.Registry.InstallationHistory.Count,
+            registryReadable, operationActive,
+            apps = installations.Select(i => new { id = i.AppId, version = SupportDiagnostics.SafeVersion(i.Version), checksumRecorded = GitHubPackages.IsHash(i.PackageSha256) }),
+            retainedVersions,
+            diagnostics,
             note = "This report omits file paths, library contents, credentials and raw logs. Package checksums do not establish publisher trust." }, new JsonSerializerOptions { WriteIndented = true });
         var preview = new TextBox { Text = report, IsReadOnly = true, TextWrapping = TextWrapping.Wrap, MaxHeight = 420 };
         var dialog = new ContentDialog { XamlRoot = Root.XamlRoot, Title = "Review support report", Content = preview, PrimaryButtonText = "Save report", CloseButtonText = "Cancel" };
@@ -163,5 +176,8 @@ public sealed partial class MainWindow
             var file = await picker.PickSaveFileAsync(); if (file is not null) await File.WriteAllTextAsync(file.Path, report);
         }
         catch (Exception ex) { ShowNotice("Could not save report. " + ex.Message, InfoBarSeverity.Error); }
+        }
+        catch (Exception ex) { if (!isClosed) ShowNotice("Could not prepare report. " + ex.Message, InfoBarSeverity.Error); }
+        finally { supportReportRunning = false; }
     }
 }

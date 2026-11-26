@@ -14,6 +14,7 @@ async Task Refuses<T>(Func<Task> action) where T : Exception
 try
 {
     await SettingsChecks.Run(root);
+    await DiagnosticChecks.Run();
     var target = Path.Combine(root, "settings.json");
     await AtomicFile.WriteJsonAsync(target, new { Version = 1 });
     Check(JsonDocument.Parse(File.ReadAllText(target)).RootElement.GetProperty("Version").GetInt32() == 1, "Initial write");
