@@ -21,6 +21,7 @@ public sealed partial class MainWindow
         var check = new Button { Content = "Look for published apps", IsEnabled = installCancellation is null };
         check.Click += async (_, _) => await CheckPackagesAsync();
         PageBody.Children.Add(check);
+        PageBody.Children.Add(OfflineInstallButton());
         foreach (var app in store.Catalog)
         {
             var source = GitHubPackages.Sources.Single(s => s.AppId == app.Id);
@@ -39,6 +40,7 @@ public sealed partial class MainWindow
                 var button = new Button { Content = same ? "Installed" : installed is null ? $"Install {package.Version}" : $"Install published {package.Version}", IsEnabled = !same && store.CanSave && installCancellation is null && store.AllowsPublishedVersion(app.Id, package.Version) };
                 button.Click += async (_, _) => await InstallPublishedAsync(app, package);
                 panel.Children.Add(button);
+                panel.Children.Add(ExportOfflineButton(app, package));
             }
             if (installed is null && source.IncludedByDefault && File.Exists(Path.Combine(AppContext.BaseDirectory, "Bundled", "bundled.json")))
             {

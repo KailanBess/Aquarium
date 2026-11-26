@@ -25,6 +25,14 @@ internal static class ReliabilityChecks
         using (var palette = System.Text.Json.JsonDocument.Parse(family.Single().Data))
             Check(palette.RootElement.GetProperty("Compact").GetBoolean() && palette.RootElement.GetProperty("FutureField").GetInt32() == 42 && palette.RootElement.GetProperty("Accent").GetString() == "Aquarium Blue", "Family palette changed non-appearance settings or discarded future fields.");
         var records = SuiteBackup.Capture(profiles, ["FishNet"]);
+        var radioPath = Path.Combine(profiles, "FishNet", "radio-stations.json");
+        File.WriteAllText(radioPath, "[]");
+        var radioRecords = SuiteBackup.Capture(profiles, ["FishNet"]);
+        Check(radioRecords.Any(record => record.File == "radio-stations.json"), "Saved radio stations were omitted from app-record backups.");
+        File.WriteAllText(radioPath, "[1]");
+        SuiteBackup.Restore(profiles, radioRecords);
+        Check(File.ReadAllText(radioPath) == "[]", "Saved radio stations were not restored.");
+        File.Delete(radioPath);
         const string password = "fixture passphrase used only in generated tests";
         var encrypted = SuiteBackup.Encrypt(records, password);
         var decoded = SuiteBackup.Decrypt(encrypted, password);

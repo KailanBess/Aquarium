@@ -192,10 +192,7 @@ public sealed class LocalStore
 
     private async Task CommitAsync(LocalRegistry next)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(RegistryPath)!);
-        var temporary = RegistryPath + ".tmp";
-        await File.WriteAllTextAsync(temporary, JsonSerializer.Serialize(next, Json));
-        File.Move(temporary, RegistryPath, overwrite: true);
+        await Core.AtomicFile.WriteJsonAsync(RegistryPath, next, Json);
         Registry = next; // Commit in memory only after the durable write succeeds.
     }
 }
