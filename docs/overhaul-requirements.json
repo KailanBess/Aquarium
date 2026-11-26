@@ -6,6 +6,14 @@
     "CloudKid/music identification discussion",
     "Tailscale and private networking, excluded by user on 2026-11-26"
   ],
+  "qualityTargets": [
+    { "metric": "warm-startup", "target": "About 1 second for lightweight interfaces", "conditions": "Reference hardware and warm-launch procedure must be defined", "measured": null, "status": "target-not-measured" },
+    { "metric": "idle-cpu", "target": "Under 1 percent", "conditions": "Inactive, non-scanning background services on reference hardware", "measured": null, "status": "target-not-measured" },
+    { "metric": "crash-free-sessions", "target": "99.9 percent", "conditions": "Long-term production reliability with a defined, privacy-respecting measurement method", "measured": null, "status": "target-not-measured" },
+    { "metric": "official-package-verification", "target": "100 percent before installation", "conditions": "Distinguish package consistency checks from genuine publisher authentication", "measured": null, "status": "requires-coverage-audit" },
+    { "metric": "interface-responsiveness", "target": "60 FPS", "conditions": "Supported reference hardware and representative interaction traces", "measured": null, "status": "target-not-measured" },
+    { "metric": "core-offline-functionality", "target": "Required; no mandatory cloud dependency for local features", "conditions": "Per-application offline acceptance matrix", "measured": null, "status": "requires-coverage-audit" }
+  ],
   "rules": [
     "Preserve existing functionality and user data",
     "Independently installable apps; no mandatory Aquarium process or online account",
@@ -7005,3 +7013,4 @@
     }
   ]
 }
+
