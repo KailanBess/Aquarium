@@ -196,7 +196,7 @@
       "section": "Shared features every application should have",
       "requirement": "Shared logging and diagnostics.",
       "status": "partial",
-      "evidence": "Aquarium Core 0.3.0 publishes bounded read-only diagnostic probes, versioned reports, explicit observation states and fixed safe error codes. Adopted by local Aquarium support report without upload. Windows/Ubuntu Core CI and complete Windows packaging pass. Shared logging, cross-app adapters, crash collection and all performance/health coverage are not complete.",
+      "evidence": "Aquarium Core 0.3.0 publishes bounded read-only diagnostic probes, versioned reports, explicit observation states and fixed safe error codes. Adopted by local Aquarium support report without upload. Windows/Ubuntu Core CI and complete Windows packaging pass. Shared logging, cross-app adapters, crash collection and all performance/health coverage are not complete. Core 0.4 review branch adds a bounded local ActivityHistory API with declared symbolic-code allowlists, UTC times, levels, IDs and versions, retention/drop counts, atomic publication, unknown-field preservation and cooperating-writer locks. Aquarium Settings reviews and explicitly exports its app-start/notice-severity history; no raw error text, paths, stacks or library data are recorded. 38 Windows store checks pass alongside existing Core regression. Only Aquarium adopts this activity API so far; cross-app adoption, notifications and crash collection remain open.",
       "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.7.0"
     },
     {
@@ -7119,12 +7119,12 @@
     }
   ],
   "workInProgress": {
-    "feature": "Independent read-only System Center",
+    "feature": "Core 0.4 local fixed-code activity history and Aquarium adoption",
     "status": "tested-locally-under-review",
     "evidence": [
-      "tools/SystemCenter",
-      "tests/Aquarium.SystemCenterTests",
-      "tests/Aquarium.SystemCenterUiTests"
+      "src/Aquarium.Core/ActivityHistory.cs",
+      "src/Aquarium/ActivityHistoryUi.cs",
+      "tests/Aquarium.CoreTests/ActivityChecks.cs"
     ]
   },
   "statusDefinitions": {

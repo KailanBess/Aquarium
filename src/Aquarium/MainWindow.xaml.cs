@@ -24,7 +24,7 @@ public sealed partial class MainWindow : Window
             ShowNotice("Finish or cancel the active recovery review before closing Aquarium.", InfoBarSeverity.Warning);
         };
         Root.Loaded += Initialize;
-        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); };
+        Closed += (_, _) => { isClosed = true; updateCancellation?.Cancel(); installCancellation?.Cancel(); activityCancellation.Cancel(); };
     }
 
     private async void Initialize(object sender, RoutedEventArgs e)
@@ -36,6 +36,7 @@ public sealed partial class MainWindow : Window
             await store.LoadAsync();
             installer = new PackageInstaller(store);
             ready = true;
+            _ = RecordActivityAsync("application.started", Aquarium.Core.ActivityLevel.Information);
             Navigation.SelectedItem = Navigation.MenuItems[0];
             Render();
             if (store.LoadWarning is not null) ShowNotice(store.LoadWarning, InfoBarSeverity.Warning);
@@ -136,7 +137,8 @@ public sealed partial class MainWindow : Window
                 PageBody.Children.Add(appearance.Editor(WinRT.Interop.WindowNative.GetWindowHandle(this), ApplyAppearance, message => ShowNotice(message, InfoBarSeverity.Error)));
                 AddFamilyAppearanceControls();
                 AddNotificationPolicyControls();
-                Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or telemetry are implemented.");
+                AddActivityControls();
+                Empty("Private by design", "The private store uses a bundled Aquarium-only catalog. Update checks contact GitHub or WinGet only when requested. No accounts or automatic telemetry uploads are implemented. Fixed-code operational history stays local unless explicitly exported.");
                 Empty("Local registry", store.RegistryPath + "\nLibrary bookmarks and managed installation records use schema version 1. Library changes are saved immediately.");
                 Empty("App storage", installer.AppRoot + "\nFishTank and FishNet are included in the complete bundle; FishBowl is optional. App data remains in each app's own profile folder. Previous managed program versions are retained.");
                 break;
@@ -207,5 +209,13 @@ public sealed partial class MainWindow : Window
         Notice.Message = message;
         Notice.Severity = severity;
         Notice.IsOpen = true;
+        var (code, level) = severity switch
+        {
+            InfoBarSeverity.Error => ("notice.error", Aquarium.Core.ActivityLevel.Error),
+            InfoBarSeverity.Warning => ("notice.warning", Aquarium.Core.ActivityLevel.Warning),
+            InfoBarSeverity.Success => ("notice.success", Aquarium.Core.ActivityLevel.Information),
+            _ => ("notice.information", Aquarium.Core.ActivityLevel.Information)
+        };
+        _ = RecordActivityAsync(code, level);
     }
 }
