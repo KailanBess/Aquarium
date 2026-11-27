@@ -125,6 +125,11 @@ jobs:
           if ($packages.Count -ne 1) { throw 'Expected one Core library package.' }
           $package = $packages[0]
           ((Get-FileHash $package.FullName -Algorithm SHA256).Hash.ToLowerInvariant() + '  ' + $package.Name) | Set-Content artifacts/release/SHA256SUMS-core.txt -Encoding ascii
+      - name: Validate the complete standalone tool set before publishing
+        shell: pwsh
+        run: |
+          ./tests/Test-ToolAssets.ps1
+          ./scripts/Test-ToolAssets.ps1 -Directory artifacts/release | Out-Null
       - name: Verify clean download and native startup
         shell: pwsh
         run: ./scripts/Test-SingleApp.ps1
@@ -170,17 +175,7 @@ jobs:
           $line=(Get-Content release/SHA256SUMS.txt).Trim()
           if($line -notmatch '^([a-f0-9]{64})  Aquarium-complete-windows-x64.zip$'){throw 'Invalid release manifest.'}
           if((Get-FileHash release/Aquarium-complete-windows-x64.zip -Algorithm SHA256).Hash -ne $Matches[1]){throw 'Release archive digest mismatch.'}
-          $toolAssets = @()
-          $toolManifest = @(Get-Content release/SHA256SUMS-tools.txt)
-          if ($toolManifest.Count -ne 5) { throw 'Invalid tools checksum manifest.' }
-          foreach ($tool in @('FileOrganizer', 'DeviceInventory', 'WorkspaceLauncher', 'SystemMonitor', 'SystemCenter', 'TextEditor')) {
-            $name = "$tool-windows-x64.zip"
-            $entry = @($toolManifest | Where-Object { $_ -match ('^[a-f0-9]{64}  ' + [regex]::Escape($name) + '$') })
-            if ($entry.Count -ne 1) { throw "Missing checksum for $name" }
-            $sha = (Get-FileHash "release/$name" -Algorithm SHA256).Hash
-            if ($sha -ne $entry[0].Substring(0, 64)) { throw "Checksum failed for $name" }
-            $toolAssets += "./release/$name"
-          }
+          $toolAssets = @(& ./scripts/Test-ToolAssets.ps1 -Directory release)
           $signature = if ((Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).signed) { 'Publisher-signed hub; timestamp and trust checks passed.' } else { 'Unsigned development hub; genuine publisher signing is not configured.' }
           $coreLine = (Get-Content release/SHA256SUMS-core.txt).Trim()
           if ($coreLine -notmatch '^([a-f0-9]{64})  (Aquarium\.Core\.\d+\.\d+\.\d+\.nupkg)$') { throw 'Invalid Core checksum manifest.' }
