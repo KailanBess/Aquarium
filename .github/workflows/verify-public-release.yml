@@ -1,0 +1,42 @@
+name: Verify public release downloads
+on:
+  pull_request:
+    paths: ['scripts/Verify-PublicRelease.ps1', '.github/workflows/verify-public-release.yml']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Numeric release tag; empty uses the checked-out application version'
+        required: false
+        type: string
+  workflow_run:
+    workflows: ['Windows build and complete app release']
+    branches: [main]
+    types: [completed]
+permissions:
+  contents: read
+jobs:
+  verify:
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - name: Verify actual published bytes and metadata
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: ./scripts/Verify-PublicRelease.ps1 -Tag $env:RELEASE_TAG -OutputDirectory artifacts/public-release-verification
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: public-release-verification
+          path: artifacts/public-release-verification/verification.json
+          if-no-files-found: error
+          retention-days: 30
