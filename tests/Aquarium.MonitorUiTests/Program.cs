@@ -11,6 +11,12 @@ internal static class MonitorUiChecks
         if (!task.IsCompleted) throw new Exception("UI refresh timed out");
         task.GetAwaiter().GetResult();
     }
+    private static void PumpUntil(Func<bool> condition)
+    {
+        var clock = Stopwatch.StartNew();
+        while (!condition() && clock.Elapsed < TimeSpan.FromSeconds(10)) { Application.DoEvents(); Thread.Sleep(5); }
+        if (!condition()) throw new Exception("Initial measured UI snapshot did not render within the bounded wait");
+    }
     [STAThread] private static void Main()
     {
         ApplicationConfiguration.Initialize(); int checks = 0;
@@ -25,6 +31,9 @@ internal static class MonitorUiChecks
             form.Show(); Application.DoEvents(); PumpUntil(form.RefreshMeasurements());
             var controls = Descendants(form).ToArray();
             var table = controls.OfType<DataGridView>().Single();
+            // Shown starts the first background capture. A concurrent refresh can return
+            // immediately while that capture still owns the guard; await the rendered state.
+            PumpUntil(() => table.Rows.Count == 2);
             Check(table.Rows.Count == 2 && table.Rows[0].Cells[1].Value?.ToString() == "Generated fixture A", "Measured process table failed");
             var filter = controls.OfType<TextBox>().Single(); filter.Text = "fixture B";
             Check(table.Rows.Count == 1 && table.Rows[0].Cells[0].Value?.ToString() == "43", "Process filter failed"); filter.Clear();
