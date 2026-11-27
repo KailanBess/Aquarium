@@ -39,4 +39,32 @@ if (OperatingSystem.IsWindows())
     using var canceled = new CancellationTokenSource(); canceled.Cancel();
     try { WindowsMeasurements.Capture(canceled.Token); throw new Exception("Canceled sampling proceeded"); } catch (OperationCanceledException) { checks++; }
 }
-Console.WriteLine($"System Monitor: {checks} measurement checks passed. No process names or system snapshots were exported.");
+var session = new MonitorSessionHistory(3);
+var at = new DateTimeOffset(2026, 1, 2, 3, 4, 5, TimeSpan.FromHours(2));
+var point = next with { ObservedAtUtc = at };
+session.Observe(point);
+var captured = session.Snapshot();
+Check(captured.Entries.Single().RecordedAtUtc.Offset == TimeSpan.Zero && captured.Entries[0].RecordedAtUtc == at, "History changed the instant or retained non-UTC timestamps");
+Check(captured.Entries[0].CpuPercent == 75 && captured.Entries[0].ReadableProcesses == 1, "History changed observed summaries");
+session.Mark("Paused", at.AddSeconds(1)); session.Mark("Resumed", at.AddSeconds(2));
+session.Mark("Unavailable", at.AddSeconds(-20));
+var bounded = session.Snapshot();
+Check(bounded.Entries.Length == 3 && bounded.DroppedEntries == 1 && bounded.Entries.Select(e => e.Sequence).SequenceEqual(new long[] { 2, 3, 4 }), "History retention/order/drop counts incorrect");
+Check(bounded.Entries.All(e => e.CpuPercent is null && e.PhysicalBytes is null && e.ReadableProcesses is null), "History markers invented measurements");
+Check(bounded.Entries[^1].RecordedAtUtc < bounded.Entries[0].RecordedAtUtc, "History reordered entries by a changed wall clock");
+Check(captured.Entries.Length == 1 && captured.DroppedEntries == 0, "A captured export changed as new samples arrived");
+bounded.Entries[0] = captured.Entries[0];
+Check(session.Snapshot().Entries[0].State == "Paused", "Export array mutated retained history");
+var serialized = System.Text.Json.JsonSerializer.Serialize(captured);
+Check(!serialized.Contains("Generated fixture") && !serialized.Contains("\"Pid\"") && !serialized.Contains("WorkingSetBytes"), "History retained process identities or process-level records");
+var decoded = System.Text.Json.JsonSerializer.Deserialize<MonitorHistoryReport>(serialized)!;
+Check(decoded.Entries[0] == captured.Entries[0] && decoded.SchemaVersion == 1, "History JSON round trip lost unknown/observation data");
+session.Observe(point with { CpuPercent = null, PhysicalBytes = null, AvailableBytes = null });
+Check(session.Snapshot().Entries[^1].CpuPercent is null && session.Snapshot().Entries[^1].PhysicalBytes is null, "Missing history readings became zero");
+foreach (int capacity in new[] { 0, 901 }) { try { _ = new MonitorSessionHistory(capacity); throw new Exception("Unbounded history capacity accepted"); } catch (ArgumentOutOfRangeException) { checks++; } }
+try { session.Mark("Healthy", at); throw new Exception("Unknown history marker accepted"); } catch (ArgumentException) { checks++; }
+foreach (double invalid in new[] { double.NaN, double.PositiveInfinity, -1, 101 }) { try { session.Observe(point with { CpuPercent = invalid }); throw new Exception("Invalid history measurement accepted"); } catch (ArgumentException) { checks++; } }
+var fullSession = new MonitorSessionHistory();
+for (int i = 0; i < 1000; i++) fullSession.Observe(point);
+Check(fullSession.Snapshot().Entries.Length == 900 && fullSession.Snapshot().DroppedEntries == 100 && fullSession.Snapshot().Entries[0].Sequence == 101, "Default retention failed at full capacity");
+Console.WriteLine($"System Monitor: {checks} measurement/history checks passed. No live process names or system snapshots were exported.");
