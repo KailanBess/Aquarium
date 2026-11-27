@@ -21,14 +21,14 @@ internal static class OrganizerUiChecks
             File.WriteAllText(first, "generated duplicate fixture"); File.WriteAllText(second, "generated duplicate fixture");
             foreach (float scale in new[] { 1f, 1.5f, 2f })
             {
-                using var window = new OrganizerWindow(Path.Combine(root, "absent-appearance.json"));
+                using var window = new OrganizerWindow(Path.Combine(root, "absent-appearance.json"), Path.Combine(root, "bookmarks-" + scale));
                 window.ShowInTaskbar = false; window.StartPosition = FormStartPosition.Manual; window.Location = new Point(-4000, -4000);
                 window.Show(); Application.DoEvents(); SynchronizationContext.SetSynchronizationContext(new WindowsFormsSynchronizationContext());
                 var fonts = Descendants(window).Prepend(window).Select(c => (Control: c, Family: c.Font.FontFamily, Size: c.Font.Size)).ToArray();
                 foreach (var font in fonts) font.Control.Font = new Font(font.Family, font.Size * scale);
                 var export = Descendants(window).OfType<Button>().Single(c => c.Text.StartsWith("Save new comparison"));
                 var cancel = Descendants(window).OfType<Button>().Single(c => c.Text.StartsWith("Cancel comparison"));
-                var review = Descendants(window).OfType<TextBox>().Single(c => c.ReadOnly);
+                var review = Descendants(window).OfType<TextBox>().Single(c => c.AccessibleName == "Reviewed operations and comparison");
                 Check(!export.Enabled && !cancel.Enabled, "Idle UI offered a nonexistent report or operation");
                 Complete(window.ComparePathsAsync([first, second, missing])); Application.DoEvents();
                 Check(export.Enabled && !cancel.Enabled && review.Text.Contains("1 matching-content groups"), "Comparison result/export state was lost");
@@ -37,7 +37,7 @@ internal static class OrganizerUiChecks
                 Check(review.ClientSize.Height >= review.Font.Height * 2 && review.ScrollBars == ScrollBars.Both, "Review became unreadable at enlarged fonts");
                 if (args.Length == 1)
                 { Directory.CreateDirectory(args[0]); using var bitmap = new Bitmap(window.Width, window.Height); window.DrawToBitmap(bitmap, new Rectangle(Point.Empty, bitmap.Size)); bitmap.Save(Path.Combine(args[0], "organizer-" + (int)(scale * 100) + ".png")); }
-                Descendants(window).OfType<TextBox>().Single(c => !c.ReadOnly).Text = "reviewed-prefix";
+                Descendants(window).OfType<TextBox>().Single(c => c.AccessibleName == "Rename prefix").Text = "reviewed-prefix";
                 Check(!export.Enabled, "Changing the operation left a stale report export enabled");
                 using var canceled = new CancellationTokenSource(); canceled.Cancel();
                 Complete(window.ComparePathsAsync([first, second], canceled.Token));

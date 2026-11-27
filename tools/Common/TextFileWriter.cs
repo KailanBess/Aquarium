@@ -1,7 +1,8 @@
 using Aquarium.Core;
+using Aquarium.Tools;
 using System.Security.AccessControl;
 
-namespace Aquarium.TextEditor;
+namespace Aquarium.TextFiles;
 
 internal static class TextFileWriter
 {

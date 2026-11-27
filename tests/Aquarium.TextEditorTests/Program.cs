@@ -1,3 +1,4 @@
+using Aquarium.TextFiles;
 using Aquarium.TextEditor;
 using System.Security.Cryptography;
 using System.Text;
