@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><StartupObject>MonitorUiChecks</StartupObject><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../tools/SystemMonitor/Program.cs" Link="MonitorProgram.cs" />
+    <Compile Include="../../tools/SystemMonitor/Measurements.cs" Link="Measurements.cs" />
+    <Compile Include="../../tools/Common/FamilyWindow.cs" Link="FamilyWindow.cs" />
+    <ProjectReference Include="../../src/Aquarium.Core/Aquarium.Core.csproj" />
+  </ItemGroup>
+</Project>

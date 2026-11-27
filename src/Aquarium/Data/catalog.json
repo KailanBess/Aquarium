@@ -43,5 +43,11 @@
     "summary": "Save desktop app groups and review their window layouts before opening.",
     "description": "Optional Aquarium tool. Starts reviewed desktop executables and positions their windows. Missing apps are reported separately, and arbitrary command lines are not stored.",
     "moduleId": "workspaces", "stage": "Optional"
+  },
+  {
+    "id": "aquarium.monitor", "name": "System Monitor", "category": "System",
+    "summary": "Read-only CPU, memory and process observations with explicit unknown readings.",
+    "description": "Optional standalone Windows utility. Samples while open, supports pause/filter/sort and an explicitly reviewed local snapshot export. It changes no process settings and does not measure GPU, disk/network rates, temperature or power consumption.",
+    "moduleId": "monitor", "stage": "Optional"
   }
 ]

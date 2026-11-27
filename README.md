@@ -1,6 +1,6 @@
 # Aquarium
 
-Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.7.0** adds the portable Core diagnostics API, local support observations with explicit unknown/unsupported states, and photo/PDF record backup. The complete bundle includes FishNet 0.6.0 photo/PDF tools and FishTank 0.18.0 recorded camera/microphone history. Managed cleanup/uninstall refuses a custom FishNet profile selector so its data can be preserved first.
+Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.8.0** adds an optional standalone System Monitor and retains the portable Core diagnostics API, local support observations with explicit unknown/unsupported states, and photo/PDF record backup. The complete bundle includes FishNet 0.6.0 photo/PDF tools and FishTank 0.18.0 recorded camera/microphone history. Managed cleanup/uninstall refuses a custom FishNet profile selector so its data can be preserved first.
 
 The broader roadmap comes from the [shared ecosystem specification](https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e) and its supplied full text. The versioned requirements tracker records implemented work separately from the remaining overhaul. Tailscale and private networking are excluded.
 
@@ -36,11 +36,13 @@ The shared search finds Aquarium pages and companion apps by name/category/descr
 
 ## Standalone tools
 
-Optional **App install** entries and separate release ZIPs provide **File Organizer**, **Device Inventory** and **Workspace Launcher**. Managed copies participate in Library, repair, rollback and Update all apps. Their managed package versions follow Aquarium suite release tags; the tool executable version is independent. Extract each complete ZIP before running its executable. They use the family palette and Windows High Contrast on startup.
+Optional **App install** entries and separate release ZIPs provide **File Organizer**, **Device Inventory**, **Workspace Launcher** and **System Monitor**. Managed copies participate in Library, repair, rollback and Update all apps. Their managed package versions follow Aquarium suite release tags; the tool executable version is independent. Extract each complete ZIP before running its executable. They use the family palette and Windows High Contrast on startup.
 
 - File Organizer previews rename/move operations, refuses overwrites/linked paths, compares duplicates without deleting them, keeps in-session undo and persistent source/destination recovery records. Recovery records are not file-content backups. Moves run without freezing the UI, and closing waits for an active move.
 - Device Inventory records devices, serials, receipt links, warranty and maintenance dates. Receipt files stay external.
 - Workspace Launcher records selected desktop executable windows and reviews their paths before launching/positioning them. Missing or inaccessible apps are reported individually. It never stores arbitrary command lines.
+
+- System Monitor shows read-only Windows CPU, physical-memory and process working-set observations every two seconds while open. It supports pause/resume, process-name filtering and sorting. First/new/reused/missing CPU samples stay unknown. System CPU covers the primary Windows processor group; process CPU is normalized to the machine logical-processor count. Process working sets share memory and cannot be summed to unique RAM usage. Explicit JSON export reviews the destination and explains that process names/IDs are included. Nothing uploads automatically. GPU, disk/network rates, temperature, power consumption, process termination and Linux UI support remain future work. See Microsoft's [system timing](https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getsystemtimes) and [physical memory](https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-globalmemorystatusex) API coverage.
 
 ## Integrity and signing
 
