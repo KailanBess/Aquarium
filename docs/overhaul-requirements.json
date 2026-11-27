@@ -1950,8 +1950,8 @@
       "section": "8. Additional native operating system applications",
       "requirement": "System Monitor — Resource and process management — High",
       "status": "partial",
-      "evidence": "Aquarium 0.8.0 publishes the independent self-contained Windows System Monitor. Primary-group CPU, physical RAM, process working sets, pause/filter/sort and explicit local JSON snapshot export. 18 Windows measurement checks, 13 portable Linux fixtures and 36 native generated-data UI checks at 100/150/200% fonts pass. Complete Windows packaging, clean startup and Core CI pass. GPU, storage/network rates, temperature, long-term history, process control and Linux UI remain open. Aquarium 0.9.0 review branch adds a bounded 900-entry in-memory CPU/RAM/process-count history with explicit pause/resume/failure markers, UTC timestamps and sequence ordering, drop counts and process-name-free JSON export. New source passes 36 Windows measurement/history checks and 64 native generated-data UI checks at 100/150/200% fonts, including delayed capture/pause boundaries and failed observations. This addition is under review, not published yet.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.8.0"
+      "evidence": "Aquarium 0.9.0 publishes independently installable System Monitor 1.1.0: Windows primary-group CPU, physical RAM, process working sets, pause/filter/sort, explicit snapshot export and bounded in-memory history. The last 900 CPU/RAM/process-count entries retain explicit pause/resume/failure markers, UTC timestamps, collection sequence and drop counts. History contains no process names or IDs and exports only through explicit atomic JSON save. 36 Windows measurement/history checks (31 portable Linux fixtures), 64 native generated-data UI checks at 100/150/200% fonts and five bundle identity/digest checks pass. UI checks include delayed capture/pause boundaries, failed observations and small-window scrolling to the complete explanation. Full Windows package/clean-startup and portable Core CI pass. GPU, disk/network rates, temperatures, power, long-term history, process control and Linux UI remain open. Manual history save-dialog acceptance remains unverified because the desktop helper failed to expose/launch the generated fixture.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.9.0"
     },
     {
       "id": "UTILITIES-005",
@@ -5846,8 +5846,8 @@
       "requirement": "System Monitor — CPU, GPU, RAM, storage, processes, temperatures and performance history.",
       "status": "partial",
       "source": "User-supplied detailed specification (2026-11-26)",
-      "evidence": "Aquarium 0.8.0 publishes the independent self-contained Windows System Monitor. Primary-group CPU, physical RAM, process working sets, pause/filter/sort and explicit local JSON snapshot export. 18 Windows measurement checks, 13 portable Linux fixtures and 36 native generated-data UI checks at 100/150/200% fonts pass. Complete Windows packaging, clean startup and Core CI pass. GPU, storage/network rates, temperature, long-term history, process control and Linux UI remain open. Aquarium 0.9.0 review branch adds a bounded 900-entry in-memory CPU/RAM/process-count history with explicit pause/resume/failure markers, UTC timestamps and sequence ordering, drop counts and process-name-free JSON export. New source passes 36 Windows measurement/history checks and 64 native generated-data UI checks at 100/150/200% fonts, including delayed capture/pause boundaries and failed observations. This addition is under review, not published yet.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.8.0"
+      "evidence": "Aquarium 0.9.0 publishes independently installable System Monitor 1.1.0: Windows primary-group CPU, physical RAM, process working sets, pause/filter/sort, explicit snapshot export and bounded in-memory history. The last 900 CPU/RAM/process-count entries retain explicit pause/resume/failure markers, UTC timestamps, collection sequence and drop counts. History contains no process names or IDs and exports only through explicit atomic JSON save. 36 Windows measurement/history checks (31 portable Linux fixtures), 64 native generated-data UI checks at 100/150/200% fonts and five bundle identity/digest checks pass. UI checks include delayed capture/pause boundaries, failed observations and small-window scrolling to the complete explanation. Full Windows package/clean-startup and portable Core CI pass. GPU, disk/network rates, temperatures, power, long-term history, process control and Linux UI remain open. Manual history save-dialog acceptance remains unverified because the desktop helper failed to expose/launch the generated fixture.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.9.0"
     },
     {
       "id": "UTILITIES-025",
@@ -6596,7 +6596,9 @@
         },
         {
           "requirement": "Review dependencies and licenses",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Source declaration inventory: 16 declarations across four .NET apps. Local restore inventory: 28 projects examined, 13 snapshots and 42 distinct package versions; 15 projects lack snapshots. Records available license expressions, license-file hashes and legacy URLs. Fresh restore coverage, native/manual components, license obligations and vulnerability advisories remain open.",
+          "evidenceUrl": "https://github.com/KailanBess/Aquarium/blob/main/docs/audits/dependency-review-2026-11-26.txt"
         },
         {
           "requirement": "Establish performance baselines",
@@ -7101,18 +7103,27 @@
         "Windows/Ubuntu Core CI",
         "Native support report adoption"
       ]
+    },
+    {
+      "feature": "Bounded System Monitor session history",
+      "status": "published-in-aquarium-0.9.0",
+      "evidence": [
+        "tools/SystemMonitor/SessionHistory.cs",
+        "tools/SystemMonitor/HistoryWindow.cs",
+        "tests/Aquarium.MonitorTests",
+        "tests/Aquarium.MonitorUiTests",
+        "https://github.com/KailanBess/Aquarium/pull/21"
+      ]
     }
   ],
   "workInProgress": {
-    "feature": "Bounded System Monitor session history",
-    "status": "tested-locally-under-review",
+    "feature": "Remaining ecosystem specification",
+    "status": "unfinished",
     "evidence": [
-      "tools/SystemMonitor/SessionHistory.cs",
-      "tools/SystemMonitor/HistoryWindow.cs",
-      "tests/Aquarium.MonitorTests/Program.cs",
-      "tests/Aquarium.MonitorUiTests/Program.cs"
-    ],
-    "review": "https://github.com/KailanBess/Aquarium/tree/feature/monitor-history"
+      "Published deliveries are recorded in published-releases.json.",
+      "Dependency and license review is partial; snapshot freshness, native components and advisories remain open.",
+      "Shared services, expanded security/gaming/media/utility capabilities, Linux ports, Shoal builds and production-quality acceptance remain open."
+    ]
   },
   "statusDefinitions": {
     "needs-audit": "Unassessed against the complete requirement; does not imply the feature is absent.",

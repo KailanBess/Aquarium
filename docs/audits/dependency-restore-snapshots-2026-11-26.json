@@ -1,0 +1,850 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-26",
+  "scope": "Available local NuGet restore snapshots for tracked .NET projects, including transitive packages and runtime/build packages.",
+  "limitations": [
+    "Snapshots are recorded as found, with project and assets hashes; freshness against every current dependency input is not established.",
+    "Projects without restore snapshots remain explicitly unassessed.",
+    "Native/manual downloads, operating-system packages and components absent from NuGet snapshots are not covered.",
+    "License metadata is inventory evidence, not a compliance decision. Content hashes are not publisher authentication.",
+    "No vulnerability advisory check or dependency update was performed."
+  ],
+  "projects": [
+    {
+      "application": "Aquarium",
+      "project": "src/Aquarium.Core/Aquarium.Core.csproj",
+      "projectSha256": "e0f29bc540668d6c48c68d8b4419ec3059514b35100e16263deb95107015d28a",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "014d7b2b83b1e825fcbc02cd17b4a411ab92db6dfa45641780f9baa0443adfa2",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    },
+    {
+      "application": "Aquarium",
+      "project": "src/Aquarium.Launcher/Aquarium.Launcher.csproj",
+      "projectSha256": "563be34ed02a3dd63c55578f9d3cba742e644e8a59013291ebeaea2a1f03a66a",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "Aquarium",
+      "project": "src/Aquarium/Aquarium.csproj",
+      "projectSha256": "0eeb276f073869dd014d727c270a1b8c34c570b054c27aafa69b628a8e1e57ae",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [
+        "Microsoft.Web.WebView2/1.0.3179.45",
+        "Microsoft.Windows.SDK.BuildTools.MSIX/1.7.20250829.1",
+        "Microsoft.Windows.SDK.BuildTools/10.0.26100.4654",
+        "Microsoft.WindowsAppSDK.AI/1.8.79",
+        "Microsoft.WindowsAppSDK.Base/1.8.251216001",
+        "Microsoft.WindowsAppSDK.DWrite/1.8.25122902",
+        "Microsoft.WindowsAppSDK.Foundation/1.8.260803002",
+        "Microsoft.WindowsAppSDK.InteractiveExperiences/1.8.260708001",
+        "Microsoft.WindowsAppSDK.ML/1.8.2223",
+        "Microsoft.WindowsAppSDK.Runtime/1.8.260921001",
+        "Microsoft.WindowsAppSDK.Widgets/1.8.251231004",
+        "Microsoft.WindowsAppSDK.WinUI/1.8.260803003",
+        "Microsoft.WindowsAppSDK/1.8.260921001",
+        "System.Numerics.Tensors/9.0.0"
+      ],
+      "assetsSha256": "5699e77aaded039b1b2f6f6e2fe65aad3a583de5f4db957833017eefaca81c95",
+      "targetFrameworks": [
+        "net10.0-windows10.0.19041.0"
+      ]
+    },
+    {
+      "application": "Aquarium",
+      "project": "tests/Aquarium.CoreTests/Aquarium.CoreTests.csproj",
+      "projectSha256": "5ce9e09a9d0a6ae8f7b693805e30ab17d241073d203993cd498fef2aa10dc897",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "Aquarium",
+      "project": "tests/Aquarium.LauncherTests/Aquarium.LauncherTests.csproj",
+      "projectSha256": "caf84927805d258af40959dd1ef283a30ff64c2db0013f04db0f800af45ac75b",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "Aquarium",
+      "project": "tests/Aquarium.MonitorTests/Aquarium.MonitorTests.csproj",
+      "projectSha256": "9de5c0292ebf99f5df903ff4504be969ffb10469a167ced38e8ad448ebbf5c3d",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "86955435c35c13a5da0faeb51bb8214aa514724e2a1d8a90e56cfbd975f1b47e",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    },
+    {
+      "application": "Aquarium",
+      "project": "tests/Aquarium.MonitorUiTests/Aquarium.MonitorUiTests.csproj",
+      "projectSha256": "fea49c98fa7a98d3751f83e7c2eaa2c192f3dfb94a24f4a1159666838f346a91",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "51265ffc8c56a5aae826989e06d46da2b9953ca81a22942c545db296c87fa0b2",
+      "targetFrameworks": [
+        "net10.0-windows"
+      ]
+    },
+    {
+      "application": "Aquarium",
+      "project": "tests/Aquarium.PackageTests/Aquarium.PackageTests.csproj",
+      "projectSha256": "5218b166a2f445839ebc2158fc22a9f9e67dc32bc84c9b63912f48b3862bc975",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "f5485d3a27f277435410b1cbdf84a01a93402132fb33c5e6d59c7dc8bb4c0e73",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    },
+    {
+      "application": "Aquarium",
+      "project": "tools/DeviceInventory/DeviceInventory.csproj",
+      "projectSha256": "a12f0b9d9a38a680b8014c5faff6cef2d3dd9b6deaa31a5e7f43aceae8933a36",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "Aquarium",
+      "project": "tools/FileOrganizer/FileOrganizer.csproj",
+      "projectSha256": "a12f0b9d9a38a680b8014c5faff6cef2d3dd9b6deaa31a5e7f43aceae8933a36",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "Aquarium",
+      "project": "tools/SystemMonitor/SystemMonitor.csproj",
+      "projectSha256": "8e4922887419165e45bb911c4559a6e4977dfde07790428ac4ab9bad774b3e81",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "0c26738bde9aef21bb3112a8fac97dba35b270b4e4672be00daa3e977cf4c6e5",
+      "targetFrameworks": [
+        "net10.0-windows"
+      ]
+    },
+    {
+      "application": "Aquarium",
+      "project": "tools/WorkspaceLauncher/WorkspaceLauncher.csproj",
+      "projectSha256": "a12f0b9d9a38a680b8014c5faff6cef2d3dd9b6deaa31a5e7f43aceae8933a36",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishNet",
+      "project": "src/FishNet/FishNet.csproj",
+      "projectSha256": "f64cb75149087d4f7eff35148d1a12b9810a0e4fb7d8009180611e42609e3d92",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [
+        "Aquarium.Core/0.2.0",
+        "Microsoft.Web.WebView2/1.0.3179.45",
+        "Microsoft.Windows.SDK.BuildTools.MSIX/1.7.20250829.1",
+        "Microsoft.Windows.SDK.BuildTools/10.0.26100.4654",
+        "Microsoft.WindowsAppSDK.AI/1.8.79",
+        "Microsoft.WindowsAppSDK.Base/1.8.251216001",
+        "Microsoft.WindowsAppSDK.DWrite/1.8.25122902",
+        "Microsoft.WindowsAppSDK.Foundation/1.8.260803002",
+        "Microsoft.WindowsAppSDK.InteractiveExperiences/1.8.260708001",
+        "Microsoft.WindowsAppSDK.ML/1.8.2223",
+        "Microsoft.WindowsAppSDK.Runtime/1.8.260921001",
+        "Microsoft.WindowsAppSDK.Widgets/1.8.251231004",
+        "Microsoft.WindowsAppSDK.WinUI/1.8.260803003",
+        "Microsoft.WindowsAppSDK/1.8.260921001",
+        "System.Numerics.Tensors/9.0.0",
+        "TagLibSharp/2.3.0"
+      ],
+      "assetsSha256": "da9ed0ca3efe85e9e7efcad72316750b4370c1c6878056aaa277b73ffa974db3",
+      "targetFrameworks": [
+        "net10.0-windows10.0.19041.0"
+      ]
+    },
+    {
+      "application": "FishNet",
+      "project": "tests/FishNet.ConversionTests/FishNet.ConversionTests.csproj",
+      "projectSha256": "3a810e5cc49c09df35d342b8b2f510420f16489f90875799d4e0e8ccb1d5ed05",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [
+        "Aquarium.Core/0.2.0",
+        "TagLibSharp/2.3.0"
+      ],
+      "assetsSha256": "e228798885f0eeab28e89fcd786974d5cd6ccbffc499e2c5ee8bc71d728c681f",
+      "targetFrameworks": [
+        "net10.0-windows10.0.19041.0"
+      ]
+    },
+    {
+      "application": "FishNet",
+      "project": "tests/FishNet.MediaTests/FishNet.MediaTests.csproj",
+      "projectSha256": "1ec914fde4330c07f487bc59203e4ebe339ebeaac427fa2c84f08311e12da4bd",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [
+        "Aquarium.Core/0.2.0"
+      ],
+      "assetsSha256": "24d622fb399d44454b71a8037fedd58a03ee75aa80517a71a0e18484068194ac",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    },
+    {
+      "application": "FishTank",
+      "project": "desktop/FishTank.csproj",
+      "projectSha256": "fe4dbae230b91401419b662223633216bc8d152bf8d0982f7f4871bbef0e0507",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [
+        "Microsoft.NETFramework.ReferenceAssemblies.net48/1.0.3",
+        "Microsoft.NETFramework.ReferenceAssemblies/1.0.3"
+      ],
+      "assetsSha256": "3cb79c94103829af6ee796f7fe60658b28808d7b62bc3f537cd06f21e746c1d2",
+      "targetFrameworks": [
+        "net48"
+      ]
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/Appearance/Appearance.csproj",
+      "projectSha256": "9ca445b54851beac8a982c31c3bc89ba15dae72a86878757cf902258d5a5cd68",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/Browser/Browser.csproj",
+      "projectSha256": "cd85029bcbc8a02bb00d45b63310c6329569f40da65d12b6bd55be82c6e7d278",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/Expansion/Expansion.csproj",
+      "projectSha256": "d30f899281268040e6d542e94c1434c14c5fa14d4e81ca6bb932fd70d7ce829d",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/Logic/Logic.csproj",
+      "projectSha256": "ed59d92f7a56490158976e8c4853d5e8a979ca89ec7eafbe696fe527a9adbc67",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/ReferenceLayout/ReferenceLayout.csproj",
+      "projectSha256": "43212a21280e247c59400dcbe9d40c9bd7852697a1bb6ba074c461874cd20103",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/Resilience/Resilience.csproj",
+      "projectSha256": "d30f899281268040e6d542e94c1434c14c5fa14d4e81ca6bb932fd70d7ce829d",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/UpdateFixture/UpdateFixture.csproj",
+      "projectSha256": "3e22d931a3fe48ab4e86e860f7a8b1ef375b513531846de52cf7ef48f8e7dc67",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/WindowsSecurity/WindowsSecurity.csproj",
+      "projectSha256": "5d1d732aacb488fd9c3ca172526c87c0e3f10a8946fc9b0d794a6ffb9ff879a0",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/WindowsUi/WindowsUi.csproj",
+      "projectSha256": "810f9fad6d4e9eb5ab29c0b79c1fa11ce99e8eb32df73fb7dc20bf74fe3faf26",
+      "status": "no-local-restore-snapshot",
+      "resolvedPackages": []
+    },
+    {
+      "application": "FishBowl",
+      "project": "FishBowl.Avalonia/FishBowl.Avalonia.csproj",
+      "projectSha256": "9ed7e5bf58778538ad653f3cf9ca74985393e32b478b2155e58d040bf5f5a3f1",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [
+        "Avalonia.Angle.Windows.Natives/2.1.25547.20250602",
+        "Avalonia.BuildServices/11.3.2",
+        "Avalonia.Desktop/11.3.22",
+        "Avalonia.Fonts.Inter/11.3.22",
+        "Avalonia.FreeDesktop/11.3.22",
+        "Avalonia.Native/11.3.22",
+        "Avalonia.Remote.Protocol/11.3.22",
+        "Avalonia.Skia/11.3.22",
+        "Avalonia.Themes.Fluent/11.3.22",
+        "Avalonia.Win32/11.3.22",
+        "Avalonia.X11/11.3.22",
+        "Avalonia/11.3.22",
+        "HarfBuzzSharp.NativeAssets.Linux/8.3.1.1",
+        "HarfBuzzSharp.NativeAssets.macOS/8.3.1.1",
+        "HarfBuzzSharp.NativeAssets.WebAssembly/8.3.1.1",
+        "HarfBuzzSharp.NativeAssets.Win32/8.3.1.1",
+        "HarfBuzzSharp/8.3.1.1",
+        "MicroCom.Runtime/0.11.0",
+        "SkiaSharp.NativeAssets.Linux/2.88.9",
+        "SkiaSharp.NativeAssets.macOS/2.88.9",
+        "SkiaSharp.NativeAssets.WebAssembly/2.88.9",
+        "SkiaSharp.NativeAssets.Win32/2.88.9",
+        "SkiaSharp/2.88.9",
+        "Tmds.DBus.Protocol/0.21.3"
+      ],
+      "assetsSha256": "e1c7bd3cb6dacf1161940f0eafb74f4ff60244d86607eb91313d4c26ccde3302",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    },
+    {
+      "application": "FishBowl",
+      "project": "tests/FishBowl.SchemaTests/FishBowl.SchemaTests.csproj",
+      "projectSha256": "87066a4e7a925e762cffb5e33def241cdcfb2d33ea7d06c449441aeb7daa1ebc",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "2ab0653cc4d6eef093d7e6c61129e21acaa8ec3534cb139bfbc6ad83ea24a3b2",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    },
+    {
+      "application": "FishBowl",
+      "project": "tests/FishBowl.Tests/FishBowl.Tests.csproj",
+      "projectSha256": "ea7fe3bccbdff020d7440af2f1681425b8fd6e6b5e3d5cb08fcaeac549b944b8",
+      "status": "local-restore-snapshot-not-a-fresh-source-or-advisory-audit",
+      "resolvedPackages": [],
+      "assetsSha256": "fc8a67dda8331cadd0152bf4ad41bc346a9a3f33b6ae2947d1ac1107f9dbf723",
+      "targetFrameworks": [
+        "net10.0"
+      ]
+    }
+  ],
+  "packages": [
+    {
+      "package": "Aquarium.Core",
+      "version": "0.2.0",
+      "restoreContentHash": "+NX0i/0lEzjZ9kacaj4il37c6IWLsEd0/yHNnRSsmhCVyn5MKmvKZ3s+CMEKZ0Mt8Z1AP6dRwRctq4t/kQBAGQ==",
+      "licenseMetadataType": "license-element-not-declared",
+      "licenseMetadata": null,
+      "licenseUrl": null,
+      "licenseFileSha256": null,
+      "projects": [
+        "FishNet/src/FishNet/FishNet.csproj",
+        "FishNet/tests/FishNet.ConversionTests/FishNet.ConversionTests.csproj",
+        "FishNet/tests/FishNet.MediaTests/FishNet.MediaTests.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Angle.Windows.Natives",
+      "version": "2.1.25547.20250602",
+      "restoreContentHash": "ZL0VLc4s9rvNNFt19Pxm5UNAkmKNylugAwJPX9ulXZ6JWs/l6XZihPWWTyezaoNOVyEPU8YbURtW7XMAtqXH5A==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "LICENSE",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "54aff7276217df9f6b5181613999d208c9e40d2b1d51bf55217837e6871a4a63",
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.BuildServices",
+      "version": "11.3.2",
+      "restoreContentHash": "qHDToxto1e3hci5YqbG9n0Ty8mlp3zBUN5wT66wKqaDVzXyQ0do3EnRILd4Ke9jpvsktaPpgE0YjEk7hornryQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Desktop",
+      "version": "11.3.22",
+      "restoreContentHash": "TXdIJ5WA473KqFd/b3EqnXUIgFDhPuOx2OkzG7Fm8EkCPF5JKkCwg+i7yq8IRsYKcQ4I8X/4HkUyCb8DcfgfYg==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Fonts.Inter",
+      "version": "11.3.22",
+      "restoreContentHash": "oGIn2U71EWTcTQ+zQU0CuJ5b+QsXIvmN7kvn5VSszgU6baZ0/1hDsR3wwXsU7hDFnJD1G541wtPqaGlZtKnPhA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.FreeDesktop",
+      "version": "11.3.22",
+      "restoreContentHash": "heXRjopzKbNVGnLI+YPM6VBcf+cKGKKNdyXBYAlAlbcPfkExOTrGBSPDSSSHaT9uEByqZ4xo/9T0IqDtGm2PAQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Native",
+      "version": "11.3.22",
+      "restoreContentHash": "sU/KJQKqrRkstS1EWIhRvD/ADIkItoOSss3sL/wtPFFFJINPOrge5qMnwNi0RbDzNKb4TrZwEv6eeD27Ip+ACQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Remote.Protocol",
+      "version": "11.3.22",
+      "restoreContentHash": "Ll5YswLkNW0WZm7RkvGS+8B9vH4/x77IsnCqlBvmXOgiQd0J5bpJQFYo1NDVyRLadp4e8Yqg1WP2xEc6IK94HQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Skia",
+      "version": "11.3.22",
+      "restoreContentHash": "ZbnfFCr2f1l3RD1E/Tn5tJDRFIDm9ICY/PzG4lhuShd6mDg+0y5wRCytCYOSM79KhlboU/f0O7J1Mw7s83Sy3A==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Themes.Fluent",
+      "version": "11.3.22",
+      "restoreContentHash": "tCui436MQuxeIXj/eA/Mq9neAgNTud0Jk22HDWSo05KT+vaH5oJa53xI8PxEi3uRSsWK2l9yoQciLKrzzIrqCw==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.Win32",
+      "version": "11.3.22",
+      "restoreContentHash": "9kP1kWFJtbW2fFmGY2fs1kn0Rx1ARpf3Mz+QrLhagYUp6RaMN5Imus5YiOQWCTe8ZkQqktt8PsKUDWyvj8SiYQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia.X11",
+      "version": "11.3.22",
+      "restoreContentHash": "w4OZxdAPAjGDKpBrU5kbiXzbbQT/ZcdGTMareDODdyIPFvd4AX+5iPAv08Ih87evHOXAf04dpvJyAEPgw1kMFg==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Avalonia",
+      "version": "11.3.22",
+      "restoreContentHash": "61kKbPq/2W/S8PkjRYnDCSvH2fAvhC3eTrYFtwMUZVShP5M2xXII76kIQo8bcezxwFkHc/yoRP3xzae2tFZRsQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "HarfBuzzSharp.NativeAssets.Linux",
+      "version": "8.3.1.1",
+      "restoreContentHash": "3EZ1mpIiKWRLL5hUYA82ZHteeDIVaEA/Z0rA/wU6tjx6crcAkJnBPwDXZugBSfo8+J3EznvRJf49uMsqYfKrHg==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "HarfBuzzSharp.NativeAssets.macOS",
+      "version": "8.3.1.1",
+      "restoreContentHash": "jbtCsgftcaFLCA13tVKo5iWdElJScrulLTKJre36O4YQTIlwDtPPqhRZNk+Y0vv4D1gxbscasGRucUDfS44ofQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "HarfBuzzSharp.NativeAssets.WebAssembly",
+      "version": "8.3.1.1",
+      "restoreContentHash": "loJweK2u/mH/3C2zBa0ggJlITIszOkK64HLAZB7FUT670dTg965whLFYHDQo69NmC4+d9UN0icLC9VHidXaVCA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "HarfBuzzSharp.NativeAssets.Win32",
+      "version": "8.3.1.1",
+      "restoreContentHash": "UsJtQsfAJoFDZrXc4hCUfRPMqccfKZ0iumJ/upcUjz/cmsTgVFGNEL5yaJWmkqsuFYdMWbj/En5/kS4PFl9hBA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "HarfBuzzSharp",
+      "version": "8.3.1.1",
+      "restoreContentHash": "tLZN66oe/uiRPTZfrCU4i8ScVGwqHNh5MHrXj0yVf4l7Mz0FhTGnQ71RGySROTmdognAs0JtluHkL41pIabWuQ==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "MicroCom.Runtime",
+      "version": "0.11.0",
+      "restoreContentHash": "MEnrZ3UIiH40hjzMDsxrTyi8dtqB5ziv3iBeeU4bXsL/7NLSal9F1lZKpK+tfBRnUoDSdtcW3KufE4yhATOMCA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.NETFramework.ReferenceAssemblies.net48",
+      "version": "1.0.3",
+      "restoreContentHash": "zMk4D+9zyiEWByyQ7oPImPN/Jhpj166Ky0Nlla4eXlNL8hI/BtSJsgR8Inldd4NNpIAH3oh8yym0W2DrhXdSLQ==",
+      "licenseMetadataType": "license-element-not-declared",
+      "licenseMetadata": null,
+      "licenseUrl": "https://github.com/Microsoft/dotnet/blob/master/LICENSE",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishTank/desktop/FishTank.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.NETFramework.ReferenceAssemblies",
+      "version": "1.0.3",
+      "restoreContentHash": "vUc9Npcs14QsyOD01tnv/m8sQUnGTGOw1BCmKcv77LBJY7OxhJ+zJF7UD/sCL3lYNFuqmQEVlkfS4Quif6FyYg==",
+      "licenseMetadataType": "license-element-not-declared",
+      "licenseMetadata": null,
+      "licenseUrl": "https://github.com/Microsoft/dotnet/blob/master/LICENSE",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishTank/desktop/FishTank.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.Web.WebView2",
+      "version": "1.0.3179.45",
+      "restoreContentHash": "3pokSH5CnN0G6rGhGFo1y87inxYhNxBQ2Vdf0wlvBj99KHxQJormjDACmqRnFeUsmuNFIhWwfAL1ztq7wD5qRA==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "LICENSE.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "0af8f1b807512aae39c2ac1aa4d0cae65cabecb6fd554b8439a5162a0d6eca55",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.Windows.SDK.BuildTools.MSIX",
+      "version": "1.7.20250829.1",
+      "restoreContentHash": "IMdvRmCIZnBS5GkYnv0po1bcx6U1OF39pqA4TphQ9evDzpCRoSE19/PkDvlUNNrBavTsLIEJgd/TAIFner75ow==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "sdk_license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "a7a5c7e7ff998558983d6aca2702117c328aeb0c6404d298cb275f5623c6fd13",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.Windows.SDK.BuildTools",
+      "version": "10.0.26100.4654",
+      "restoreContentHash": "2mgcOlj/t2RfSyyw+pVESfO+Tk1RkfQzto9Vrq42M1lUQIfQEwbi8QLha9GXWIOj+TFzeHIEJckIoF25mgiM8A==",
+      "licenseMetadataType": "license-element-not-declared",
+      "licenseMetadata": null,
+      "licenseUrl": "https://aka.ms/WinSDKLicenseURL",
+      "licenseFileSha256": null,
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.AI",
+      "version": "1.8.79",
+      "restoreContentHash": "28lVLUoYd51EFddxC1REA0NmbrUDYaDgWVV/jQ4Dohz2qArRhXpyYCuggfvQW0D29vWzWFdMjQgNI0qP9CwYyw==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.Base",
+      "version": "1.8.251216001",
+      "restoreContentHash": "PS1wriuFknz3W2F2P/e6RvOTM35w89Lsj/f0QmUEPrJjKnc+jM0JLX1vfdytI14y1gNRUTm9uclwP0aH/SVU5w==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.DWrite",
+      "version": "1.8.25122902",
+      "restoreContentHash": "zFNn07i7Cyz62Y8FnPQAyzeZK7ww3m9t42i9pzy4C04pNbyUDQ4fG7pB6VSh6n4EyFuYtuFQuDzt4mKmXFrkrg==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "f9ed00147604bdc48c7e62d127d73245781ce53903cef9c3863f8a7ef8120cc2",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.Foundation",
+      "version": "1.8.260803002",
+      "restoreContentHash": "V2Mhddgyljl6jULPGbJ/J/kn6Y4D98Nckpr3Y27uK/CfbSnjcGTC6M+3aMJkyjNwoekyGAwEIRdBEYJBUCRRfA==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.InteractiveExperiences",
+      "version": "1.8.260708001",
+      "restoreContentHash": "lKvL9ArPGRhzbQwXUg7Spc8dgB7N2NnMoC6BKD9sn0Mzx9FxcJC55rohV9x52eBCfviHzrn5ZtujwORZthsqbA==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.ML",
+      "version": "1.8.2223",
+      "restoreContentHash": "enVopOqNAmV4U/6zXja3I+FeJBEzLw6L19UhFDNYEPgoPMWqNdc9evGfJQ5qYKXdjTSG6woFye65KVp26dLAmg==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "656aab74c15aa9f9964bcdcc993eb2755cbdb4822d5e0e3bc61d2e281897f758",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.Runtime",
+      "version": "1.8.260921001",
+      "restoreContentHash": "UX0e2skKg08iM/rUqg9ax23cc0YqBT7OACm6POSqL0NCT6Y+wO43X3BHUdmJ/iEef/hTdJ/8YRizOX9IB+GREQ==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.Widgets",
+      "version": "1.8.251231004",
+      "restoreContentHash": "bIWqQYR8DCoB1SoPOMil5AtgtkTn438wJTdpsHgyO/6o7Eh7PMP5BzrR0KbDsFqy+4LhPWQ4vtwko5k93fECcA==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "f9ed00147604bdc48c7e62d127d73245781ce53903cef9c3863f8a7ef8120cc2",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK.WinUI",
+      "version": "1.8.260803003",
+      "restoreContentHash": "yQFFlQ6IQj4dpDqGvMghRUQMAYlnu+hhf1unvkf4ymtdWDww+UotPi+MPTJyDc7x+xEyBXfXnlXZVk0NG0eMrA==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "Microsoft.WindowsAppSDK",
+      "version": "1.8.260921001",
+      "restoreContentHash": "uoES0zOM4rNsy5FMWjzGg4uDUakodMkSQbhpT59Gb4J8ONf2L1XEwcyvZC6Li9Sm8fmCUkPK/mkfYdRUpnlJqQ==",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl",
+      "licenseFileSha256": "5b11e6347756e40fe0274bc08c97f89201b94f0d50181a09a00f1f4740840501",
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "SkiaSharp.NativeAssets.Linux",
+      "version": "2.88.9",
+      "restoreContentHash": "cWSaJKVPWAaT/WIn9c8T5uT/l4ETwHxNJTkEOtNKjphNo8AW6TF9O32aRkxqw3l8GUdUo66Bu7EiqtFh/XG0Zg==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "SkiaSharp.NativeAssets.macOS",
+      "version": "2.88.9",
+      "restoreContentHash": "Nv5spmKc4505Ep7oUoJ5vp3KweFpeNqxpyGDWyeEPTX2uR6S6syXIm3gj75dM0YJz7NPvcix48mR5laqs8dPuA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "SkiaSharp.NativeAssets.WebAssembly",
+      "version": "2.88.9",
+      "restoreContentHash": "kt06RccBHSnAs2wDYdBSfsjIDbY3EpsOVqnlDgKdgvyuRA8ZFDaHRdWNx1VHjGgYzmnFCGiTJBnXFl5BqGwGnA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "SkiaSharp.NativeAssets.Win32",
+      "version": "2.88.9",
+      "restoreContentHash": "wb2kYgU7iy84nQLYZwMeJXixvK++GoIuECjU4ECaUKNuflyRlJKyiRhN1MAHswvlvzuvkrjRWlK0Za6+kYQK7w==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "SkiaSharp",
+      "version": "2.88.9",
+      "restoreContentHash": "3MD5VHjXXieSHCleRLuaTXmL2pD0mB7CcOB1x2kA1I4bhptf4e3R27iM93264ZYuAq6mkUyX5XbcxnZvMJYc1Q==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    },
+    {
+      "package": "System.Numerics.Tensors",
+      "version": "9.0.0",
+      "restoreContentHash": "hyJB4UlpAi19Xr9AXzu2NuagKC4lPfHObNMEAA0HmqFz2rX7wKgzeYzO/jM/eBHDhnUGFFEjk5cOoJaxqg5J4A==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "Aquarium/src/Aquarium/Aquarium.csproj",
+        "FishNet/src/FishNet/FishNet.csproj"
+      ]
+    },
+    {
+      "package": "TagLibSharp",
+      "version": "2.3.0",
+      "restoreContentHash": "Qo4z6ZjnIfbR3Us1Za5M2vQ97OWZPmODvVmepxZ8XW0UIVLGdO2T63/N3b23kCcyiwuIe0TQvMEQG8wUCCD1mA==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "LGPL-2.1-only",
+      "licenseUrl": "https://licenses.nuget.org/LGPL-2.1-only",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishNet/src/FishNet/FishNet.csproj",
+        "FishNet/tests/FishNet.ConversionTests/FishNet.ConversionTests.csproj"
+      ]
+    },
+    {
+      "package": "Tmds.DBus.Protocol",
+      "version": "0.21.3",
+      "restoreContentHash": "hDwB8WsQoyALQKqIbwzS68UKdlnafDm4T/DkO/JrA/YIneP/rKv96SxYPVXeh3FP4i/SXfShrYftKLtciJAIlw==",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT",
+      "licenseFileSha256": null,
+      "projects": [
+        "FishBowl/FishBowl.Avalonia/FishBowl.Avalonia.csproj"
+      ]
+    }
+  ]
+}
