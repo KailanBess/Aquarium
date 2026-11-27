@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-11-26",
+  "scope": "Tracked .NET project/props/package declarations, including tests and build tools; license metadata from the existing local NuGet cache only.",
+  "limitations": [
+    "This is a declaration inventory, not a complete resolved or binary SBOM.",
+    "Transitive packages, bundled runtimes, native libraries, browser components, scripts, operating-system packages and external downloads require separate review.",
+    "Missing license metadata remains unknown. Metadata is not a license compliance decision.",
+    "Floating/property-based versions require evaluation of their build properties.",
+    "Versions and advisories were not updated or assessed by this inventory."
+  ],
+  "sources": [
+    {
+      "application": "Aquarium",
+      "localCommit": "a45e644c85ae49b6d12b6962af2648a6091cd9fb",
+      "localTree": "ce47ebf165eb32a12f8a70169c844ca4ff5d758f",
+      "dirty": false
+    },
+    {
+      "application": "FishNet",
+      "localCommit": "9897820c4adc3e434c556158a8b5c37e8b3e58c1",
+      "localTree": "e550be845ad021e404e597632d30bac43c3d4524",
+      "dirty": false
+    },
+    {
+      "application": "FishTank",
+      "localCommit": "a284ccdcc4213a67df66b4e5e3fe5d74ce323276",
+      "localTree": "c8d28a02ff2ad2edfab7c8bca6ec74142e20e402",
+      "dirty": false
+    },
+    {
+      "application": "FishBowl",
+      "localCommit": "036a1157a30e5bf419384e219f77b0785dbb30d0",
+      "localTree": "fa4c1071a9b5647c3427145b6e24b10faaa07ecc",
+      "dirty": false
+    },
+    {
+      "application": "Shoal",
+      "localCommit": "0feea8f8fc320cf3ab6a5c3827481a7502725107",
+      "localTree": "c02de99ff3ffd02166064fc6cef1cf4cc49c2aa2",
+      "dirty": false
+    }
+  ],
+  "declarations": [
+    {
+      "application": "Aquarium",
+      "project": "src/Aquarium/Aquarium.csproj",
+      "package": "Microsoft.WindowsAppSDK",
+      "declaredVersion": "1.8.260921001",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl"
+    },
+    {
+      "application": "Aquarium",
+      "project": "src/Aquarium/Aquarium.csproj",
+      "package": "Microsoft.Windows.SDK.BuildTools",
+      "declaredVersion": "10.0.26100.4654",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": null
+    },
+    {
+      "application": "FishNet",
+      "project": "src/FishNet/FishNet.csproj",
+      "package": "Aquarium.Core",
+      "declaredVersion": "0.2.0",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": null
+    },
+    {
+      "application": "FishNet",
+      "project": "src/FishNet/FishNet.csproj",
+      "package": "TagLibSharp",
+      "declaredVersion": "2.3.0",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "LGPL-2.1-only",
+      "licenseUrl": "https://licenses.nuget.org/LGPL-2.1-only"
+    },
+    {
+      "application": "FishNet",
+      "project": "src/FishNet/FishNet.csproj",
+      "package": "Microsoft.WindowsAppSDK",
+      "declaredVersion": "1.8.260921001",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "file",
+      "licenseMetadata": "license.txt",
+      "licenseUrl": "https://aka.ms/deprecateLicenseUrl"
+    },
+    {
+      "application": "FishNet",
+      "project": "src/FishNet/FishNet.csproj",
+      "package": "Microsoft.Windows.SDK.BuildTools",
+      "declaredVersion": "10.0.26100.4654",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": null
+    },
+    {
+      "application": "FishNet",
+      "project": "tests/FishNet.ConversionTests/FishNet.ConversionTests.csproj",
+      "package": "TagLibSharp",
+      "declaredVersion": "2.3.0",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "LGPL-2.1-only",
+      "licenseUrl": "https://licenses.nuget.org/LGPL-2.1-only"
+    },
+    {
+      "application": "FishNet",
+      "project": "tests/FishNet.ConversionTests/FishNet.ConversionTests.csproj",
+      "package": "Aquarium.Core",
+      "declaredVersion": "0.2.0",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": null
+    },
+    {
+      "application": "FishNet",
+      "project": "tests/FishNet.MediaTests/FishNet.MediaTests.csproj",
+      "package": "Aquarium.Core",
+      "declaredVersion": "0.2.0",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": null
+    },
+    {
+      "application": "FishTank",
+      "project": "desktop/FishTank.csproj",
+      "package": "Microsoft.NETFramework.ReferenceAssemblies.net48",
+      "declaredVersion": "1.0.3",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": "https://github.com/Microsoft/dotnet/blob/master/LICENSE"
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/ReferenceLayout/ReferenceLayout.csproj",
+      "package": "Microsoft.NETFramework.ReferenceAssemblies.net48",
+      "declaredVersion": "1.0.3",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": "https://github.com/Microsoft/dotnet/blob/master/LICENSE"
+    },
+    {
+      "application": "FishTank",
+      "project": "tests/WindowsSecurity/WindowsSecurity.csproj",
+      "package": "Microsoft.NETFramework.ReferenceAssemblies.net48",
+      "declaredVersion": "1.0.3",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "not-found-in-local-cache",
+      "licenseMetadata": null,
+      "licenseUrl": "https://github.com/Microsoft/dotnet/blob/master/LICENSE"
+    },
+    {
+      "application": "FishBowl",
+      "project": "FishBowl.Avalonia/FishBowl.Avalonia.csproj",
+      "package": "Avalonia",
+      "declaredVersion": "11.3.22",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT"
+    },
+    {
+      "application": "FishBowl",
+      "project": "FishBowl.Avalonia/FishBowl.Avalonia.csproj",
+      "package": "Avalonia.Desktop",
+      "declaredVersion": "11.3.22",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT"
+    },
+    {
+      "application": "FishBowl",
+      "project": "FishBowl.Avalonia/FishBowl.Avalonia.csproj",
+      "package": "Avalonia.Themes.Fluent",
+      "declaredVersion": "11.3.22",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT"
+    },
+    {
+      "application": "FishBowl",
+      "project": "FishBowl.Avalonia/FishBowl.Avalonia.csproj",
+      "package": "Avalonia.Fonts.Inter",
+      "declaredVersion": "11.3.22",
+      "declaration": "PackageReference",
+      "licenseMetadataType": "expression",
+      "licenseMetadata": "MIT",
+      "licenseUrl": "https://licenses.nuget.org/MIT"
+    }
+  ]
+}
