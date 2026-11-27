@@ -338,11 +338,14 @@ public sealed class Appearance
                 var theme = ReadControls();
                 if (!string.IsNullOrWhiteSpace(theme.AccentHex) && ParseColor(theme.AccentHex) is null)
                     throw new InvalidDataException("Enter a valid custom accent before exporting.");
-                var picker = new Windows.Storage.Pickers.FileSavePicker { SuggestedFileName = "Aquarium-theme" };
+                var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(Win32Interop.GetWindowIdFromWindow(owner)) { SuggestedFileName = "Aquarium-theme", DefaultFileExtension = ".json" };
                 picker.FileTypeChoices.Add("Aquarium theme", new List<string> { ".json" });
-                WinRT.Interop.InitializeWithWindow.Initialize(picker, owner);
                 var file = await picker.PickSaveFileAsync();
-                if (file is not null) await File.WriteAllTextAsync(file.Path, JsonSerializer.Serialize(theme, new JsonSerializerOptions { WriteIndented = true }));
+                if (file is not null)
+                {
+                    var data = JsonSerializer.SerializeToUtf8Bytes(theme, new JsonSerializerOptions { WriteIndented = true });
+                    await Aquarium.Core.AtomicFile.WriteAsync(file.Path, (output, token) => output.WriteAsync(data, token).AsTask());
+                }
             }
             catch (Exception ex) { error("Could not export the theme. " + ex.Message); }
             finally { export.IsEnabled = true; }

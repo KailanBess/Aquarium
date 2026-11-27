@@ -118,9 +118,8 @@ public sealed partial class MainWindow
                 }
                 else
                 {
-                    var picker = new FileSavePicker { SuggestedFileName = "Aquarium-records-" + DateTime.Now.ToString("yyyy-MM-dd") };
+                    var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = "Aquarium-records-" + DateTime.Now.ToString("yyyy-MM-dd"), DefaultFileExtension = ".aqbackup" };
                     picker.FileTypeChoices.Add("Encrypted Aquarium app records", new List<string> { ".aqbackup" });
-                    WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
                     var file = await picker.PickSaveFileAsync(); if (file is null || isClosed) return;
                     using var profileLeases = new CompanionLeases(ProfileRoot, selected);
                     RequireCompanionsClosed(selected);
@@ -170,10 +169,14 @@ public sealed partial class MainWindow
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
         try
         {
-            var picker = new FileSavePicker { SuggestedFileName = "Aquarium-support" };
+            var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = "Aquarium-support", DefaultFileExtension = ".json" };
             picker.FileTypeChoices.Add("Support report", new List<string> { ".json" });
-            WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
-            var file = await picker.PickSaveFileAsync(); if (file is not null) await File.WriteAllTextAsync(file.Path, report);
+            var file = await picker.PickSaveFileAsync();
+            if (file is not null)
+            {
+                var data = System.Text.Encoding.UTF8.GetBytes(report);
+                await Aquarium.Core.AtomicFile.WriteAsync(file.Path, (output, token) => output.WriteAsync(data, token).AsTask());
+            }
         }
         catch (Exception ex) { ShowNotice("Could not save report. " + ex.Message, InfoBarSeverity.Error); }
         }

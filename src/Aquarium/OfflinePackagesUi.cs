@@ -22,9 +22,8 @@ public sealed partial class MainWindow
             installCancellation = cancellation;
             try
             {
-                var picker = new FileSavePicker { SuggestedFileName = Path.GetFileNameWithoutExtension(package.AssetName) };
+                var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = Path.GetFileNameWithoutExtension(package.AssetName), DefaultFileExtension = ".aqpkg" };
                 picker.FileTypeChoices.Add("Aquarium offline package", new List<string> { ".aqpkg" });
-                WinRT.Interop.InitializeWithWindow.Initialize(picker, WinRT.Interop.WindowNative.GetWindowHandle(this));
                 var file = await picker.PickSaveFileAsync();
                 if (file is null || isClosed) return;
                 ReportInstall("Saving offline package for " + app.Name + "…"); Render();

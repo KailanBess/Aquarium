@@ -17,3 +17,5 @@ jobs:
         with:
           dotnet-version: 10.0.x
       - run: dotnet run --project tests/Aquarium.CoreTests -c Release
+
+      - run: dotnet run --project tests/Aquarium.MonitorTests -c Release
