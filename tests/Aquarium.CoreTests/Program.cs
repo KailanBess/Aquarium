@@ -15,6 +15,7 @@ try
 {
     await SettingsChecks.Run(root);
     await DiagnosticChecks.Run();
+    await ActivityChecks.Run(root);
     var target = Path.Combine(root, "settings.json");
     await AtomicFile.WriteJsonAsync(target, new { Version = 1 });
     Check(JsonDocument.Parse(File.ReadAllText(target)).RootElement.GetProperty("Version").GetInt32() == 1, "Initial write");
@@ -64,4 +65,9 @@ try
     }
     Console.WriteLine($"Aquarium Core: {checks} checks passed.");
 }
-finally { Directory.Delete(root, recursive: true); }
+finally
+{
+    var full = Path.GetFullPath(root); var parent = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.GetTempPath())) + Path.DirectorySeparatorChar;
+    if (!full.StartsWith(parent, StringComparison.OrdinalIgnoreCase) || !System.Text.RegularExpressions.Regex.IsMatch(Path.GetFileName(full), "\\Aaquarium-core-[a-f0-9]{32}\\z")) throw new IOException("Unsafe fixture cleanup path.");
+    Directory.Delete(full, recursive: true);
+}
