@@ -224,6 +224,8 @@ public sealed partial class PackageInstaller(LocalStore store, string? appRoot =
                 var attributes = File.GetAttributes(entry);
                 if ((attributes & FileAttributes.ReparsePoint) != 0)
                     throw new InvalidDataException("The installation contains a linked path. Move it out before uninstalling.");
+                if (source.AppId == "aquarium.media" && Path.GetFileName(entry).Equals("FishNet.profile.json", StringComparison.OrdinalIgnoreCase))
+                    throw new InvalidOperationException("Move the FishNet custom-profile selector and preserve its data before uninstalling.");
                 if (source.AppId == "aquarium.emulation" &&
                     (Path.GetFileName(entry).Equals("FishBowlData", StringComparison.OrdinalIgnoreCase) ||
                      Path.GetFileName(entry).Equals("portable.flag", StringComparison.OrdinalIgnoreCase)))

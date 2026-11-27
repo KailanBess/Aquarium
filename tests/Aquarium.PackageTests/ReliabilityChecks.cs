@@ -33,6 +33,15 @@ internal static class ReliabilityChecks
         SuiteBackup.Restore(profiles, radioRecords);
         Check(File.ReadAllText(radioPath) == "[]", "Saved radio stations were not restored.");
         File.Delete(radioPath);
+        var visualPath = Path.Combine(profiles, "FishNet", "visual-library.json");
+        const string visualRecord = "{\"_schemaVersion\":1,\"Items\":[],\"Albums\":[\"Fixture album\"],\"FutureField\":42}";
+        File.WriteAllText(visualPath, visualRecord);
+        var visualRecords = SuiteBackup.Capture(profiles, ["FishNet"]);
+        Check(visualRecords.Any(record => record.File == "visual-library.json"), "Photo/PDF records were omitted from backup.");
+        File.WriteAllText(visualPath, "{}");
+        SuiteBackup.Restore(profiles, visualRecords);
+        Check(File.ReadAllText(visualPath) == visualRecord, "Photo/PDF backup discarded fields or albums.");
+        File.Delete(visualPath);
         const string password = "fixture passphrase used only in generated tests";
         var encrypted = SuiteBackup.Encrypt(records, password);
         var decoded = SuiteBackup.Decrypt(encrypted, password);
@@ -88,6 +97,20 @@ internal static class ReliabilityChecks
         try { installer.FindUnusedInstallations(); throw new Exception("Cleanup offered portable data."); }
         catch (InvalidOperationException) { }
         File.Delete(Path.Combine(unused, "portable.flag"));
+        File.WriteAllText(Path.Combine(unused, "FishNet.profile.json"), "{\"DataDirectory\":\"fixture\"}");
+        try { installer.FindUnusedInstallations(); throw new Exception("Cleanup offered a custom media profile."); }
+        catch (InvalidOperationException) { }
+        File.Delete(Path.Combine(unused, "FishNet.profile.json"));
+        var media = GitHubPackages.Sources.Single(s => s.AppId == "aquarium.media");
+        var mediaDirectory = Path.Combine(appRoot, media.AppId, Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(mediaDirectory);
+        var selector = Path.Combine(mediaDirectory, "FishNet.profile.json");
+        File.WriteAllText(selector, "{\"DataDirectory\":\"fixture\"}");
+        var mediaInstallation = new InstalledApp(media.AppId, "fixture", mediaDirectory, DateTimeOffset.Now, media.Executable);
+        await store.RecordInstallationAsync(mediaInstallation);
+        try { await installer.UninstallAsync(mediaInstallation); throw new Exception("Uninstall accepted a custom media profile."); }
+        catch (InvalidOperationException) { }
+        Check(File.Exists(selector) && store.Registry.Installations.Contains(mediaInstallation), "Rejected uninstall changed the custom profile or registry.");
         foreach (var tool in GitHubPackages.Sources.Where(s => s.AssetName.Length > 0))
         {
             Check(store.Catalog.Any(a => a.Id == tool.AppId) && tool.Repository == "KailanBess/Aquarium" && tool.ChecksumName == "SHA256SUMS-tools.txt", "Optional tool is outside its approved catalog/checksum source.");

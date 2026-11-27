@@ -102,6 +102,7 @@ public sealed partial class PackageInstaller
             {
                 RefuseLinks(entry);
                 if (Path.GetFileName(entry).Equals("FishBowlData", StringComparison.OrdinalIgnoreCase) ||
+                    Path.GetFileName(entry).Equals("FishNet.profile.json", StringComparison.OrdinalIgnoreCase) ||
                     Path.GetFileName(entry).Equals("portable.flag", StringComparison.OrdinalIgnoreCase))
                     throw new InvalidOperationException("An unused installation contains portable data. Move that profile before cleanup.");
                 if (Directory.Exists(entry)) folders.Push(entry);

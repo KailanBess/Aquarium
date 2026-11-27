@@ -1,6 +1,6 @@
 # Aquarium
 
-Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.6.0** adds offline companion packages, a reusable Core/Settings SDK, appearance field preservation and validated undo, and backup coverage for FishNet radio stations. The complete bundle includes FishNet 0.5.0 with Internet radio and FishTank 0.17.0.
+Aquarium is a native .NET 10 LTS / WinUI 3 Windows hub for FishTank (security), FishBowl (emulation) and FishNet (media). Version **0.7.0** adds the portable Core diagnostics API, local support observations with explicit unknown/unsupported states, and photo/PDF record backup. The complete bundle includes FishNet 0.6.0 photo/PDF tools and FishTank 0.18.0 recorded camera/microphone history. Managed cleanup/uninstall refuses a custom FishNet profile selector so its data can be preserved first.
 
 The broader roadmap comes from the [shared ecosystem specification](https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e) and its supplied full text. The versioned requirements tracker records implemented work separately from the remaining overhaul. Tailscale and private networking are excluded.
 
@@ -57,6 +57,10 @@ The first shared infrastructure lives in `src/Aquarium.Core`. This portable .NET
 The broader work is tracked in `docs/overhaul-requirements.json`. A `needs-audit` status does not mean the capability is absent. Tailscale and private networking are excluded. This branch implements the initial Core infrastructure and offline packages; it does not complete the entire ecosystem overhaul.
 
 Core also provides `JsonSettingsStore<T>` for bounded, versioned JSON settings. Explicit migrations run in memory; only a requested save publishes them. Unknown object properties survive ordinary saves. Unsupported newer schemas, duplicate JSON keys and invalid settings are preserved and refused. Revision checks and an exclusive record-writer lock reject stale or conflicting saves. Optional `.previous` records support validated restoration. Aquarium appearance uses this SDK for Apply and Undo, retaining existing flat JSON settings and custom colors. A failed or canceled write retains the active record. Other settings files have not all migrated to this SDK yet; cooperating callers must use its writer protocol, and it is not an OS sandbox.
+
+The next Core diagnostics API uses versioned reports and read-only `IDiagnosticProbe` providers. Reports distinguish Available, Warning, Unavailable, Unsupported and Unknown observations. Probe failures use fixed codes instead of raw exception text. Collection runs off the caller's UI thread, limits the number of probes and bounds each wait; providers must still honor cancellation because timed-out code cannot be forcibly stopped. Identifiers and codes are developer-owned labels and must not contain private values. Completion timestamps do not certify sensor freshness or authenticate providers. Nothing is uploaded automatically.
+
+Aquarium's support-report preview includes these observations for loaded registry state, active package operations and recorded checksum metadata. An empty/unreadable registry gives unknown package coverage. A recorded hash is explicitly not a fresh file verification or publisher-trust finding. Existing top-level support fields remain; unrecognized version text is redacted rather than copied into the export. Logging, operating-system health probes and the complete diagnostics framework remain separate work.
 
 Requires Windows 10 build 19041+ x64 and the .NET 10 LTS SDK. The complete bundle is self-contained; Visual Studio is optional.
 
