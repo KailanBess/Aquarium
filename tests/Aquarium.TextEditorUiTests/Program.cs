@@ -44,6 +44,7 @@ internal static class UiChecks
                 var wrap = Descendants(window).OfType<CheckBox>().Single(c => c.Text == "Word wrap"); wrap.Checked = true;
                 Descendants(window).OfType<Button>().Single(b => b.Text == "New").PerformClick(); Application.DoEvents();
                 Check(tabs.TabCount == 3 && Descendants(tabs.SelectedTab!).OfType<RichTextBox>().Single(c => !c.ReadOnly).WordWrap, "New tabs lost wrap preference");
+                Check(Descendants(tabs.SelectedTab!).OfType<RichTextBox>().All(c => c.ClientSize.Height >= 100), "A new tab lost usable editing/preview height");
                 Check(Descendants(window).OfType<FlowLayoutPanel>().First().Height < window.ClientSize.Height / 2, "Toolbar obscured the editor at enlarged fonts");
                 var status = Descendants(window).OfType<TextBox>().Single(c => c.ReadOnly); Check(status.ClientSize.Height >= status.Font.Height + 8 && status.ScrollBars == ScrollBars.Vertical, "Status explanation became unreadable");
                 if (args.Length == 1)

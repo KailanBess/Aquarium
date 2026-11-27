@@ -33,7 +33,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag }}
-        run: ./scripts/Verify-PublicRelease.ps1 -Tag $env:RELEASE_TAG -OutputDirectory artifacts/public-release-verification
+          VERIFY_EVENT: ${{ github.event_name }}
+          VERIFY_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          $tag = $env:RELEASE_TAG
+          if ($env:VERIFY_EVENT -eq 'pull_request') {
+            if ($env:VERIFY_BASE_SHA -notmatch '^[0-9a-f]{40}$') { throw 'Missing verified PR base identity.' }
+            [xml]$baseProject = git show ($env:VERIFY_BASE_SHA + ':src/Aquarium/Aquarium.csproj')
+            if ($LASTEXITCODE -ne 0) { throw 'Could not read the published base version.' }
+            $tag = 'v' + [string]$baseProject.Project.PropertyGroup.Version
+          }
+          ./scripts/Verify-PublicRelease.ps1 -Tag $tag -OutputDirectory artifacts/public-release-verification
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: public-release-verification

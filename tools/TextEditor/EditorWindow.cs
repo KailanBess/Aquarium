@@ -104,6 +104,7 @@ internal sealed class EditorWindow : Form
             page.Text = document.DisplayName + (document.Dirty ? " *" : ""); highlightTimer.Stop(); highlightTimer.Start(); Report();
         };
         tabs.TabPages.Add(page); tabs.SelectedTab = page; page.Text = document.DisplayName + (document.Dirty ? " *" : ""); SelectDocument();
+        BeginInvoke(() => { if (!page.IsDisposed && !page.Split.Panel2Collapsed && page.Split.Height > 120) page.Split.SplitterDistance = page.Split.Height / 2; });
     }
     private void SelectDocument()
     {

@@ -2008,8 +2008,8 @@
       "section": "8. Additional native operating system applications",
       "requirement": "Text Editor — Text and configuration editing — Medium",
       "status": "under-review",
-      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 27 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/text-editor/tools/TextEditor"
+      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 30 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/pull/27"
     },
     {
       "id": "UTILITIES-013",
@@ -5918,8 +5918,8 @@
       "requirement": "Text Editor — Plain text editing, syntax highlighting, tabs and recovery.",
       "status": "under-review",
       "source": "User-supplied detailed specification (2026-11-26)",
-      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 27 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/text-editor/tools/TextEditor"
+      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 30 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/pull/27"
     },
     {
       "id": "UTILITIES-033",

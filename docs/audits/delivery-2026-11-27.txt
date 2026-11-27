@@ -33,9 +33,11 @@ Published:
   measurements are not inferred from those observations.
   https://github.com/KailanBess/FishBowl/releases/tag/v1.33.0
 
-This branch prepares Aquarium 0.12.0 with the published FishTank/FishNet source pins,
-updated bundle identity checks and both companion regression gates. It requires
-full CI and public-release verification before being treated as published.
+Aquarium 0.12.0 is published with current FishTank/FishNet source pins and both
+companion regression gates. Full CI passed; public verification run 45961523473
+verified 11 actual downloads, 7 binary manifest entries and 6 runtime layouts.
+This branch adds Text Editor 1.0.0 for Aquarium 0.13.0 in PR 27; 42 local model and
+30 native UI checks pass. Full remote gates and publication remain pending.
 
 Open work includes the remaining utilities, wider shared-library adoption, crash
 collection, complete hardware/process/storage/network monitoring, deeper media
