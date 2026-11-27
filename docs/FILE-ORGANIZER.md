@@ -18,6 +18,8 @@ Limits are 10,000 input paths, 2 MiB of path text, 4,096 characters per path,
 256 MiB per file and 4 GiB of actual content reads per operation. Duplicated paths
 are not counted as separate matching files. Linked, missing, invalid, inaccessible,
 changed, oversized and budget-skipped files remain unknown in a partial report.
+Case-variant Windows paths are retained as unknown when identity is ambiguous;
+the comparison respects [per-directory case sensitivity](https://learn.microsoft.com/en-us/windows/wsl/case-sensitivity) by refusing to infer identity from case-folded names.
 A no-match observation does not cover skipped files or other folders. Files may
 change after comparison; the report is an observation rather than a deletion plan
 or filesystem lock against non-cooperating writers.

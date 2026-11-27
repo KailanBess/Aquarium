@@ -1943,7 +1943,7 @@
       "section": "8. Additional native operating system applications",
       "requirement": "File Manager — File and storage management — Critical",
       "status": "under-review",
-      "evidence": "File Organizer 1.2 draft replaces its unbounded duplicate scan with selected-path length/SHA-256 comparison, 10,000-path/256-MiB-file/4-GiB-read limits, cancellation, explicit skipped/partial coverage and new-file-only reviewed JSON export. Local native build, 29 model/export/preservation and 24 generated-data native UI checks at 100/150/200% fonts pass. Existing rename/move/undo controls are retained; this is not a complete File Manager. Tabs, file browsing/previews, bookmarks, search, wider network/filesystem management, full remote CI and published download verification remain open.",
+      "evidence": "File Organizer 1.2 draft replaces its unbounded duplicate scan with selected-path length/SHA-256 comparison, 10,000-path/256-MiB-file/4-GiB-read limits, cancellation, explicit skipped/partial coverage and new-file-only reviewed JSON export. Local native build, 31 model/export/preservation and 24 generated-data native UI checks at 100/150/200% fonts pass. Existing rename/move/undo controls are retained; this is not a complete File Manager. Tabs, file browsing/previews, bookmarks, search, wider network/filesystem management, full remote CI and published download verification remain open.",
       "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/bounded-file-comparison/tools/FileOrganizer"
     },
     {
@@ -2009,9 +2009,9 @@
       "area": "utilities",
       "section": "8. Additional native operating system applications",
       "requirement": "Text Editor — Text and configuration editing — Medium",
-      "status": "under-review",
-      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 30 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/pull/27"
+      "status": "partial",
+      "evidence": "Aquarium 0.13.0 publishes independently installable Text Editor 1.0.0: 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newlines, conflict-aware saves, read-only JSON/XML/INI lexical preview and user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. 42 Windows model/recovery checks (32 Linux portable checks), 30 native UI checks and full package CI pass. All 12 public asset downloads and 7 executable/runtime layouts are verified. Physical pickers/displays/screen readers, EFS volumes, power-loss recovery, independent review and a Linux editor UI remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.13.0"
     },
     {
       "id": "UTILITIES-013",
@@ -5846,7 +5846,7 @@
       "requirement": "File Manager — Tabs, file previews, bookmarks, search, network locations and file operations.",
       "status": "under-review",
       "source": "User-supplied detailed specification (2026-11-26)",
-      "evidence": "File Organizer 1.2 draft replaces its unbounded duplicate scan with selected-path length/SHA-256 comparison, 10,000-path/256-MiB-file/4-GiB-read limits, cancellation, explicit skipped/partial coverage and new-file-only reviewed JSON export. Local native build, 29 model/export/preservation and 24 generated-data native UI checks at 100/150/200% fonts pass. Existing rename/move/undo controls are retained; this is not a complete File Manager. Tabs, file browsing/previews, bookmarks, search, wider network/filesystem management, full remote CI and published download verification remain open.",
+      "evidence": "File Organizer 1.2 draft replaces its unbounded duplicate scan with selected-path length/SHA-256 comparison, 10,000-path/256-MiB-file/4-GiB-read limits, cancellation, explicit skipped/partial coverage and new-file-only reviewed JSON export. Local native build, 31 model/export/preservation and 24 generated-data native UI checks at 100/150/200% fonts pass. Existing rename/move/undo controls are retained; this is not a complete File Manager. Tabs, file browsing/previews, bookmarks, search, wider network/filesystem management, full remote CI and published download verification remain open.",
       "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/bounded-file-comparison/tools/FileOrganizer"
     },
     {
@@ -5920,10 +5920,10 @@
       "area": "utilities",
       "section": "9. Future operating system utilities",
       "requirement": "Text Editor — Plain text editing, syntax highlighting, tabs and recovery.",
-      "status": "under-review",
+      "status": "partial",
       "source": "User-supplied detailed specification (2026-11-26)",
-      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 30 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/pull/27"
+      "evidence": "Aquarium 0.13.0 publishes independently installable Text Editor 1.0.0: 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newlines, conflict-aware saves, read-only JSON/XML/INI lexical preview and user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. 42 Windows model/recovery checks (32 Linux portable checks), 30 native UI checks and full package CI pass. All 12 public asset downloads and 7 executable/runtime layouts are verified. Physical pickers/displays/screen readers, EFS volumes, power-loss recovery, independent review and a Linux editor UI remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.13.0"
     },
     {
       "id": "UTILITIES-033",

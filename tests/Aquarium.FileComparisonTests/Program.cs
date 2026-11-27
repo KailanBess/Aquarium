@@ -16,6 +16,14 @@ try
     Check(exact.Groups[0].Bytes == 3 && exact.Groups[0].Sha256.Length == 64 && exact.Files.Single(f => f.Path == unique).Code == "unique-length", "Length/hash attribution incorrect");
     Check(exact.BytesRead == 9 && exact.RecordedAtUtc.Offset == TimeSpan.Zero, "Read accounting or UTC attribution incorrect");
     Check((await File.ReadAllBytesAsync(first)).SequenceEqual(original), "Comparison modified source bytes");
+    var relative = await FileComparison.CompareAsync(["relative-file.bin"]);
+    Check(!relative.Complete && relative.BytesRead == 0, "Relative input accessed an implicit working directory");
+    if (OperatingSystem.IsWindows())
+    {
+        string caseVariant = Path.Combine(root, Path.GetFileName(first).ToUpperInvariant());
+        var caseReport = await FileComparison.CompareAsync([first, caseVariant]);
+        Check(!caseReport.Complete && caseReport.Groups.Length == 0, "Case-variant paths silently inferred file identity/full coverage");
+    }
     bool changedOnce = false;
     var changed = await FileComparison.CompareAsync([first, second], progress: new InlineProgress(p => { if (!changedOnce && p.BytesRead > 0) { changedOnce = true; File.WriteAllBytes(second, [9, 9, 9, 9]); } }));
     Check(!changed.Complete && changed.Files.Single(f => f.Path == second).Code == "source-changed", "A source change between stat/hash was hidden");

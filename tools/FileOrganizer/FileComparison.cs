@@ -18,6 +18,7 @@ internal static class FileComparison
 {
     internal static async Task ExportNewAsync(string path, FileComparisonReport report, IEnumerable<string> protectedRoots, CancellationToken token = default)
     {
+        token.ThrowIfCancellationRequested();
         string full = Path.GetFullPath(path); var comparer = OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
         if (!Path.GetExtension(full).Equals(".json", StringComparison.OrdinalIgnoreCase) || report.Files.Any(f => f.Path.Equals(full, comparer)) ||
             protectedRoots.Any(root => full.Equals(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root)), comparer) || full.StartsWith(Path.TrimEndingDirectorySeparator(Path.GetFullPath(root)) + Path.DirectorySeparatorChar, comparer)))
@@ -47,7 +48,7 @@ internal static class FileComparison
         if (input.Length == 0) throw new ArgumentException("Select files to compare.");
         if (input.Length > limits.MaximumPaths || input.Sum(p => (long)(p?.Length ?? 0)) > 2 * 1024 * 1024)
             throw new InvalidDataException("Choose at most 10,000 paths with up to 2 MiB of path text.");
-        var comparer = OperatingSystem.IsWindows() ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal;
+        var comparer = StringComparer.Ordinal;
         var seen = new HashSet<string>(comparer); var files = new List<ComparedFile>();
         var candidates = new List<(int Index, string Path, long Bytes, DateTime LastWrite)>();
         foreach (var path in input)
@@ -55,20 +56,25 @@ internal static class FileComparison
             token.ThrowIfCancellationRequested(); string full = path ?? "";
             try
             {
-                if (string.IsNullOrWhiteSpace(path) || path.Length > 4096) throw new ArgumentException();
+                if (string.IsNullOrWhiteSpace(path) || path.Length > 4096 || !Path.IsPathFullyQualified(path)) throw new ArgumentException();
                 full = Path.GetFullPath(path); if (!seen.Add(full)) continue;
                 RefuseLinks(full); var info = new FileInfo(full);
                 if (!info.Exists) { files.Add(new(full, null, "missing-or-unavailable", null)); continue; }
                 long length = info.Length; int index = files.Count;
                 if (length > limits.MaximumFileBytes) { files.Add(new(full, length, "file-size-limit", null)); continue; }
-                files.Add(new(full, length, "not-compared", null)); candidates.Add((index, full, length, info.LastWriteTimeUtc));
+                DateTime lastWrite = info.LastWriteTimeUtc;
+                files.Add(new(full, length, "not-compared", null)); candidates.Add((index, full, length, lastWrite));
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or ArgumentException or NotSupportedException)
             { files.Add(new(full, null, "unavailable-invalid-or-linked", null)); }
         }
-        var sharedLengths = candidates.GroupBy(c => c.Bytes).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
-        long bytesRead = 0; int completed = files.Count - candidates.Count;
-        foreach (var candidate in candidates)
+        var ambiguous = OperatingSystem.IsWindows() ? candidates.GroupBy(c => c.Path, StringComparer.OrdinalIgnoreCase).Where(g => g.Count() > 1)
+            .SelectMany(g => g.Select(c => c.Index)).ToHashSet() : [];
+        foreach (int index in ambiguous) files[index] = files[index] with { Code = "case-variant-paths" };
+        var comparable = candidates.Where(c => !ambiguous.Contains(c.Index)).ToArray();
+        var sharedLengths = comparable.GroupBy(c => c.Bytes).Where(g => g.Count() > 1).Select(g => g.Key).ToHashSet();
+        long bytesRead = 0; int completed = files.Count - comparable.Length;
+        foreach (var candidate in comparable)
         {
             token.ThrowIfCancellationRequested(); var entry = files[candidate.Index];
             if (!sharedLengths.Contains(candidate.Bytes)) files[candidate.Index] = entry with { Code = "unique-length" };
