@@ -49,5 +49,11 @@
     "summary": "Read-only CPU, memory and process observations with explicit unknown readings.",
     "description": "Optional standalone Windows utility. Samples while open, supports pause/filter/sort and an explicitly reviewed local snapshot export. It changes no process settings and does not measure GPU, disk/network rates, temperature or power consumption.",
     "moduleId": "monitor", "stage": "Optional"
+  },
+  {
+    "id": "aquarium.system-center", "name": "System Center", "category": "System",
+    "summary": "Local OS, physical-memory and account-visible service observations.",
+    "description": "Optional independent Windows utility. Refreshes read-only observations manually and explicitly exports reviewed JSON. Missing permissions stay unavailable; service states are not health or security verdicts. Drivers, repair and service controls are not provided.",
+    "moduleId": "system-center", "stage": "Optional"
   }
 ]

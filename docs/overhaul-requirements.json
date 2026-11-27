@@ -5820,8 +5820,10 @@
       "area": "utilities",
       "section": "9. Future operating system utilities",
       "requirement": "System Center — Device information, OS information, service status and system health.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "under-review",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "System Center branch implements an independent read-only Windows OS/runtime/architecture/visible-processor/physical-memory view and filterable account-visible user-mode service states, with explicit reviewed atomic JSON export. Native enumeration uses enumeration rights only, a 256 KiB buffer and 2,048-entry limit. Missing rights are unavailable; malformed observations unknown; omitted services and drivers are not claimed covered. 37 Windows model/provider/native-buffer/export checks and 27 native generated-data UI checks at 100/150/200% fonts pass. Full packaging and portable CI remain before publication. Hardware identity/driver diagnostics, storage inventory, repair, service controls and Linux UI remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/system-center"
     },
     {
       "id": "UTILITIES-022",
@@ -7117,12 +7119,12 @@
     }
   ],
   "workInProgress": {
-    "feature": "Remaining ecosystem specification",
-    "status": "unfinished",
+    "feature": "Independent read-only System Center",
+    "status": "tested-locally-under-review",
     "evidence": [
-      "Published deliveries are recorded in published-releases.json.",
-      "Dependency and license review is partial; snapshot freshness, native components and advisories remain open.",
-      "Shared services, expanded security/gaming/media/utility capabilities, Linux ports, Shoal builds and production-quality acceptance remain open."
+      "tools/SystemCenter",
+      "tests/Aquarium.SystemCenterTests",
+      "tests/Aquarium.SystemCenterUiTests"
     ]
   },
   "statusDefinitions": {

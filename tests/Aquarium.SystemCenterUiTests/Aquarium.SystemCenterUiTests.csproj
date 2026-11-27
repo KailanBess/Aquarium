@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><StartupObject>CenterUiChecks</StartupObject><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../tools/SystemCenter/Program.cs" Link="CenterProgram.cs" />
+    <Compile Include="../../tools/SystemCenter/SystemObservation.cs" Link="SystemObservation.cs" />
+    <Compile Include="../../tools/SystemCenter/ReportExport.cs" Link="ReportExport.cs" />
+    <Compile Include="../../tools/Common/FamilyWindow.cs" Link="FamilyWindow.cs" />
+    <ProjectReference Include="../../src/Aquarium.Core/Aquarium.Core.csproj" />
+  </ItemGroup>
+</Project>

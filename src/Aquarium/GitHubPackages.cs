@@ -22,7 +22,8 @@ public sealed class GitHubPackages
         new("aquarium.organizer", "KailanBess/Aquarium", "FileOrganizer.exe", false, false, "FileOrganizer-windows-x64.zip", "SHA256SUMS-tools.txt"),
         new("aquarium.devices", "KailanBess/Aquarium", "DeviceInventory.exe", false, false, "DeviceInventory-windows-x64.zip", "SHA256SUMS-tools.txt"),
         new("aquarium.workspaces", "KailanBess/Aquarium", "WorkspaceLauncher.exe", false, false, "WorkspaceLauncher-windows-x64.zip", "SHA256SUMS-tools.txt"),
-        new("aquarium.monitor", "KailanBess/Aquarium", "SystemMonitor.exe", false, false, "SystemMonitor-windows-x64.zip", "SHA256SUMS-tools.txt")
+        new("aquarium.monitor", "KailanBess/Aquarium", "SystemMonitor.exe", false, false, "SystemMonitor-windows-x64.zip", "SHA256SUMS-tools.txt"),
+        new("aquarium.system-center", "KailanBess/Aquarium", "SystemCenter.exe", false, false, "SystemCenter-windows-x64.zip", "SHA256SUMS-tools.txt")
     ];
     internal static HttpClient Client()
     {
