@@ -55,5 +55,11 @@
     "summary": "Local OS, physical-memory and account-visible service observations.",
     "description": "Optional independent Windows utility. Refreshes read-only observations manually and explicitly exports reviewed JSON. Missing permissions stay unavailable; service states are not health or security verdicts. Drivers, repair and service controls are not provided.",
     "moduleId": "system-center", "stage": "Optional"
+  },
+  {
+    "id": "aquarium.text-editor", "name": "Text Editor", "category": "Files",
+    "summary": "Tabbed local text editing, syntax preview and encrypted recovery.",
+    "description": "Optional independent Windows utility. Opens UTF-8 or BOM-marked UTF-16 text up to 1 MiB. Explicit saves detect changed source files. Supports JSON/XML/INI lexical preview and user-scoped encrypted recovery; recovery is not a portable backup. No files execute or upload.",
+    "moduleId": "text-editor", "stage": "Optional"
   }
 ]

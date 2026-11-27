@@ -55,7 +55,7 @@ foreach($name in @('SHA256SUMS.txt','SHA256SUMS-tools.txt','SHA256SUMS-core.txt'
 $binaries=@($release.assets | Where-Object { $_.name -match '\.(zip|nupkg)$' })
 if($manifest.Count -ne $binaries.Count -or @($binaries | Where-Object { !$manifest.ContainsKey($_.name) }).Count){throw 'Binary manifest coverage incomplete.'}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
-$tools=@('FileOrganizer','DeviceInventory','WorkspaceLauncher','SystemMonitor','SystemCenter')
+$tools=@('FileOrganizer','DeviceInventory','WorkspaceLauncher','SystemMonitor','SystemCenter','TextEditor')
 $binaryChecks=@()
 foreach($asset in $binaries | Where-Object name -like '*.zip'){
  $zip=[IO.Compression.ZipFile]::OpenRead($downloaded[$asset.name])

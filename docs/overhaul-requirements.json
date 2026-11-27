@@ -2007,7 +2007,9 @@
       "area": "utilities",
       "section": "8. Additional native operating system applications",
       "requirement": "Text Editor — Text and configuration editing — Medium",
-      "status": "needs-audit"
+      "status": "under-review",
+      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 27 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/text-editor/tools/TextEditor"
     },
     {
       "id": "UTILITIES-013",
@@ -5914,8 +5916,10 @@
       "area": "utilities",
       "section": "9. Future operating system utilities",
       "requirement": "Text Editor — Plain text editing, syntax highlighting, tabs and recovery.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "under-review",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "Text Editor 1.0.0 draft implements 20 tabs, bounded strict UTF-8/BOM UTF-16 files, explicit encoding/newline conversion, conflict-aware atomic saves, read-only JSON/XML/INI lexical syntax preview and Windows user-scoped DPAPI recovery with quotas, writer lease and corrupt/future-record preservation. Local native build, 42 generated-file/model/recovery checks and 27 generated-data native UI checks at 100/150/200% fonts pass. Full remote Windows/Linux/package gates, published download verification and physical picker/display/screen-reader/EFS/independent acceptance remain pending. Linux editor UI is not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/text-editor/tools/TextEditor"
     },
     {
       "id": "UTILITIES-033",
@@ -7127,9 +7131,10 @@
     }
   ],
   "workInProgress": {
-    "application": "Aquarium",
-    "version": "0.12.0",
-    "status": "Updating complete offline bundle to published FishTank 0.19 and FishNet 0.6.4; full CI and release verification pending."
+    "application": "Aquarium Text Editor",
+    "version": "1.0.0",
+    "distribution": "Aquarium 0.13.0",
+    "status": "Locally checked draft; remote CI and publication pending."
   },
   "statusDefinitions": {
     "needs-audit": "Unassessed against the complete requirement; does not imply the feature is absent.",
