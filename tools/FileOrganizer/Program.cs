@@ -12,7 +12,7 @@ internal static class Program
     }
 }
 
-internal sealed class OrganizerWindow : Form
+internal sealed partial class OrganizerWindow : Form
 {
     private readonly ListBox files = new() { Dock = DockStyle.Fill, SelectionMode = SelectionMode.MultiExtended };
     private readonly TextBox prefix = new() { Width = 180, PlaceholderText = "Rename prefix" };
@@ -28,7 +28,7 @@ internal sealed class OrganizerWindow : Form
     private FileComparisonReport? comparison;
     private bool exporting;
 
-    internal OrganizerWindow(string? appearancePath = null)
+    internal OrganizerWindow(string? appearancePath = null, string? browserDataRoot = null)
     {
         Text = "Aquarium File Organizer";
         Size = new Size(1000, 680);
@@ -53,9 +53,11 @@ internal sealed class OrganizerWindow : Form
         actions.Controls.Add(undo);
         apply.Click += async (_, _) => await ApplyAsync();
         undo.Click += async (_, _) => await UndoAsync();
+        files.AccessibleName = "Selected operation file paths"; prefix.AccessibleName = "Rename prefix"; review.AccessibleName = "Reviewed operations and comparison";
         prefix.TextChanged += (_, _) => ClearPreview();
         files.SelectedIndexChanged += (_, _) => ClearPreview();
         review.Text = "Choose files, then preview a rename/move or compare selected file contents. Comparison is read-only: up to 10,000 paths, 256 MiB per file and 4 GiB total reads. Partial/skipped paths remain unknown; no files are deleted. Saved JSON includes full local paths and hashes.";
+        InitializeBrowser(workspace, comparisonActions, browserDataRoot, appearancePath);
         Aquarium.Tools.FamilyWindow.Apply(this, appearancePath);
     }
 
@@ -76,9 +78,16 @@ internal sealed class OrganizerWindow : Form
     {
         using var picker = new OpenFileDialog { Multiselect = true, CheckFileExists = true };
         if (picker.ShowDialog(this) != DialogResult.OK) return;
-        files.Items.Clear();
-        files.Items.AddRange(picker.FileNames.Distinct(StringComparer.OrdinalIgnoreCase).ToArray());
-        ClearPreview();
+        SetOperationSelection(picker.FileNames);
+    }
+    internal void SetOperationSelection(IEnumerable<string> paths)
+    {
+        if (moving || exporting || comparisonCancellation is not null) throw new InvalidOperationException("Finish the current operation first.");
+        var selected = paths.Distinct(StringComparer.Ordinal).Take(10001).ToArray();
+        if (selected.Length > 10000 || selected.Sum(p => (long)p.Length) > 2 * 1024 * 1024) throw new InvalidOperationException("Choose up to 10,000 files and 2 MiB of path text.");
+        ClearPreview(); files.BeginUpdate();
+        try { files.Items.Clear(); files.Items.AddRange(selected); }
+        finally { files.EndUpdate(); }
     }
 
     private string[] SelectedPaths()
@@ -279,8 +288,8 @@ internal sealed class OrganizerWindow : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
-        if (moving || exporting) { e.Cancel = true; review.Text = moving ? "Wait for the reviewed file operation to finish before closing." : "Wait for report export to finish, or cancel it before closing."; }
-        else comparisonCancellation?.Cancel();
+        if (moving || exporting || browserSaving) { e.Cancel = true; review.Text = moving ? "Wait for the reviewed file operation to finish before closing." : "Wait for report/bookmark publication to finish, or cancel report export before closing."; }
+        else { comparisonCancellation?.Cancel(); CancelFolderLoads(); }
         base.OnFormClosing(e);
     }
 

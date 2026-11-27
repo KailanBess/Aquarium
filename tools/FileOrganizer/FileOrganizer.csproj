@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>WinExe</OutputType><Version>1.2.0</Version>
+    <OutputType>WinExe</OutputType><Version>1.3.0</Version>
     <TargetFramework>net10.0-windows</TargetFramework>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-<ItemGroup><Compile Include="../Common/FamilyWindow.cs" Link="FamilyWindow.cs" /><Content Include="../../docs/FILE-ORGANIZER.md" Link="FILE-ORGANIZER.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup></Project>
+<ItemGroup><Compile Include="../Common/TextDocument.cs" Link="TextDocument.cs" /><Compile Include="../Common/TextFileWriter.cs" Link="TextFileWriter.cs" /><Compile Include="../Common/FilePathPolicy.cs" Link="FilePathPolicy.cs" /><ProjectReference Include="../../src/Aquarium.Core/Aquarium.Core.csproj" /><Compile Include="../Common/FamilyWindow.cs" Link="FamilyWindow.cs" /><Content Include="../../docs/FILE-ORGANIZER.md" Link="FILE-ORGANIZER.md" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" /></ItemGroup></Project>

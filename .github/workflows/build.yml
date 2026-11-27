@@ -44,6 +44,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet run --project tests/Aquarium.OrganizerUiTests -c Release -- artifacts/organizer-ui
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test folder browsing and bookmarks
+        shell: pwsh
+        run: |
+          dotnet run --project tests/Aquarium.FolderTests -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project tests/Aquarium.FolderUiTests -c Release -- artifacts/folder-ui
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test single-app extraction and integrity
         run: dotnet run --project tests/Aquarium.LauncherTests/Aquarium.LauncherTests.csproj -c Release
       - name: Publish Aquarium
@@ -158,6 +165,7 @@ jobs:
           path: |
             artifacts/editor-ui/
             artifacts/organizer-ui/
+            artifacts/folder-ui/
           if-no-files-found: ignore
           retention-days: 14
   publish:

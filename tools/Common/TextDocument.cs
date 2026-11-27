@@ -1,8 +1,9 @@
 using Aquarium.Core;
+using Aquarium.Tools;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Aquarium.TextEditor;
+namespace Aquarium.TextFiles;
 
 internal enum TextEncodingKind { Utf8, Utf8Bom, Utf16LittleEndian, Utf16BigEndian }
 internal sealed record DocumentSnapshot(Guid Id, string? Path, string? SourceSha256, string Text, TextEncodingKind Encoding, string Newline, bool Dirty);
@@ -21,7 +22,7 @@ internal sealed class TextDocument
     internal string DisplayName => Path is null ? "Untitled" : System.IO.Path.GetFileName(Path);
     internal static TextDocument Open(string path)
     {
-        var full = System.IO.Path.GetFullPath(path); PathSafety.RefuseLinks(full);
+        var full = FilePathPolicy.NormalizeAbsolute(path); PathSafety.RefuseLinks(full);
         var bytes = ReadBounded(full); int skip = 0; TextEncodingKind kind = TextEncodingKind.Utf8;
         System.Text.Encoding decoder = Utf8;
         if (bytes.AsSpan().StartsWith(new byte[] { 0xEF, 0xBB, 0xBF })) { kind = TextEncodingKind.Utf8Bom; skip = 3; }
@@ -56,7 +57,7 @@ internal sealed class TextDocument
     internal async Task SaveAsync(string destination, TextEncodingKind encoding, string newline, bool replaceReviewedDestination, CancellationToken token = default)
     {
         if (!Enum.IsDefined(encoding) || newline is not ("LF" or "CRLF" or "CR" or "Mixed")) throw new ArgumentException("Choose an encoding and newline format.");
-        var full = System.IO.Path.GetFullPath(destination); PathSafety.RefuseLinks(full);
+        var full = FilePathPolicy.NormalizeAbsolute(destination); PathSafety.RefuseLinks(full);
         bool same = Path is not null && full.Equals(Path, OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         // An unchanged save is a no-op, retaining exact original bytes including mixed newlines.
         if (same && !Dirty && encoding == Encoding && Newline == newline) return;

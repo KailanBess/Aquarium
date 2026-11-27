@@ -5,6 +5,16 @@ File Organizer is an optional independent Windows utility. Extract its complete
 Aquarium hub or account. Version 1.2 retains reviewed rename/move plans, session
 undo and recovery records, and replaces the unbounded duplicate-content scan.
 
+## Browse folders
+
+Open the **Folders** tab to choose or enter a folder. You can keep up to eight
+folders open and filter each listing by name. Use bookmarks to reopen saved
+locations. Listings show immediate entries and report when access or limits leave
+results incomplete. The browser displays links without following them.
+
+Preview supported text files in a read-only window. To rename, move or compare
+files, select file rows and explicitly transfer them to **File operations**.
+
 ## Compare selected file contents
 
 Choose files and optionally select a subset in the list. **Compare duplicate
