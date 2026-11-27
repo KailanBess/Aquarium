@@ -74,9 +74,18 @@ internal static class MonitorUiChecks
             Check(historyTable.Rows.Cast<DataGridViewRow>().Where(r => r.Cells[2].Value?.ToString() != "Sample").All(r => r.Cells[3].Value?.ToString() == "Unknown"), "History markers invented CPU values");
             Check(historyTable.Rows.Cast<DataGridViewRow>().All(r => r.Cells.Cast<DataGridViewCell>().All(c => !c.Value!.ToString()!.Contains("Generated fixture"))), "History UI leaked process names");
             Check(historyControls.OfType<Label>().All(l => l.Parent is not null && l.Bottom <= l.Parent.ClientSize.Height + 1 && l.Right <= l.Parent.ClientSize.Width + 1) &&
-                history.ClientRectangle.Contains(historyTable.Bounds) && historyTable.Height > 150, "Scaled history text/table is clipped");
+                historyTable.Parent!.ClientRectangle.Contains(historyTable.Bounds) && historyTable.Height > 150, "Scaled history text/table is clipped");
             Check(historyTable.Rows[0].Height >= historyTable.Font.Height + 6, "Scaled history row text is clipped");
             if (args.Length == 1) { using var historyImage = new Bitmap(history.Width, history.Height); history.DrawToBitmap(historyImage, new Rectangle(Point.Empty, historyImage.Size)); historyImage.Save(Path.Combine(args[0], $"history-fixture-{scale * 100:F0}.png")); }
+            history.Size = new Size(720, 480); Application.DoEvents();
+            if (args.Length == 1) { using var smallImage = new Bitmap(history.Width, history.Height); history.DrawToBitmap(smallImage, new Rectangle(Point.Empty, smallImage.Size)); smallImage.Save(Path.Combine(args[0], $"history-small-fixture-{scale * 100:F0}.png")); }
+            Check(historyTable.Height >= 180 && history.DisplayRectangle.Contains(historyTable.Parent!.Bounds) &&
+                historyControls.OfType<Label>().All(l => l.Parent!.ClientRectangle.Contains(l.Bounds)), $"Small-window history cannot scroll: scale {scale}, table {historyTable.Bounds}, parent {historyTable.Parent!.Bounds}, display {history.DisplayRectangle}");
+            history.AutoScrollPosition = new Point(0, 100000); Application.DoEvents();
+            var note = historyControls.OfType<Label>().Single(l => l.Text.StartsWith("Last 900"));
+            var noteBounds = history.RectangleToClient(note.RectangleToScreen(note.ClientRectangle));
+            Check(noteBounds.Bottom <= history.ClientSize.Height && noteBounds.Top >= 0, "History coverage explanation cannot be reached by scrolling");
+            if (args.Length == 1) { using var bottomImage = new Bitmap(history.Width, history.Height); history.DrawToBitmap(bottomImage, new Rectangle(Point.Empty, bottomImage.Size)); bottomImage.Save(Path.Combine(args[0], $"history-bottom-fixture-{scale * 100:F0}.png")); }
             history.Close();
             using var image = new Bitmap(form.Width, form.Height); form.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
             if (args.Length == 1) image.Save(Path.Combine(args[0], $"monitor-fixture-{scale * 100:F0}.png"));
