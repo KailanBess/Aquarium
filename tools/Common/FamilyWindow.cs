@@ -5,7 +5,7 @@ namespace Aquarium.Tools;
 
 internal static class FamilyWindow
 {
-    internal static void Apply(Form form)
+    internal static void Apply(Form form, string? appearancePath = null)
     {
         form.AutoScaleMode = AutoScaleMode.Dpi;
         form.Font = new Font("Segoe UI", 10);
@@ -14,7 +14,7 @@ internal static class FamilyWindow
         var background = Color.FromArgb(9, 21, 29); var surface = Color.FromArgb(16, 36, 47); var accent = Color.FromArgb(103, 232, 211);
         try
         {
-            var path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "appearance.json");
+            var path = appearancePath ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Aquarium", "appearance.json");
             if (File.Exists(path) && new FileInfo(path).Length <= 32768)
             {
                 using var json = JsonDocument.Parse(File.ReadAllText(path));

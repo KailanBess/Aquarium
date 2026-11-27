@@ -7,79 +7,79 @@
   "releases": [
     {
       "application": "Aquarium",
-      "version": "v0.11.0",
-      "url": "https://github.com/KailanBess/Aquarium/releases/tag/v0.11.0",
-      "source": "52dd1e8d8624eaf1d3223795a45b0e8fe4a7b46a",
+      "version": "v0.12.0",
+      "url": "https://github.com/KailanBess/Aquarium/releases/tag/v0.12.0",
+      "source": "52af10090462e22ed8d2e81112a1aba2b46988e5",
       "draft": false,
       "prerelease": false,
-      "verification": "All 11 actual public downloads, 7 binary manifest entries and 6 executable/runtime layouts verified by CI run 45951142321; no downloaded payload executed.",
-      "verificationRun": "https://github.com/KailanBess/Aquarium/actions/runs/45951142321",
+      "verification": "All 11 actual public downloads, 7 binary manifest entries and 6 executable/runtime layouts verified by CI run 45961523473; no downloaded program executed.",
+      "verificationRun": "https://github.com/KailanBess/Aquarium/actions/runs/45961523473",
       "assets": [
         {
           "name": "Aquarium-complete-windows-x64.zip",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/Aquarium-complete-windows-x64.zip",
-          "bytes": 230962765,
-          "sha256": "37eac9848504a4d0a2dc7f32f4379892950786a74ab604293e538788868ee5aa"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/Aquarium-complete-windows-x64.zip",
+          "bytes": 231020429,
+          "sha256": "1fdd1724b2fe7b363e299872a54e017f6f4804086bfb1be9d90fc31ffd1f4c9a"
         },
         {
           "name": "Aquarium.Core.0.4.0.nupkg",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/Aquarium.Core.0.4.0.nupkg",
-          "bytes": 22888,
-          "sha256": "dfb43dfd7f701d08e94efc79864535a6314bb8fce2f0fbfa66b7878626ba3611"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/Aquarium.Core.0.4.0.nupkg",
+          "bytes": 22879,
+          "sha256": "ed93457a63ad39d1b5e6fbad59e2f8ec07ec9eface513bca94ad01c0821bdb9d"
         },
         {
           "name": "BUILD-INFO.json",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/BUILD-INFO.json",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/BUILD-INFO.json",
           "bytes": 755,
-          "sha256": "7bda1aba38675767d0f85525cf08e9fe0ac231e6d2232edb3a4fb5398aabd44f"
+          "sha256": "bfcf5463ddefa8c5db4a5a9a5292fa482c687a33dd97737cbb58da23f5da4b5f"
         },
         {
           "name": "DeviceInventory-windows-x64.zip",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/DeviceInventory-windows-x64.zip",
-          "bytes": 51507594,
-          "sha256": "1440f4040a060106723bd0591ee06867b5dba875526a84c51e1abaaac2d24323"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/DeviceInventory-windows-x64.zip",
+          "bytes": 51507583,
+          "sha256": "ac8c83b905e154f97f11755cade5c019a35c216b02f256b5c897eac614feead6"
         },
         {
           "name": "FileOrganizer-windows-x64.zip",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/FileOrganizer-windows-x64.zip",
-          "bytes": 51514469,
-          "sha256": "d6cd6d6521d00f143b00ef40efb0d8f4dc2918ebba7855872bc3be94c4612733"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/FileOrganizer-windows-x64.zip",
+          "bytes": 51514451,
+          "sha256": "cb5b1e04a23e6bac263ea3890c2935b2fe150744109a2aeb9ddac45e0ae7f678"
         },
         {
           "name": "SHA256SUMS-core.txt",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/SHA256SUMS-core.txt",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/SHA256SUMS-core.txt",
           "bytes": 93,
-          "sha256": "730cb2c2ac08368df274fbf5fcbe3fa3c4763afec496c73657690320e8ef018b"
+          "sha256": "01ea331eacbd12a0c941a0a01e69c05d14fa608ee99e3711b9f32086abd0e458"
         },
         {
           "name": "SHA256SUMS-tools.txt",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/SHA256SUMS-tools.txt",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/SHA256SUMS-tools.txt",
           "bytes": 490,
-          "sha256": "d768af56515eeea538349bf2876c663f9ba8a156ca5913f2a0c9778ff8154738"
+          "sha256": "ff9abe2660131f1632ddb4ffb4a030b9665760186de3ec9953aa3a6d02f0def8"
         },
         {
           "name": "SHA256SUMS.txt",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/SHA256SUMS.txt",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/SHA256SUMS.txt",
           "bytes": 101,
-          "sha256": "fe49fd6cc800840bd30b37ef9d34b7266dc10ea5af694f1afe75e45393d11277"
+          "sha256": "fbdf66937ade79969a3ebb15910aeb4d372cf40d1c6ca0c80955fcf3d256f674"
         },
         {
           "name": "SystemCenter-windows-x64.zip",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/SystemCenter-windows-x64.zip",
-          "bytes": 51549406,
-          "sha256": "869297b23f5aff3d71387902975eb78be7e101a641cba3725bdc79d8c1f47cc1"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/SystemCenter-windows-x64.zip",
+          "bytes": 51549374,
+          "sha256": "b4e761540bc5cee8e92f5cb326711e1b499d4ef15ca6f60b63e72cc1624db810"
         },
         {
           "name": "SystemMonitor-windows-x64.zip",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/SystemMonitor-windows-x64.zip",
-          "bytes": 51556659,
-          "sha256": "bf204157be918631a52c1f6083fab13991c27427eae37d54ef2f40caa1900eb0"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/SystemMonitor-windows-x64.zip",
+          "bytes": 51556635,
+          "sha256": "c2c5bd40ee358569031e11b3d7f3ff88e3dca3b172594c019873e5e1b0d4e728"
         },
         {
           "name": "WorkspaceLauncher-windows-x64.zip",
-          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.11.0/WorkspaceLauncher-windows-x64.zip",
-          "bytes": 51511464,
-          "sha256": "8a6222d6587621b66f5ccf47422281138b413334b77778bdbabeda7d8deda3f4"
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.12.0/WorkspaceLauncher-windows-x64.zip",
+          "bytes": 51511447,
+          "sha256": "42ce77f17772ff2b9d06673674e8892ee002d18a48fcdb9bece3b575c3f992be"
         }
       ]
     },
@@ -218,9 +218,11 @@
   ],
   "pending": [
     {
-      "application": "Aquarium",
-      "version": "0.12.0",
-      "status": "Current companion bundle and evidence update under local review; not yet published."
+      "application": "Text Editor",
+      "version": "1.0.0",
+      "distribution": "Aquarium 0.13.0",
+      "pullRequest": "https://github.com/KailanBess/Aquarium/pull/27",
+      "status": "Draft: 42 model/recovery and 30 native UI checks passed locally; remote release-verification target correction and full CI pending."
     }
   ]
 }
