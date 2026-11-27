@@ -36,8 +36,12 @@ Published:
 Aquarium 0.12.0 is published with current FishTank/FishNet source pins and both
 companion regression gates. Full CI passed; public verification run 45961523473
 verified 11 actual downloads, 7 binary manifest entries and 6 runtime layouts.
-This branch adds Text Editor 1.0.0 for Aquarium 0.13.0 in PR 27; 42 local model and
-30 native UI checks pass. Full remote gates and publication remain pending.
+Text Editor 1.0.0 / Aquarium 0.13 passed full Windows/Linux/UI/package CI and PR 27
+was merged. Publication stopped on a stale five-tool count before creating a release;
+PR 28 moves the corrected tool-manifest gate into both PR build and publisher.
+This branch prepares File Organizer 1.2 / Aquarium 0.14 with bounded read-only
+comparison, cancellation and new-file-only JSON export. 29 local model/export and
+24 native UI checks pass; full remote gates and publication remain pending.
 
 Open work includes the remaining utilities, wider shared-library adoption, crash
 collection, complete hardware/process/storage/network monitoring, deeper media

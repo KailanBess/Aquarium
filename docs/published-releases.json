@@ -218,11 +218,16 @@
   ],
   "pending": [
     {
-      "application": "Text Editor",
-      "version": "1.0.0",
-      "distribution": "Aquarium 0.13.0",
-      "pullRequest": "https://github.com/KailanBess/Aquarium/pull/27",
-      "status": "Draft: 42 model/recovery and 30 native UI checks passed locally; remote release-verification target correction and full CI pending."
+      "application": "Aquarium/Text Editor",
+      "version": "0.13.0 / 1.0.0",
+      "status": "Merged app passed full CI; publication failed on stale five-tool manifest count. Separate publisher fix PR submitted with six fixture checks.",
+      "publisherFix": "https://github.com/KailanBess/Aquarium/pull/28"
+    },
+    {
+      "application": "File Organizer",
+      "version": "1.2.0",
+      "distribution": "Aquarium 0.14.0",
+      "status": "Draft: native build, 29 comparison/export/preservation checks and 24 native UI checks at 100/150/200% fonts pass. Full remote gates and publication pending."
     }
   ]
 }

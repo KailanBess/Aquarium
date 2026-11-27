@@ -37,6 +37,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           dotnet run --project tests/Aquarium.TextEditorUiTests -c Release -- artifacts/editor-ui
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Test bounded file comparison and generated-data organizer UI
+        shell: pwsh
+        run: |
+          dotnet run --project tests/Aquarium.FileComparisonTests -c Release
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet run --project tests/Aquarium.OrganizerUiTests -c Release -- artifacts/organizer-ui
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - name: Test single-app extraction and integrity
         run: dotnet run --project tests/Aquarium.LauncherTests/Aquarium.LauncherTests.csproj -c Release
       - name: Publish Aquarium
@@ -143,12 +150,14 @@ jobs:
           name: Aquarium-release
           path: artifacts/release/
           if-no-files-found: error
-      - name: Save generated editor UI review images
+      - name: Save generated utility UI review images
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
-          name: Aquarium-editor-ui
-          path: artifacts/editor-ui/
+          name: Aquarium-utility-ui
+          path: |
+            artifacts/editor-ui/
+            artifacts/organizer-ui/
           if-no-files-found: ignore
           retention-days: 14
   publish:
@@ -181,7 +190,7 @@ jobs:
           if ($coreLine -notmatch '^([a-f0-9]{64})  (Aquarium\.Core\.\d+\.\d+\.\d+\.nupkg)$') { throw 'Invalid Core checksum manifest.' }
           $coreName = $Matches[2]
           if ((Get-FileHash "release/$coreName" -Algorithm SHA256).Hash -ne $Matches[1]) { throw 'Core package checksum mismatch.' }
-          $notes="Aquarium 0.13.0 adds the independent Text Editor with tabs, UTF-8/UTF-16 text editing, explicit conflict-aware saves, JSON/XML/INI lexical preview and Windows user-scoped encrypted recovery. Recovery is not a portable backup. Retains the pinned companion bundle with FishTank 0.19 dependency advisory review and FishNet 0.6.4 fixed-code local activity review. Retains Core 0.4 bounded local fixed-code activity history and a Settings review/export flow. Retains optional independent System Center OS/runtime/physical-memory and account-visible Windows service observations, manual refresh and reviewed atomic JSON export. It changes no settings or services, does not query accounts or command lines and discards native process IDs, and explicitly distinguishes unsupported, unavailable, unknown and buffer-limited results. Service state is not a health/security verdict; Windows may omit services without query permission. Retains bounded in-memory CPU/RAM/process-count history, pause/failure markers and explicit process-name-free JSON history export to the optional standalone System Monitor with CPU/physical-memory/process observations, pause, filtering, sorting and reviewed local snapshot export. Missing data stays unknown; process working sets can share pages. The utility changes no process settings and is Windows-only. Export dialogs use path-only pickers, keeping existing backup/package/theme/support destinations untouched until validation and publication. Retains portable Aquarium Core 0.4.0 diagnostics probes with explicit unavailable/unsupported/unknown states, bounded background observations and safe error codes. Local support export uses the API without uploading data. Encrypted record recovery includes FishNet photo/PDF catalogs; custom media profile selectors block managed removal. Retains offline packages, versioned settings, appearance undo and previous-record recovery. Includes FishTank 0.19.0 and FishNet 0.6.4 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
+          $notes="Aquarium 0.14.0 adds bounded, cancellable File Organizer content comparison, explicit partial/unknown coverage and new-file-only JSON export without automatic deletion. Retains the independent Text Editor with tabs, UTF-8/UTF-16 text editing, explicit conflict-aware saves, JSON/XML/INI lexical preview and Windows user-scoped encrypted recovery. Recovery is not a portable backup. Retains the pinned companion bundle with FishTank 0.19 dependency advisory review and FishNet 0.6.4 fixed-code local activity review. Retains Core 0.4 bounded local fixed-code activity history and a Settings review/export flow. Retains optional independent System Center OS/runtime/physical-memory and account-visible Windows service observations, manual refresh and reviewed atomic JSON export. It changes no settings or services, does not query accounts or command lines and discards native process IDs, and explicitly distinguishes unsupported, unavailable, unknown and buffer-limited results. Service state is not a health/security verdict; Windows may omit services without query permission. Retains bounded in-memory CPU/RAM/process-count history, pause/failure markers and explicit process-name-free JSON history export to the optional standalone System Monitor with CPU/physical-memory/process observations, pause, filtering, sorting and reviewed local snapshot export. Missing data stays unknown; process working sets can share pages. The utility changes no process settings and is Windows-only. Export dialogs use path-only pickers, keeping existing backup/package/theme/support destinations untouched until validation and publication. Retains portable Aquarium Core 0.4.0 diagnostics probes with explicit unavailable/unsupported/unknown states, bounded background observations and safe error codes. Local support export uses the API without uploading data. Encrypted record recovery includes FishNet photo/PDF catalogs; custom media profile selectors block managed removal. Retains offline packages, versioned settings, appearance undo and previous-record recovery. Includes FishTank 0.19.0 and FishNet 0.6.4 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
           gh release view $tag *> $null

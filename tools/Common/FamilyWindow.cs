@@ -41,6 +41,15 @@ internal static class FamilyWindow
                 button.FlatStyle = FlatStyle.Flat; button.FlatAppearance.BorderColor = accent;
                 button.Padding = new Padding(10, 5, 10, 5); button.Margin = new Padding(4);
                 button.MinimumSize = new Size(0, 34); button.UseVisualStyleBackColor = false;
+                button.Paint += (_, paint) =>
+                {
+                    if (button.Enabled || button.Image is not null || button.BackgroundImage is not null || button.TextAlign != ContentAlignment.MiddleCenter) return;
+                    var inside = Rectangle.Inflate(button.ClientRectangle, -2, -2);
+                    using var fill = new SolidBrush(button.BackColor); paint.Graphics.FillRectangle(fill, inside);
+                    TextRenderer.DrawText(paint.Graphics, button.Text, button.Font, inside,
+                        SystemInformation.HighContrast ? SystemColors.GrayText : Color.FromArgb(155, 174, 185),
+                        TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.WordBreak);
+                };
             }
             foreach (Control child in control.Controls) Style(child);
         }

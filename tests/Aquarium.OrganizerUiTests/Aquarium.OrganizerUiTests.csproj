@@ -1,0 +1,4 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>Exe</OutputType><StartupObject>OrganizerUiChecks</StartupObject><TargetFramework>net10.0-windows</TargetFramework><UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
+  <ItemGroup><Compile Include="../../tools/FileOrganizer/*.cs" /><Compile Include="../../tools/Common/FamilyWindow.cs" Link="FamilyWindow.cs" /></ItemGroup>
+</Project>
