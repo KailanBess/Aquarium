@@ -13,7 +13,7 @@ internal static class Program
 internal sealed class MonitorWindow : Form
 {
     private readonly DataGridView table = new() { Dock = DockStyle.Fill, ReadOnly = true, AllowUserToAddRows = false,
-        AllowUserToDeleteRows = false, AutoGenerateColumns = false, RowHeadersVisible = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
+        AllowUserToDeleteRows = false, AutoGenerateColumns = false, RowHeadersVisible = false, MultiSelect = false, SelectionMode = DataGridViewSelectionMode.FullRowSelect };
     private readonly Label summary = new() { AutoSize = true, MaximumSize = new Size(1300, 0), Padding = new Padding(4) };
     private readonly TextBox filter = new() { Width = 240, PlaceholderText = "Filter process names" };
     private readonly ComboBox sort = new() { DropDownStyle = ComboBoxStyle.DropDownList, Width = 160 };
@@ -47,6 +47,36 @@ internal sealed class MonitorWindow : Form
         Shown += async (_, _) => { timer.Start(); await RefreshMeasurements(); };
         FormClosed += (_, _) => { timer.Stop(); timer.Dispose(); lifetime.Cancel(); };
         Aquarium.Tools.FamilyWindow.Apply(this);
+        table.EnableHeadersVisualStyles = false;
+        table.BackgroundColor = BackColor;
+        table.DefaultCellStyle.BackColor = BackColor; table.DefaultCellStyle.ForeColor = ForeColor;
+        table.ColumnHeadersDefaultCellStyle.BackColor = BackColor; table.ColumnHeadersDefaultCellStyle.ForeColor = ForeColor;
+        table.DefaultCellStyle.SelectionBackColor = SystemColors.Highlight;
+        table.DefaultCellStyle.SelectionForeColor = SystemColors.HighlightText;
+        table.GridColor = SystemInformation.HighContrast ? ForeColor : Color.FromArgb(55, 81, 96);
+        table.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+        var pidColumn = table.Columns[0]; var nameColumn = table.Columns[1];
+        var cpuColumn = table.Columns[2]; var memoryColumn = table.Columns[3];
+        nameColumn.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+        nameColumn.MinimumWidth = 160;
+        void SizeRows()
+        {
+            if (table.IsDisposed) return;
+            int height = table.Font.Height + 8; table.RowTemplate.Height = height;
+            foreach (DataGridViewRow row in table.Rows) row.Height = height;
+            int WidthOf(string text) => TextRenderer.MeasureText(text, table.Font).Width + 20;
+            pidColumn.Width = WidthOf("2147483647");
+            cpuColumn.Width = WidthOf("Unknown");
+            memoryColumn.Width = Math.Max(WidthOf("Working set MiB"), WidthOf("999999999.9"));
+            sort.Width = Math.Max(160, WidthOf("Working set") + 16);
+        }
+        table.FontChanged += (_, _) => SizeRows(); SizeRows();
+        void WrapLabels()
+        {
+            int width = Math.Max(100, ClientSize.Width - Padding.Horizontal);
+            summary.MaximumSize = coverage.MaximumSize = new Size(width, 0);
+        }
+        SizeChanged += (_, _) => WrapLabels(); WrapLabels();
     }
     internal async Task RefreshMeasurements()
     {
