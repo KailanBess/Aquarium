@@ -22,3 +22,5 @@ jobs:
       - run: dotnet run --project tests/Aquarium.SystemCenterTests -c Release
 
       - run: dotnet run --project tests/Aquarium.TextEditorTests -c Release
+
+      - run: dotnet run --project tests/Aquarium.FileComparisonTests -c Release
