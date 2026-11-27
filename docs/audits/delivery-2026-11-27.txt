@@ -1,0 +1,50 @@
+Overhaul delivery evidence — 2026-11-27
+
+The complete ecosystem overhaul is NOT finished. The 887 source requirements remain
+preserved, including overlapping requests. Needs-audit means unverified coverage;
+it does not establish that an existing feature is absent. CloudKid/music identification
+and Tailscale/private networking remain excluded by the user.
+
+Published:
+- Aquarium 0.11.0 / Aquarium.Core 0.4.0: bounded fixed-code local activity history,
+  review and explicit atomic JSON export. Windows/Linux Core and full app CI pass.
+  The release retains independently installable System Center 1.0.0 and System
+  Monitor 1.1.0. System Center has 37 observation/export and 27 native UI checks;
+  the activity API has 38 Windows checks (39 on Linux, including a symlink fixture).
+  Public download CI 45951142321 verified 11 actual asset digests, 7 binary manifest
+  entries and 6 executable/runtime layouts without executing downloaded programs.
+  https://github.com/KailanBess/Aquarium/releases/tag/v0.11.0
+- FishTank preview 0.19.0: explicitly confirmed OSV package-metadata queries for
+  supported snapshots; bounded pagination and resources, explicit partial/unknown/
+  unavailable states and reviewed JSON export. 51 new offline-provider/native-UI
+  checks and full Windows/browser/server gates pass (run 45953880731). All five
+  public downloads, four binary manifest entries, both archive manifests and
+  executable version 0.19.0.0 were verified without executing downloaded programs.
+  https://github.com/KailanBess/FishTank/releases/tag/preview-v0.19.0
+- FishNet 0.6.4: adopts pinned Core 0.4 local activity history for app starts and
+  error notices, bounded writes, incomplete-session warning and explicit reviewed
+  export. 19 integration/privacy/export/preservation checks, existing media and
+  generated-media conversion checks, native build and full Windows CI pass.
+  Release run 45954722612 passed. Three actual public downloads, binary manifest,
+  source, version and 516-entry runtime package verified without executing them.
+  https://github.com/KailanBess/FishNet/releases/tag/v0.6.4
+- FishBowl 1.33.0 remains the current published gaming release, including bounded
+  session CPU/working-set and battery observations. FPS/GPU/temperature/power
+  measurements are not inferred from those observations.
+  https://github.com/KailanBess/FishBowl/releases/tag/v1.33.0
+
+This branch prepares Aquarium 0.12.0 with the published FishTank/FishNet source pins,
+updated bundle identity checks and both companion regression gates. It requires
+full CI and public-release verification before being treated as published.
+
+Open work includes the remaining utilities, wider shared-library adoption, crash
+collection, complete hardware/process/storage/network monitoring, deeper media
+and gaming capabilities, remaining package/update/security coverage, and Linux
+platform adapters. Shoal has a pinned CachyOS source foundation; baselineBuilt
+remains false and there is no validated bootable ISO, installer or recovery image.
+
+No genuine publisher-signing credentials are configured. Digest consistency is
+not publisher authentication. Live-provider, physical hardware/accessibility,
+production reliability/performance and independent security acceptance remain
+unverified. No protection/safety verdict, full performance target or complete
+roadmap implementation is claimed by these fixture results.

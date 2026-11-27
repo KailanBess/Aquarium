@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updated": "2026-11-26",
+  "updated": "2026-11-27",
   "scope": "Standalone application overhaul, shared Aquarium Core, utilities and future Shoal adapters",
   "excluded": [
     "CloudKid/music identification discussion",
@@ -196,8 +196,8 @@
       "section": "Shared features every application should have",
       "requirement": "Shared logging and diagnostics.",
       "status": "partial",
-      "evidence": "Aquarium Core 0.3.0 publishes bounded read-only diagnostic probes, versioned reports, explicit observation states and fixed safe error codes. Adopted by local Aquarium support report without upload. Windows/Ubuntu Core CI and complete Windows packaging pass. Shared logging, cross-app adapters, crash collection and all performance/health coverage are not complete. Core 0.4 review branch adds a bounded local ActivityHistory API with declared symbolic-code allowlists, UTC times, levels, IDs and versions, retention/drop counts, atomic publication, unknown-field preservation and cooperating-writer locks. Aquarium Settings reviews and explicitly exports its app-start/notice-severity history; no raw error text, paths, stacks or library data are recorded. 38 Windows store checks pass alongside existing Core regression. Only Aquarium adopts this activity API so far; cross-app adoption, notifications and crash collection remain open.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.7.0"
+      "evidence": "Aquarium Core 0.4.0 publishes bounded read-only diagnostics and local symbolic ActivityHistory: declared fixed event-code allowlists, generated IDs, UTC recording times, levels and numeric versions; default 500 retained events, 1 MiB JSON bound, explicit drop counts, atomic publication and cooperating-writer locks. Unknown root/event fields survive appends; future/corrupt records are refused. Typed export omits unknown extras. Aquarium Settings reviews/exports its app-start and notice-severity events without notice/error text, stacks, paths or library records. 38 Windows activity checks plus existing Core regression and Windows/Ubuntu CI pass. No automatic uploads, crash collection or cross-app adoption are claimed; broader shared logging/adapters remain open. FishNet 0.6.4 now adopts the same published Core 0.4 package, fixed app-start/error-notice kinds, 500 retained events, 16 pending-write cap, incomplete-session warning and explicit reviewed JSON export. Its 19 integration checks, existing media/conversion suites, native build and full Windows CI pass; public source, digests, version and 516-entry runtime verified.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.11.0"
     },
     {
       "id": "CORE-017",
@@ -3608,7 +3608,9 @@
       "area": "security",
       "section": "3.3 System integrity protection",
       "requirement": "Dependency auditing — Report known vulnerabilities in supported application dependencies.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishTank preview 0.19.0 publishes explicitly confirmed OSV queries for selected bounded NuGet schema-3/CycloneDX 1.5 snapshots, fixed HTTPS endpoint and strict certificate/hostname checks, metadata review, cancellation/pagination/resource caps, fixed result codes and typed explicit JSON export. 51 offline provider/import/privacy/export/native-UI checks pass, plus full Windows/browser/server gates. All five actual public asset downloads and both archive manifests/versions verified. Installed/native/OS inventory coverage, live provider acceptance, severity/fix/exploitability analysis and independent review remain open; no matches is not proof of safety.",
+      "evidenceUrl": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.19.0"
     },
     {
       "id": "SECURITY-140",
@@ -5820,10 +5822,10 @@
       "area": "utilities",
       "section": "9. Future operating system utilities",
       "requirement": "System Center — Device information, OS information, service status and system health.",
-      "status": "under-review",
+      "status": "partial",
       "source": "User-supplied detailed specification (2026-11-26)",
-      "evidence": "System Center branch implements an independent read-only Windows OS/runtime/architecture/visible-processor/physical-memory view and filterable account-visible user-mode service states, with explicit reviewed atomic JSON export. Native enumeration uses enumeration rights only, a 256 KiB buffer and 2,048-entry limit. Missing rights are unavailable; malformed observations unknown; omitted services and drivers are not claimed covered. 37 Windows model/provider/native-buffer/export checks and 27 native generated-data UI checks at 100/150/200% fonts pass. Full packaging and portable CI remain before publication. Hardware identity/driver diagnostics, storage inventory, repair, service controls and Linux UI remain open.",
-      "evidenceUrl": "https://github.com/KailanBess/Aquarium/tree/feature/system-center"
+      "evidence": "Aquarium 0.11.0 includes independently installable System Center 1.0.0, with read-only Windows OS/runtime/architecture/logical-processor/physical-memory and account-visible user-mode service observations, explicit partial/unavailable/unknown states and reviewed atomic JSON export. 37 provider/native-buffer/export and 27 generated-data UI checks pass, along with full Windows/portable CI. Public downloads, manifests, versions and runtime layouts are verified. Hardware identity/driver diagnostics, storage, repair/service controls, complete health coverage and Linux UI remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.11.0"
     },
     {
       "id": "UTILITIES-022",
@@ -6619,7 +6621,8 @@
       "tasks": [
         {
           "requirement": "Create Aquarium Core libraries",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Aquarium.Core 0.4.0 ships as an independently usable published package with bounded atomic filesystem/settings/diagnostic/activity APIs. Windows/Linux Core fixture suites pass; legacy-app adoption and remaining modules are unfinished."
         },
         {
           "requirement": "Define versioned application APIs",
@@ -6635,7 +6638,8 @@
         },
         {
           "requirement": "Implement logging and diagnostics",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Aquarium 0.11 and FishNet 0.6.4 adopt the published Core 0.4 fixed-code local activity API, explicit reviewed export and failure-preservation behavior. Core Windows/Linux, app integration and full CI pass. Crash reporting and other-app adoption remain open."
         },
         {
           "requirement": "Implement configuration and storage standards",
@@ -6647,7 +6651,8 @@
         },
         {
           "requirement": "Establish automated testing",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Windows/Linux Core and Windows application CI plus FishTank browser/server/offline provider suites are active. Automated fixtures do not establish physical hardware, live-service, screen-reader or long-term production acceptance."
         }
       ]
     },
@@ -6876,7 +6881,8 @@
       "tasks": [
         {
           "requirement": "Develop System Center",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Aquarium 0.11.0 includes independently installable System Center 1.0.0, with read-only Windows OS/runtime/architecture/logical-processor/physical-memory and account-visible user-mode service observations, explicit partial/unavailable/unknown states and reviewed atomic JSON export. 37 provider/native-buffer/export and 27 generated-data UI checks pass, along with full Windows/portable CI. Public downloads, manifests, versions and runtime layouts are verified. Hardware identity/driver diagnostics, storage, repair/service controls, complete health coverage and Linux UI remain open."
         },
         {
           "requirement": "Develop Settings",
@@ -6888,7 +6894,8 @@
         },
         {
           "requirement": "Develop System Monitor",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Aquarium 0.9.0 publishes independently installable System Monitor 1.1.0: Windows primary-group CPU, physical RAM, process working sets, pause/filter/sort, explicit snapshot export and bounded in-memory history. The last 900 CPU/RAM/process-count entries retain explicit pause/resume/failure markers, UTC timestamps, collection sequence and drop counts. History contains no process names or IDs and exports only through explicit atomic JSON save. 36 Windows measurement/history checks (31 portable Linux fixtures), 64 native generated-data UI checks at 100/150/200% fonts and five bundle identity/digest checks pass. UI checks include delayed capture/pause boundaries, failed observations and small-window scrolling to the complete explanation. Full Windows package/clean-startup and portable Core CI pass. GPU, disk/network rates, temperatures, power, long-term history, process control and Linux UI remain open. Manual history save-dialog acceptance remains unverified because the desktop helper failed to expose/launch the generated fixture."
         },
         {
           "requirement": "Develop Backup and Recovery",
@@ -6907,7 +6914,8 @@
       "tasks": [
         {
           "requirement": "Select operating system foundation",
-          "status": "needs-audit"
+          "status": "partial",
+          "evidence": "Shoal pins and hashes a CachyOS desktop source foundation at b0ebcae291b104765a60e330a5d25a26a69a2234. Source review/build guidance exists, baselineBuilt remains false, and no bootable ISO, installer or hardware qualification is claimed."
         },
         {
           "requirement": "Implement native platform adapters",
@@ -7119,13 +7127,9 @@
     }
   ],
   "workInProgress": {
-    "feature": "Core 0.4 local fixed-code activity history and Aquarium adoption",
-    "status": "tested-locally-under-review",
-    "evidence": [
-      "src/Aquarium.Core/ActivityHistory.cs",
-      "src/Aquarium/ActivityHistoryUi.cs",
-      "tests/Aquarium.CoreTests/ActivityChecks.cs"
-    ]
+    "application": "Aquarium",
+    "version": "0.12.0",
+    "status": "Updating complete offline bundle to published FishTank 0.19 and FishNet 0.6.4; full CI and release verification pending."
   },
   "statusDefinitions": {
     "needs-audit": "Unassessed against the complete requirement; does not imply the feature is absent.",
