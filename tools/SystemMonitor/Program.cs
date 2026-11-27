@@ -22,9 +22,13 @@ internal sealed class MonitorWindow : Form
     private readonly System.Windows.Forms.Timer timer = new() { Interval = 2000 };
     private readonly CancellationTokenSource lifetime = new();
     private readonly MeasurementHistory history = new();
+    private readonly MonitorSessionHistory session = new();
+    private HistoryWindow? historyWindow;
     private readonly Func<CancellationToken, MachineObservation> collect;
     private MonitorReport? report;
     private bool busy, paused;
+    private int samplingEpoch;
+    internal bool IsSampling => busy;
     public MonitorWindow(Func<CancellationToken, MachineObservation>? collector = null)
     {
         collect = collector ?? WindowsMeasurements.Capture;
@@ -32,7 +36,14 @@ internal sealed class MonitorWindow : Form
         AccessibleName = Text; table.AccessibleName = "Measured processes"; filter.AccessibleName = "Filter process names"; sort.AccessibleName = "Process sort order";
         sort.Items.AddRange(["Working set", "CPU", "Name", "PID"]); sort.SelectedIndex = 0;
         var actions = new FlowLayoutPanel { Dock = DockStyle.Top, AutoSize = true, WrapContents = true };
-        actions.Controls.AddRange([filter, sort, pause, export]);
+        var showHistory = new Button { AutoSize = true, Text = "History…" };
+        actions.Controls.AddRange([filter, sort, pause, export, showHistory]);
+        showHistory.Click += (_, _) =>
+        {
+            if (historyWindow is null || historyWindow.IsDisposed) historyWindow = new HistoryWindow(session.Snapshot);
+            if (!historyWindow.Visible) historyWindow.Show(this);
+            historyWindow.Activate();
+        };
         foreach (var (property, title, width) in new[] { ("Pid", "PID", 70), ("Name", "Process", 270), ("Cpu", "CPU %", 110), ("Memory", "Working set MiB", 180) })
             table.Columns.Add(new DataGridViewTextBoxColumn { Name = property, HeaderText = title, Width = width, SortMode = DataGridViewColumnSortMode.NotSortable });
         var coverage = new Label { Dock = DockStyle.Bottom, AutoSize = true, MaximumSize = new Size(1300, 0), Text =
@@ -41,7 +52,7 @@ internal sealed class MonitorWindow : Form
         header.Controls.Add(summary); header.Controls.Add(actions);
         Controls.Add(table); Controls.Add(header); Controls.Add(coverage);
         filter.TextChanged += (_, _) => RenderRows(); sort.SelectedIndexChanged += (_, _) => RenderRows();
-        pause.Click += (_, _) => { paused = !paused; pause.Text = paused ? "Resume" : "Pause"; history.Reset(); RenderSummary(); };
+        pause.Click += (_, _) => { samplingEpoch++; paused = !paused; pause.Text = paused ? "Resume" : "Pause"; history.Reset(); session.Mark(paused ? "Paused" : "Resumed", DateTimeOffset.UtcNow); historyWindow?.RefreshHistory(); RenderSummary(); };
         export.Click += async (_, _) => await Export();
         timer.Tick += async (_, _) => await RefreshMeasurements();
         Shown += async (_, _) => { timer.Start(); await RefreshMeasurements(); };
@@ -82,16 +93,18 @@ internal sealed class MonitorWindow : Form
     {
         if (busy || paused || IsDisposed) return;
         busy = true;
+        int epoch = samplingEpoch;
         try
         {
             var token = lifetime.Token;
             var observed = await Task.Run(() => collect(token), token);
-            if (IsDisposed || paused) return;
+            if (IsDisposed || paused || epoch != samplingEpoch) return;
             report = history.Observe(observed, Stopwatch.Frequency, Environment.ProcessorCount);
+            session.Observe(report); historyWindow?.RefreshHistory();
             export.Enabled = true; RenderSummary(); RenderRows();
         }
         catch (OperationCanceledException) { }
-        catch (Exception) { history.Reset(); report = null; if (!IsDisposed) { export.Enabled = false; summary.Text = "Measurements unavailable; no zero-load or healthy result is inferred."; table.Rows.Clear(); } }
+        catch (Exception) { if (!IsDisposed && !paused && epoch == samplingEpoch) { history.Reset(); report = null; session.Mark("Unavailable", DateTimeOffset.UtcNow); historyWindow?.RefreshHistory(); export.Enabled = false; summary.Text = "Measurements unavailable; no zero-load or healthy result is inferred."; table.Rows.Clear(); } }
         finally { busy = false; }
     }
     private void RenderSummary()

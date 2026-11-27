@@ -1,4 +1,4 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup><OutputType>Exe</OutputType><TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable></PropertyGroup>
-  <ItemGroup><Compile Include="../../tools/SystemMonitor/Measurements.cs" Link="Measurements.cs" /></ItemGroup>
+  <ItemGroup><Compile Include="../../tools/SystemMonitor/Measurements.cs" Link="Measurements.cs" /><Compile Include="../../tools/SystemMonitor/SessionHistory.cs" Link="SessionHistory.cs" /></ItemGroup>
 </Project>

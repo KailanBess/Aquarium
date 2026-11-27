@@ -62,8 +62,60 @@ internal static class MonitorUiChecks
             Check(Contrast(heading.ForeColor, heading.BackColor) >= 4.5, "Process heading text contrast is too low");
             Check(table.Rows[0].Height >= table.Font.Height + 6 && table.ColumnHeadersHeight >= table.Font.Height + 6, "Scaled process rows/headings clip text");
             Check(table.Columns[2].Width >= TextRenderer.MeasureText("Unknown", table.Font).Width + 10, "Unknown CPU state is clipped at large text size");
+            controls.OfType<Button>().Single(b => b.Text == "History…").PerformClick(); Application.DoEvents();
+            var history = form.OwnedForms.OfType<HistoryWindow>().Single();
+            controls.OfType<Button>().Single(b => b.Text == "History…").PerformClick();
+            Check(form.OwnedForms.OfType<HistoryWindow>().Count() == 1, "Repeated history action opened duplicate windows");
+            history.Font = new Font("Segoe UI", 10 * scale); Application.DoEvents();
+            var historyControls = Descendants(history).ToArray();
+            var historyTable = historyControls.OfType<DataGridView>().Single();
+            Check(historyTable.Rows.Count >= 4 && historyTable.Rows.Cast<DataGridViewRow>().Any(r => r.Cells[2].Value?.ToString() == "Paused") &&
+                historyTable.Rows.Cast<DataGridViewRow>().Any(r => r.Cells[2].Value?.ToString() == "Resumed"), "History omitted sample/pause/resume entries");
+            Check(historyTable.Rows.Cast<DataGridViewRow>().Where(r => r.Cells[2].Value?.ToString() != "Sample").All(r => r.Cells[3].Value?.ToString() == "Unknown"), "History markers invented CPU values");
+            Check(historyTable.Rows.Cast<DataGridViewRow>().All(r => r.Cells.Cast<DataGridViewCell>().All(c => !c.Value!.ToString()!.Contains("Generated fixture"))), "History UI leaked process names");
+            Check(historyControls.OfType<Label>().All(l => l.Parent is not null && l.Bottom <= l.Parent.ClientSize.Height + 1 && l.Right <= l.Parent.ClientSize.Width + 1) &&
+                historyTable.Parent!.ClientRectangle.Contains(historyTable.Bounds) && historyTable.Height > 150, "Scaled history text/table is clipped");
+            Check(historyTable.Rows[0].Height >= historyTable.Font.Height + 6, "Scaled history row text is clipped");
+            if (args.Length == 1) { using var historyImage = new Bitmap(history.Width, history.Height); history.DrawToBitmap(historyImage, new Rectangle(Point.Empty, historyImage.Size)); historyImage.Save(Path.Combine(args[0], $"history-fixture-{scale * 100:F0}.png")); }
+            history.Size = new Size(720, 480); Application.DoEvents();
+            if (args.Length == 1) { using var smallImage = new Bitmap(history.Width, history.Height); history.DrawToBitmap(smallImage, new Rectangle(Point.Empty, smallImage.Size)); smallImage.Save(Path.Combine(args[0], $"history-small-fixture-{scale * 100:F0}.png")); }
+            Check(historyTable.Height >= 180 && history.DisplayRectangle.Contains(historyTable.Parent!.Bounds) &&
+                historyControls.OfType<Label>().All(l => l.Parent!.ClientRectangle.Contains(l.Bounds)), $"Small-window history cannot scroll: scale {scale}, table {historyTable.Bounds}, parent {historyTable.Parent!.Bounds}, display {history.DisplayRectangle}");
+            history.AutoScrollPosition = new Point(0, 100000); Application.DoEvents();
+            var note = historyControls.OfType<Label>().Single(l => l.Text.StartsWith("Last 900"));
+            var noteBounds = history.RectangleToClient(note.RectangleToScreen(note.ClientRectangle));
+            Check(noteBounds.Bottom <= history.ClientSize.Height && noteBounds.Top >= 0, "History coverage explanation cannot be reached by scrolling");
+            if (args.Length == 1) { using var bottomImage = new Bitmap(history.Width, history.Height); history.DrawToBitmap(bottomImage, new Rectangle(Point.Empty, bottomImage.Size)); bottomImage.Save(Path.Combine(args[0], $"history-bottom-fixture-{scale * 100:F0}.png")); }
+            history.Close();
             using var image = new Bitmap(form.Width, form.Height); form.DrawToBitmap(image, new Rectangle(Point.Empty, image.Size));
             if (args.Length == 1) image.Save(Path.Combine(args[0], $"monitor-fixture-{scale * 100:F0}.png"));
+            form.Close(); Application.DoEvents();
+        }
+        // A slow in-flight capture must not cross a pause/resume boundary.
+        using (var release = new ManualResetEventSlim())
+        {
+            int calls = 0;
+            using var form = new MonitorWindow(token =>
+            {
+                int call = Interlocked.Increment(ref calls);
+                if (call == 1) release.Wait(token);
+                if (call == 3) throw new IOException("Generated unavailable fixture");
+                return new(DateTimeOffset.UtcNow, null, null, null, [new(42, 1, "Generated delayed fixture", 0, 1)], 0, false, call * 1000);
+            });
+            form.ShowInTaskbar = false; form.StartPosition = FormStartPosition.Manual; form.Location = new(-4000, -4000);
+            form.Show(); Application.DoEvents(); PumpUntil(() => Volatile.Read(ref calls) == 1);
+            var controls = Descendants(form).ToArray(); var table = controls.OfType<DataGridView>().Single();
+            var pause = controls.OfType<Button>().Single(b => b.Text == "Pause"); pause.PerformClick(); pause.PerformClick();
+            release.Set(); PumpUntil(() => !form.IsSampling);
+            Check(table.Rows.Count == 0, "A delayed pre-pause capture crossed the resume boundary");
+            PumpUntil(form.RefreshMeasurements());
+            Check(table.Rows.Count == 1 && table.Rows[0].Cells[2].Value?.ToString() == "Unknown", "Fresh post-resume observation was lost or invented a rate");
+            PumpUntil(form.RefreshMeasurements());
+            Check(table.Rows.Count == 0 && controls.OfType<Label>().Any(l => l.Text.Contains("Measurements unavailable")), "Failed capture retained live rows or inferred healthy status");
+            controls.OfType<Button>().Single(b => b.Text == "History…").PerformClick(); Application.DoEvents();
+            var historyTable = Descendants(form.OwnedForms.OfType<HistoryWindow>().Single()).OfType<DataGridView>().Single();
+            Check(historyTable.Rows.Count == 4 && historyTable.Rows[0].Cells[2].Value?.ToString() == "Unavailable" && historyTable.Rows[0].Cells[3].Value?.ToString() == "Unknown",
+                "Failed capture did not create an unknown history marker");
             form.Close(); Application.DoEvents();
         }
         Console.WriteLine($"System Monitor: {checks} generated-data native UI checks passed at 100/150/200% font size. No live process list was exported.");

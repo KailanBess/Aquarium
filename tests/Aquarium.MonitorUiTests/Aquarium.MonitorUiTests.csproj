@@ -3,6 +3,8 @@
   <ItemGroup>
     <Compile Include="../../tools/SystemMonitor/Program.cs" Link="MonitorProgram.cs" />
     <Compile Include="../../tools/SystemMonitor/Measurements.cs" Link="Measurements.cs" />
+    <Compile Include="../../tools/SystemMonitor/SessionHistory.cs" Link="SessionHistory.cs" />
+    <Compile Include="../../tools/SystemMonitor/HistoryWindow.cs" Link="HistoryWindow.cs" />
     <Compile Include="../../tools/Common/FamilyWindow.cs" Link="FamilyWindow.cs" />
     <ProjectReference Include="../../src/Aquarium.Core/Aquarium.Core.csproj" />
   </ItemGroup>
