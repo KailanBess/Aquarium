@@ -32,12 +32,12 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: c0298f8a648707182ad8f9580aa6685aa4184380
+          ref: 8359c41c0f55981692e3931a9bcb6511e0e2a0f3
           path: companion/FishNet
       - name: Restore pinned shared Core for included FishNet
         shell: pwsh
         run: ./companion/FishNet/scripts/Restore-Core.ps1
-      - name: Publish included FishNet 0.6.0 runtime
+      - name: Publish included FishNet 0.6.1 runtime
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project companion/FishNet/src/FishNet/FishNet.csproj -PublishDirectory artifacts/FishNet -LogName fishnet-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -158,7 +158,7 @@ jobs:
           if ($coreLine -notmatch '^([a-f0-9]{64})  (Aquarium\.Core\.\d+\.\d+\.\d+\.nupkg)$') { throw 'Invalid Core checksum manifest.' }
           $coreName = $Matches[2]
           if ((Get-FileHash "release/$coreName" -Algorithm SHA256).Hash -ne $Matches[1]) { throw 'Core package checksum mismatch.' }
-          $notes="Aquarium 0.8.0 adds the optional standalone System Monitor with CPU/physical-memory/process observations, pause, filtering, sorting and reviewed local snapshot export. Missing data stays unknown; process working sets can share pages. The utility changes no process settings and is Windows-only. Retains portable Aquarium Core 0.3.0 diagnostics probes with explicit unavailable/unsupported/unknown states, bounded background observations and safe error codes. Local support export uses the API without uploading data. Encrypted record recovery includes FishNet photo/PDF catalogs; custom media profile selectors block managed removal. Retains offline packages, versioned settings, appearance undo and previous-record recovery. Includes FishTank 0.18.0 and FishNet 0.6.0 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
+          $notes="Aquarium 0.8.0 adds the optional standalone System Monitor with CPU/physical-memory/process observations, pause, filtering, sorting and reviewed local snapshot export. Missing data stays unknown; process working sets can share pages. The utility changes no process settings and is Windows-only. Export dialogs use path-only pickers, keeping existing backup/package/theme/support destinations untouched until validation and publication. Retains portable Aquarium Core 0.3.0 diagnostics probes with explicit unavailable/unsupported/unknown states, bounded background observations and safe error codes. Local support export uses the API without uploading data. Encrypted record recovery includes FishNet photo/PDF catalogs; custom media profile selectors block managed removal. Retains offline packages, versioned settings, appearance undo and previous-record recovery. Includes FishTank 0.18.0 and FishNet 0.6.1 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
           gh release view $tag *> $null
