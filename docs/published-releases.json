@@ -1,0 +1,214 @@
+{
+  "date": "2026-11-26",
+  "specification": "https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e",
+  "verification": "Published source identities and binary checksum manifests were checked against GitHub release asset digests.",
+  "signing": "Unsigned development releases; genuine publisher signing is not configured.",
+  "fullOverhaulComplete": false,
+  "releases": [
+    {
+      "application": "Aquarium",
+      "version": "v0.8.0",
+      "url": "https://github.com/KailanBess/Aquarium/releases/tag/v0.8.0",
+      "source": "1611a130e02af487b3a4cd1a05eedd745566fa21",
+      "draft": false,
+      "prerelease": false,
+      "verification": "Downloaded checksum manifests match GitHub asset digests; source matches build-info where published or the direct release tag commit.",
+      "manifestEntriesChecked": 6,
+      "assets": [
+        {
+          "name": "Aquarium-complete-windows-x64.zip",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/Aquarium-complete-windows-x64.zip",
+          "bytes": 230959553,
+          "sha256": "83fc67a14cc7d0bcc6877c7982f688b6a2f2bd4b04c4521868f66f6d2e854bff"
+        },
+        {
+          "name": "Aquarium.Core.0.3.0.nupkg",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/Aquarium.Core.0.3.0.nupkg",
+          "bytes": 17966,
+          "sha256": "3826a6a335b7e468326d00529b183bf65f9fd1c88785dc9fdcd1538b2daf9665"
+        },
+        {
+          "name": "BUILD-INFO.json",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/BUILD-INFO.json",
+          "bytes": 754,
+          "sha256": "3c17a39aaac64f2f2f53272a7bd707544793a3ec511b9d0753fe3e127a04688b"
+        },
+        {
+          "name": "DeviceInventory-windows-x64.zip",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/DeviceInventory-windows-x64.zip",
+          "bytes": 51507592,
+          "sha256": "b9d85ec2cb976fc0bb4278a5050123b01e94a2fbd451f9e7a991a49304d2e244"
+        },
+        {
+          "name": "FileOrganizer-windows-x64.zip",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/FileOrganizer-windows-x64.zip",
+          "bytes": 51514457,
+          "sha256": "19a61c899619be4570bafab576acec96f7f7c51254bdb63ab8e1042a1309702c"
+        },
+        {
+          "name": "SHA256SUMS-core.txt",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/SHA256SUMS-core.txt",
+          "bytes": 93,
+          "sha256": "778c6d32faca72f8568aebb923737dc1195ff81c19762f3aa2351ed839673947"
+        },
+        {
+          "name": "SHA256SUMS-tools.txt",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/SHA256SUMS-tools.txt",
+          "bytes": 394,
+          "sha256": "b52db4c963bedda47207194c1bddb96b6b214ef57feaba8532adedc3593a55b1"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/SHA256SUMS.txt",
+          "bytes": 101,
+          "sha256": "90e4fc41f458793fde01140f715eccfaa31ecff8884a369ec0f8b7c2a5f74593"
+        },
+        {
+          "name": "SystemMonitor-windows-x64.zip",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/SystemMonitor-windows-x64.zip",
+          "bytes": 51544026,
+          "sha256": "ce5ff43112e36bf4acea9108ea7820af112777c05d7d20b032f862d326995978"
+        },
+        {
+          "name": "WorkspaceLauncher-windows-x64.zip",
+          "url": "https://github.com/KailanBess/Aquarium/releases/download/v0.8.0/WorkspaceLauncher-windows-x64.zip",
+          "bytes": 51511451,
+          "sha256": "e2b0c6409256478429fd8d3f9afaf858bc6097c809b2887374e85eb3ba1eefe3"
+        }
+      ]
+    },
+    {
+      "application": "FishNet",
+      "version": "v0.6.3",
+      "url": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.3",
+      "source": "f735725f1cdbb0810dfb76e30288fbaa41a33dc6",
+      "draft": false,
+      "prerelease": false,
+      "verification": "Downloaded checksum manifests match GitHub asset digests; source matches build-info where published or the direct release tag commit.",
+      "manifestEntriesChecked": 1,
+      "assets": [
+        {
+          "name": "BUILD-INFO.json",
+          "url": "https://github.com/KailanBess/FishNet/releases/download/v0.6.3/BUILD-INFO.json",
+          "bytes": 211,
+          "sha256": "4415437377ccdc6a6cea9c5a4c66e9a12bb0164606af4cedeb746629e74a33c7"
+        },
+        {
+          "name": "FishNet-windows-x64.zip",
+          "url": "https://github.com/KailanBess/FishNet/releases/download/v0.6.3/FishNet-windows-x64.zip",
+          "bytes": 91598073,
+          "sha256": "d090b576b7ee78509a6a29c6b6486e8961946ae5ff85a12fc638fdfe3390f9e1"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/KailanBess/FishNet/releases/download/v0.6.3/SHA256SUMS.txt",
+          "bytes": 91,
+          "sha256": "68df47d041fa5e39c78c44256c696d9a3421a97d7948a8b5c39c618e1880ed06"
+        }
+      ]
+    },
+    {
+      "application": "FishTank",
+      "version": "preview-v0.18.0",
+      "url": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0",
+      "source": "c55fecef0da976d4922d60ffafd8053288f27612",
+      "draft": false,
+      "prerelease": true,
+      "verification": "Downloaded checksum manifests match GitHub asset digests; source matches build-info where published or the direct release tag commit.",
+      "manifestEntriesChecked": 4,
+      "assets": [
+        {
+          "name": "FishTank-desktop-preview.zip",
+          "url": "https://github.com/KailanBess/FishTank/releases/download/preview-v0.18.0/FishTank-desktop-preview.zip",
+          "bytes": 2476544,
+          "sha256": "ff29cee48608460ea6ca49e78d264f8c3450d63ca829d05e9b16017544c71d0d"
+        },
+        {
+          "name": "FishTank-server-kit.zip",
+          "url": "https://github.com/KailanBess/FishTank/releases/download/preview-v0.18.0/FishTank-server-kit.zip",
+          "bytes": 31602,
+          "sha256": "57959ff578633cf758146ba28dd0395ceeb91a5f4c47f78cd28c45bba0beb291"
+        },
+        {
+          "name": "FishTank.Cli.exe",
+          "url": "https://github.com/KailanBess/FishTank/releases/download/preview-v0.18.0/FishTank.Cli.exe",
+          "bytes": 1950720,
+          "sha256": "146c729dc49f6c70dbd26d2c788f318363c10a4bad735223c9c9471d7fe14017"
+        },
+        {
+          "name": "FishTank.exe",
+          "url": "https://github.com/KailanBess/FishTank/releases/download/preview-v0.18.0/FishTank.exe",
+          "bytes": 1950720,
+          "sha256": "55f5669833717d5b32aff33b8d8ba81b2845da420defa558d4ddc7b8938a70f5"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/KailanBess/FishTank/releases/download/preview-v0.18.0/SHA256SUMS.txt",
+          "bytes": 351,
+          "sha256": "e224cf926924dc2d14f285c1920e02bacab024e2efcaff59e82bd07adfa1dd29"
+        }
+      ]
+    },
+    {
+      "application": "FishBowl",
+      "version": "v1.33.0",
+      "url": "https://github.com/KailanBess/FishBowl/releases/tag/v1.33.0",
+      "source": "b7e4059570ee90c938e49cfae62fc06aed83b067",
+      "draft": false,
+      "prerelease": false,
+      "verification": "Downloaded checksum manifests match GitHub asset digests; source matches build-info where published or the direct release tag commit.",
+      "manifestEntriesChecked": 6,
+      "assets": [
+        {
+          "name": "BUILD-INFO.json",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/BUILD-INFO.json",
+          "bytes": 379,
+          "sha256": "08127dde7f9fa5d782fa52b7221733bfa661e57c1d2d2146d8c697aa8fa62b78"
+        },
+        {
+          "name": "FishBowl-1.33.0-linux-x64.tar.gz",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/FishBowl-1.33.0-linux-x64.tar.gz",
+          "bytes": 41785537,
+          "sha256": "4b437f0e92e3636dbfbf9d36262a5fdf82aa440ddf499e653cf533b4aeb2afc2"
+        },
+        {
+          "name": "FishBowl-1.33.0-Source.zip",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/FishBowl-1.33.0-Source.zip",
+          "bytes": 2680190,
+          "sha256": "866da8951da2031fd307e95838de795645db61c1c561b6b25321b828e91c9741"
+        },
+        {
+          "name": "FishBowl-1.33.0-x86_64.AppImage",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/FishBowl-1.33.0-x86_64.AppImage",
+          "bytes": 39660024,
+          "sha256": "c9b6dda6f3679a0a6d2119116afa6b45810810100fc3b6d1bd26e4c66be1f373"
+        },
+        {
+          "name": "FishBowl-1.33.0.zip",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/FishBowl-1.33.0.zip",
+          "bytes": 2056723,
+          "sha256": "52216e946f8055047aa4e55d5e07c3917e29ea6b82578f2236a700f776f7de47"
+        },
+        {
+          "name": "RELEASE-NOTES.md",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/RELEASE-NOTES.md",
+          "bytes": 1303,
+          "sha256": "01e1f2a49a8d64c7c4d995f469ff58744ad91918457c72c526129dc7e6ce8533"
+        },
+        {
+          "name": "SHA256SUMS-linux.txt",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/SHA256SUMS-linux.txt",
+          "bytes": 197,
+          "sha256": "20f1a2bc0ec5d9ae9130733a4f2c3353070276b285374a8181d4cd5ab3a17929"
+        },
+        {
+          "name": "SHA256SUMS.txt",
+          "url": "https://github.com/KailanBess/FishBowl/releases/download/v1.33.0/SHA256SUMS.txt",
+          "bytes": 348,
+          "sha256": "59ec9605552ca70731f99b955569e844a5b5be0ee975b0f17eb654b6d4c9832f"
+        }
+      ]
+    }
+  ],
+  "pending": []
+}
