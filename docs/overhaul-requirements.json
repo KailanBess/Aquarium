@@ -7,12 +7,48 @@
     "Tailscale and private networking, excluded by user on 2026-11-26"
   ],
   "qualityTargets": [
-    { "metric": "warm-startup", "target": "About 1 second for lightweight interfaces", "conditions": "Reference hardware and warm-launch procedure must be defined", "measured": null, "status": "target-not-measured" },
-    { "metric": "idle-cpu", "target": "Under 1 percent", "conditions": "Inactive, non-scanning background services on reference hardware", "measured": null, "status": "target-not-measured" },
-    { "metric": "crash-free-sessions", "target": "99.9 percent", "conditions": "Long-term production reliability with a defined, privacy-respecting measurement method", "measured": null, "status": "target-not-measured" },
-    { "metric": "official-package-verification", "target": "100 percent before installation", "conditions": "Distinguish package consistency checks from genuine publisher authentication", "measured": null, "status": "requires-coverage-audit" },
-    { "metric": "interface-responsiveness", "target": "60 FPS", "conditions": "Supported reference hardware and representative interaction traces", "measured": null, "status": "target-not-measured" },
-    { "metric": "core-offline-functionality", "target": "Required; no mandatory cloud dependency for local features", "conditions": "Per-application offline acceptance matrix", "measured": null, "status": "requires-coverage-audit" }
+    {
+      "metric": "warm-startup",
+      "target": "About 1 second for lightweight interfaces",
+      "conditions": "Reference hardware and warm-launch procedure must be defined",
+      "measured": null,
+      "status": "target-not-measured"
+    },
+    {
+      "metric": "idle-cpu",
+      "target": "Under 1 percent",
+      "conditions": "Inactive, non-scanning background services on reference hardware",
+      "measured": null,
+      "status": "target-not-measured"
+    },
+    {
+      "metric": "crash-free-sessions",
+      "target": "99.9 percent",
+      "conditions": "Long-term production reliability with a defined, privacy-respecting measurement method",
+      "measured": null,
+      "status": "target-not-measured"
+    },
+    {
+      "metric": "official-package-verification",
+      "target": "100 percent before installation",
+      "conditions": "Distinguish package consistency checks from genuine publisher authentication",
+      "measured": null,
+      "status": "requires-coverage-audit"
+    },
+    {
+      "metric": "interface-responsiveness",
+      "target": "60 FPS",
+      "conditions": "Supported reference hardware and representative interaction traces",
+      "measured": null,
+      "status": "target-not-measured"
+    },
+    {
+      "metric": "core-offline-functionality",
+      "target": "Required; no mandatory cloud dependency for local features",
+      "conditions": "Per-application offline acceptance matrix",
+      "measured": null,
+      "status": "requires-coverage-audit"
+    }
   ],
   "rules": [
     "Preserve existing functionality and user data",
@@ -81,7 +117,8 @@
       "area": "core",
       "section": "",
       "requirement": "Private Network / VPN — Network infrastructure and connectivity — Moderate–Major",
-      "status": "needs-audit"
+      "status": "excluded-by-user",
+      "evidence": "Tailscale/private networking was explicitly excluded by the user on 2026-11-26."
     },
     {
       "id": "CORE-006",
@@ -158,7 +195,9 @@
       "area": "core",
       "section": "Shared features every application should have",
       "requirement": "Shared logging and diagnostics.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "Aquarium Core 0.3.0 publishes bounded read-only diagnostic probes, versioned reports, explicit observation states and fixed safe error codes. Adopted by local Aquarium support report without upload. Windows/Ubuntu Core CI and complete Windows packaging pass. Shared logging, cross-app adapters, crash collection and all performance/health coverage are not complete.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.7.0"
     },
     {
       "id": "CORE-017",
@@ -704,7 +743,9 @@
       "area": "security",
       "section": "Privacy and network security",
       "requirement": "Camera and microphone permission visibility.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishTank 0.18.0 Permissions review displays supported current-user Windows ConsentStore permission/access metadata and UTC interval timestamps. Open records are explicitly not live-use proof. 11 history parser fixtures and full Windows CI pass. Systemwide sensor interception, Linux adapters and guaranteed complete activity history are not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0"
     },
     {
       "id": "SECURITY-034",
@@ -1054,7 +1095,9 @@
       "area": "gaming",
       "section": "Emulator management",
       "requirement": "Emulator performance monitoring.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishBowl 1.33.0 source merged after Windows/Linux CI: verified session CPU and working-set sampling, Windows battery charge/remaining-time estimates. Changing/incomplete/reused processes stay unknown. FPS, GPU, frame times, temperatures and measured battery consumption are not implemented by this panel. Physical-session acceptance remains open.",
+      "evidenceUrl": "https://github.com/KailanBess/FishBowl/pull/67"
     },
     {
       "id": "GAMING-031",
@@ -1110,7 +1153,9 @@
       "area": "gaming",
       "section": "Gaming performance",
       "requirement": "Battery usage monitoring.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishBowl 1.33.0 source merged after Windows/Linux CI: verified session CPU and working-set sampling, Windows battery charge/remaining-time estimates. Changing/incomplete/reused processes stay unknown. FPS, GPU, frame times, temperatures and measured battery consumption are not implemented by this panel. Physical-session acceptance remains open.",
+      "evidenceUrl": "https://github.com/KailanBess/FishBowl/pull/67"
     },
     {
       "id": "GAMING-039",
@@ -1439,7 +1484,9 @@
       "area": "media",
       "section": "Music",
       "requirement": "Internet radio.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "Saved direct HTTPS radio streams, search and explicit Windows media-engine playback are published. Loading/editing stations does not connect; 27 record/validation/concurrency fixtures pass. Live provider/device-interruption acceptance and broader directories/recording remain outside this implementation.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.1"
     },
     {
       "id": "MEDIA-015",
@@ -1698,14 +1745,18 @@
       "area": "media",
       "section": "Additional media functionality",
       "requirement": "Photo library.",
-      "status": "needs-audit"
+      "status": "implemented-in-published-preview",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-052",
       "area": "media",
       "section": "Additional media functionality",
       "requirement": "Image viewer.",
-      "status": "needs-audit"
+      "status": "implemented-in-published-preview",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-053",
@@ -1719,14 +1770,18 @@
       "area": "media",
       "section": "Additional media functionality",
       "requirement": "PDF viewer.",
-      "status": "needs-audit"
+      "status": "implemented-in-published-preview",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-055",
       "area": "media",
       "section": "Additional media functionality",
       "requirement": "Screenshot organizer.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishNet 0.6.1 categorizes imported screenshots using names and Screenshots folder labels, with albums/filtering. This is not image-content recognition or background capture.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/pull/17"
     },
     {
       "id": "MEDIA-056",
@@ -1894,7 +1949,9 @@
       "area": "utilities",
       "section": "8. Additional native operating system applications",
       "requirement": "System Monitor — Resource and process management — High",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "Aquarium 0.8.0 publishes the independent self-contained Windows System Monitor. Primary-group CPU, physical RAM, process working sets, pause/filter/sort and explicit local JSON snapshot export. 18 Windows measurement checks, 13 portable Linux fixtures and 36 native generated-data UI checks at 100/150/200% fonts pass. Complete Windows packaging, clean startup and Core CI pass. GPU, storage/network rates, temperature, long-term history, process control and Linux UI remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.8.0"
     },
     {
       "id": "UTILITIES-005",
@@ -2251,7 +2308,8 @@
       "area": "core",
       "section": "Aquarium ecosystem — Complete application overhaul plan",
       "requirement": "Private Network — Personal network and infrastructure management.",
-      "status": "needs-audit"
+      "status": "excluded-by-user",
+      "evidence": "Tailscale/private networking was explicitly excluded by the user on 2026-11-26."
     },
     {
       "id": "CORE-062",
@@ -3035,14 +3093,18 @@
       "area": "security",
       "section": "3.4 Privacy management",
       "requirement": "Camera permissions — Display supported application camera permissions.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishTank 0.18.0 Permissions review displays supported current-user Windows ConsentStore permission/access metadata and UTC interval timestamps. Open records are explicitly not live-use proof. 11 history parser fixtures and full Windows CI pass. Systemwide sensor interception, Linux adapters and guaranteed complete activity history are not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0"
     },
     {
       "id": "SECURITY-096",
       "area": "security",
       "section": "3.4 Privacy management",
       "requirement": "Microphone permissions — Display supported microphone access information.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishTank 0.18.0 Permissions review displays supported current-user Windows ConsentStore permission/access metadata and UTC interval timestamps. Open records are explicitly not live-use proof. 11 history parser fixtures and full Windows CI pass. Systemwide sensor interception, Linux adapters and guaranteed complete activity history are not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0"
     },
     {
       "id": "SECURITY-097",
@@ -3721,14 +3783,18 @@
       "area": "security",
       "section": "3.6 Privacy protection",
       "requirement": "Camera access — Display supported camera permission and activity information.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishTank 0.18.0 Permissions review displays supported current-user Windows ConsentStore permission/access metadata and UTC interval timestamps. Open records are explicitly not live-use proof. 11 history parser fixtures and full Windows CI pass. Systemwide sensor interception, Linux adapters and guaranteed complete activity history are not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0"
     },
     {
       "id": "SECURITY-165",
       "area": "security",
       "section": "3.6 Privacy protection",
       "requirement": "Microphone access — Display supported microphone permission and activity information.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishTank 0.18.0 Permissions review displays supported current-user Windows ConsentStore permission/access metadata and UTC interval timestamps. Open records are explicitly not live-use proof. 11 history parser fixtures and full Windows CI pass. Systemwide sensor interception, Linux adapters and guaranteed complete activity history are not implemented.",
+      "evidenceUrl": "https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0"
     },
     {
       "id": "SECURITY-166",
@@ -4183,7 +4249,9 @@
       "area": "gaming",
       "section": "4.5 Performance management",
       "requirement": "Battery monitoring — Track battery consumption during gameplay.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "FishBowl 1.33.0 source merged after Windows/Linux CI: verified session CPU and working-set sampling, Windows battery charge/remaining-time estimates. Changing/incomplete/reused processes stay unknown. FPS, GPU, frame times, temperatures and measured battery consumption are not implemented by this panel. Physical-session acceptance remains open.",
+      "evidenceUrl": "https://github.com/KailanBess/FishBowl/pull/67"
     },
     {
       "id": "GAMING-147",
@@ -4575,7 +4643,9 @@
       "area": "media",
       "section": "5.2 Music playback and library",
       "requirement": "Internet radio — Play supported online radio streams.",
-      "status": "needs-audit"
+      "status": "partial",
+      "evidence": "Saved direct HTTPS radio streams, search and explicit Windows media-engine playback are published. Loading/editing stations does not connect; 27 record/validation/concurrency fixtures pass. Live provider/device-interruption acceptance and broader directories/recording remain outside this implementation.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.1"
     },
     {
       "id": "MEDIA-094",
@@ -4850,16 +4920,20 @@
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Photo library — Index and organize selected image directories.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-131",
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Albums — Create photo collections.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-132",
@@ -4882,40 +4956,50 @@
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Metadata viewer — Display available image metadata.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-135",
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Basic editing — Crop, rotate and adjust images.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-136",
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Slideshow — Display selected images automatically.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-137",
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Duplicate detection — Identify potentially duplicate images.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "partial",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.3 provides read-only exact-content duplicate candidates using file length and SHA-256 for current photo filters. Bounded 10,000-path/64 MiB-file/2 GiB-read scans expose skipped/partial coverage and support cancellation. Explicit full JSON report; no deletion, catalog mutation, uploads or perceptual matching. Twelve regression checks and isolated native GUI comparison/export pass. Visually similar but differently encoded images remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.3"
     },
     {
       "id": "MEDIA-138",
       "area": "media",
       "section": "5.5 Photo and image management",
       "requirement": "Screenshot organizer — Automatically categorize imported screenshots.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "partial",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1 categorizes imported screenshots using names and Screenshots folder labels, with albums/filtering. This is not image-content recognition or background capture.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/pull/17"
     },
     {
       "id": "MEDIA-139",
@@ -5218,8 +5302,10 @@
       "area": "media",
       "section": "5.8 Media utilities",
       "requirement": "PDF viewer — Open and navigate local PDF documents.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "FishNet 0.6.1: selected local photo/PDF directories, albums, metadata where recorded, crop/rotate/brightness export-copy edits, five-second slideshow, PDF page navigation/zoom. Native generated-image/edit/metadata-preservation and two-page PDF pixel tests pass; isolated-profile GUI renders the photo and both pages. Codec, protected-document and broader hardware/accessibility acceptance remain bounded by documented support.",
+      "evidenceUrl": "https://github.com/KailanBess/FishNet/releases/tag/v0.6.0"
     },
     {
       "id": "MEDIA-177",
@@ -5274,8 +5360,10 @@
       "area": "core",
       "section": "7.1 Shared framework modules",
       "requirement": "Settings SDK — Read, write, validate and migrate application settings.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "implemented-in-published-preview",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "Aquarium Core 0.3.0 includes the versioned Settings SDK: bounded reads, validation, explicit migrations, future-field retention, conflict rejection and prior-record restoration. 45 dedicated settings checks plus Windows/Ubuntu CI pass. Other application records have not all migrated.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.7.0"
     },
     {
       "id": "CORE-083",
@@ -5338,8 +5426,10 @@
       "area": "core",
       "section": "7.1 Shared framework modules",
       "requirement": "Diagnostics SDK — Collect relevant troubleshooting information.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "partial",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "Aquarium Core 0.3.0 publishes bounded read-only diagnostic probes, versioned reports, explicit observation states and fixed safe error codes. Adopted by local Aquarium support report without upload. Windows/Ubuntu Core CI and complete Windows packaging pass. Shared logging, cross-app adapters, crash collection and all performance/health coverage are not complete.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.7.0"
     },
     {
       "id": "CORE-091",
@@ -5754,8 +5844,10 @@
       "area": "utilities",
       "section": "9. Future operating system utilities",
       "requirement": "System Monitor — CPU, GPU, RAM, storage, processes, temperatures and performance history.",
-      "status": "needs-audit",
-      "source": "User-supplied detailed specification (2026-11-26)"
+      "status": "partial",
+      "source": "User-supplied detailed specification (2026-11-26)",
+      "evidence": "Aquarium 0.8.0 publishes the independent self-contained Windows System Monitor. Primary-group CPU, physical RAM, process working sets, pause/filter/sort and explicit local JSON snapshot export. 18 Windows measurement checks, 13 portable Linux fixtures and 36 native generated-data UI checks at 100/150/200% fonts pass. Complete Windows packaging, clean startup and Core CI pass. GPU, storage/network rates, temperature, long-term history, process control and Linux UI remain open.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.8.0"
     },
     {
       "id": "UTILITIES-025",
@@ -6218,8 +6310,10 @@
       "area": "core",
       "section": "Aquarium Core",
       "requirement": "Diagnostics — Health and performance",
-      "status": "needs-audit",
-      "source": "Original high-level specification supplied in full (2026-11-26)"
+      "status": "partial",
+      "source": "Original high-level specification supplied in full (2026-11-26)",
+      "evidence": "Aquarium Core 0.3.0 publishes bounded read-only diagnostic probes, versioned reports, explicit observation states and fixed safe error codes. Adopted by local Aquarium support report without upload. Windows/Ubuntu Core CI and complete Windows packaging pass. Shared logging, cross-app adapters, crash collection and all performance/health coverage are not complete.",
+      "evidenceUrl": "https://github.com/KailanBess/Aquarium/releases/tag/v0.7.0"
     },
     {
       "id": "CORE-125",
@@ -6998,19 +7092,32 @@
         "tests/Aquarium.PackageTests/AppearanceSettingsChecks.cs"
       ],
       "status": "published-in-aquarium-0.6.0"
+    },
+    {
+      "feature": "Bounded diagnostics API and local support reports",
+      "status": "published-in-aquarium-0.8.0",
+      "evidence": [
+        "Aquarium.Core 0.3.0",
+        "Windows/Ubuntu Core CI",
+        "Native support report adoption"
+      ]
     }
   ],
-  "workInProgress": [
-    {
-      "feature": "Portable diagnostics API and support-report adoption",
-      "evidence": [
-        "src/Aquarium.Core/Diagnostics.cs",
-        "src/Aquarium/SupportDiagnostics.cs",
-        "tests/Aquarium.CoreTests/DiagnosticChecks.cs",
-        "tests/Aquarium.PackageTests/SupportDiagnosticChecks.cs"
-      ],
-      "status": "tested-locally-not-released"
-    }
-  ]
+  "workInProgress": {
+    "feature": "Remaining ecosystem specification",
+    "status": "unfinished",
+    "evidence": [
+      "Published deliverables are recorded in published-releases.json.",
+      "Bounded preview implementations and partial requirements retain their limits.",
+      "Shared services, expanded app capabilities, Linux ports, Shoal build and production quality acceptance remain open."
+    ]
+  },
+  "statusDefinitions": {
+    "needs-audit": "Unassessed against the complete requirement; does not imply the feature is absent.",
+    "implemented-in-published-preview": "The stated bounded capability is implemented and published; fixture passes do not establish every hardware/accessibility acceptance condition.",
+    "partial": "Only the evidence-described subset is implemented; the full wording remains open.",
+    "under-review": "Source and tests exist on the linked review branch; not yet a published release.",
+    "excluded-by-user": "Explicitly excluded from this implementation request; retained for source traceability."
+  },
+  "deliveryNote": "The full specification remains in scope and unfinished. Numeric production quality targets remain unmeasured. CloudKid and Tailscale/private networking remain excluded."
 }
-

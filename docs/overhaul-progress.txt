@@ -1,0 +1,58 @@
+Aquarium ecosystem overhaul — progress on November 26, 2026
+
+Scope
+Aquarium, FishTank (security), FishBowl (gaming), FishNet (media), reusable Aquarium Core, native utilities and future Shoal integration remain in scope. CloudKid/music identification and Tailscale/private networking remain excluded. Both supplied specification attachments were read in full and reconciled into the requirements ledger. The full overhaul is unfinished.
+
+Published deliveries
+Aquarium 0.8.0:
+https://github.com/KailanBess/Aquarium/releases/tag/v0.8.0
+Includes Core 0.3.0, the standalone utilities, bundled FishNet 0.6.2 and FishTank 0.18.0. Adds diagnostic observations to local support reports and encrypted backup coverage for photo/PDF records. Custom FishNet profile selectors block managed cleanup/uninstall so data can be preserved first.
+
+FishNet 0.6.3:
+https://github.com/KailanBess/FishNet/releases/tag/v0.6.3
+Adds local photo/PDF catalogs, albums, imported-screenshot filtering, recorded metadata, zoom, slideshow, crop/rotate/brightness export to a separate copy, PDF page navigation and explicit custom profiles. Source media and unknown saved fields are retained. Image/PDF limits and codec dependencies are documented. Pixel-only photo exports omit source metadata. Audio/video, radio, playlists, podcasts, tags and queues remain available.
+The 0.6.1 correction uses path-only save pickers. Conversion reads source streams, completes output in a same-folder temporary file, and publishes only after encoding/flush/cancellation checks. Canceled/failed conversion preserves the previous destination and removes temporary output. Playlist export uses atomic writes.
+
+FishTank 0.18.0 preview:
+https://github.com/KailanBess/FishTank/releases/tag/preview-v0.18.0
+Permissions review adds supported current-user Windows camera/microphone access start/stop metadata in UTC. Open, closed, inconsistent and missing intervals stay distinct. Open records are explicitly not live-use proof. No audio/video is captured and permissions are not changed.
+
+FishBowl 1.33.0:
+https://github.com/KailanBess/FishBowl/releases/tag/v1.33.0
+Windows Play → More → Performance and battery adds verified session CPU, process working sets and Windows battery estimates. Incomplete/changed/reused process samples stay unknown. CPU is normalized to logical processors; working sets share pages. FPS/GPU/temperature/power and measured battery consumption are not claimed. The C# 5 sampler is shared and tested on Linux, whose UI remains unchanged. Windows app/installer/source and Linux tarball/AppImage are published.
+
+Latest completed work
+Aquarium 0.8.0 publishes an optional independent System Monitor as a complete self-contained Windows package. It provides CPU, physical-memory and process observations while open, pause/resume, filtering/sorting and explicit local snapshot export. It has no account, automatic upload or process-control dependency. The hub also adopts path-only save pickers and atomic theme/support writes. Complete package and clean-startup CI pass.
+FishNet 0.6.2 makes native save-picker default extensions explicit. FishNet 0.6.3 adds read-only duplicate-photo candidates for the current filters using length and SHA-256. Scans are bounded to 10,000 paths, 64 MiB per file and 2 GiB of reads, expose skipped/partial coverage and support cancellation. Full JSON export includes local paths and requires an explicit save. Nothing deletes photos, changes the catalog or uploads results. This does not detect visual similarity across different encodings.
+PR 20: https://github.com/KailanBess/FishNet/pull/20
+The 12 duplicate regression checks and full PR CI pass. An isolated native Windows profile containing two identical generated PNGs showed exactly one group and two paths, no skips. Native Save As exported valid JSON with the expected hash and .json extension for a name containing a dot. Both source fixture hashes remained unchanged.
+FishBowl PR 68 updated the maintainer handoff after the verified public 1.33 release; documentation checks passed and it is merged.
+Shared infrastructure already delivered
+Aquarium.Core provides complete-file publication, profile leases, path boundaries and bounded versioned JsonSettingsStore settings. Unknown object fields survive saves; migrations run in memory, unsupported/corrupt schemas are preserved, prior records support recovery and conflicting writers are refused. Appearance Apply/Undo adopts this SDK.
+Core 0.3 adds bounded read-only diagnostic probes, versioned reports, safe fixed error codes and Available/Warning/Unavailable/Unsupported/Unknown states. Completion timestamps do not prove sensor freshness; recorded hashes are not live verification. Reports do not upload automatically.
+Aquarium offline .aqpkg export/import validates bounded archives, approved identities, sizes and checksums, retains prior installations, and does not automatically launch imported software. Checksum consistency is distinguished from publisher authentication.
+
+Verification
+Core: 16 filesystem/lease + 45 settings + 34 diagnostics checks; Windows/Ubuntu CI passes.
+Aquarium: 57 package/persistence and 38 offline checks, appearance migration/field preservation/undo, support metadata boundaries, visual-record backup/restore and custom-profile preservation tests pass. Native app builds without warnings/errors. Complete 0.8 companion packaging and clean native startup pass.
+FishNet: 27 radio + 26 visual/model checks, existing media/playlists/folder-repair checks, real native image/edit/metadata-preservation and two-page PDF rendering pass. Real audio/video conversion checks include four audio decode round trips, MP4/WMV/video-to-MP3, invalid input, active cancellation, file preservation and temporary cleanup. Native app and complete release CI pass.
+FishBowl: complete native Windows regression, C# 5 compilation, Linux Avalonia/core/schema compatibility, remote-play tests and normal/compact overflow audits pass. Layout audits report zero findings at 100/150/200%. Legacy .NET Framework fixtures use a short temporary path. These are not physical emulator/controller or battery-accuracy certification.
+FishTank: 11 access-history fixtures + 30 collector fixtures, all PowerShell parsing, complete Windows runtime/UI/recovery checks and publication pass.
+System Monitor: 18 Windows measurement checks (13 portable fixture checks on Linux) and 36 generated-data native UI checks at 100/150/200% fonts pass. Real Windows timing/memory/process adapters were tested without exporting process names or snapshots. An initial UI-fixture startup race was corrected by awaiting the first rendered background sample.
+
+Release provenance
+Public build-info source identities and published checksum manifests were compared with GitHub asset digests. Details and exact download URLs are in published-releases.json. These are unsigned development releases; genuine publisher signing is not configured. Hash consistency is not independent publisher authentication.
+Aquarium 0.8 final source passed complete Windows packaging, clean startup and Windows/Ubuntu Core/measurement CI and is published.
+Save-picker reference: https://learn.microsoft.com/en-us/windows/apps/develop/files/pickers-save-file
+
+Substantial remaining specification work
+- Complete shared services, account/optional sync, notification/logging/crash frameworks, extension contracts and cross-app platform adapters.
+- Additional security/privacy/network capabilities, independent protection-effectiveness review and signed production distribution.
+- Broader gaming provisioning, handheld/dual-display behavior, full performance instrumentation and physical device acceptance.
+- Additional media browsing/DSP/visualization/casting/hosting/device sync, RAW/perceptual-duplicate tools and requested editing/recording features.
+- Remaining System Center, Settings, File Manager, recovery and other native utilities; System Monitor does not yet provide GPU/storage/network rates, temperatures, history, process control or Linux UI.
+- Shoal bootable baseline, Linux app ports, installation, native service integration and hardware/recovery qualification. Its baselineBuilt marker remains false; no ISO or boot/install changes are claimed.
+- Measured startup/idle CPU/crash-free/60 FPS quality goals, complete offline acceptance coverage, accessibility and relevant real-hardware checks.
+
+The requirements ledger preserves overlapping requests. “needs-audit” does not mean absent; partial and preview implementations retain explicit evidence and limits. Do not describe the full ecosystem specification as complete.
+
