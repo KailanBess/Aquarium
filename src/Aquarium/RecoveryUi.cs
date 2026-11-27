@@ -118,7 +118,7 @@ public sealed partial class MainWindow
                 }
                 else
                 {
-                    var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = "Aquarium-records-" + DateTime.Now.ToString("yyyy-MM-dd") };
+                    var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = "Aquarium-records-" + DateTime.Now.ToString("yyyy-MM-dd"), DefaultFileExtension = ".aqbackup" };
                     picker.FileTypeChoices.Add("Encrypted Aquarium app records", new List<string> { ".aqbackup" });
                     var file = await picker.PickSaveFileAsync(); if (file is null || isClosed) return;
                     using var profileLeases = new CompanionLeases(ProfileRoot, selected);
@@ -169,7 +169,7 @@ public sealed partial class MainWindow
         if (await dialog.ShowAsync() != ContentDialogResult.Primary) return;
         try
         {
-            var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = "Aquarium-support" };
+            var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(AppWindow.Id) { SuggestedFileName = "Aquarium-support", DefaultFileExtension = ".json" };
             picker.FileTypeChoices.Add("Support report", new List<string> { ".json" });
             var file = await picker.PickSaveFileAsync();
             if (file is not null)

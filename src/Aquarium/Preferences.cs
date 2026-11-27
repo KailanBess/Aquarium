@@ -338,7 +338,7 @@ public sealed class Appearance
                 var theme = ReadControls();
                 if (!string.IsNullOrWhiteSpace(theme.AccentHex) && ParseColor(theme.AccentHex) is null)
                     throw new InvalidDataException("Enter a valid custom accent before exporting.");
-                var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(Win32Interop.GetWindowIdFromWindow(owner)) { SuggestedFileName = "Aquarium-theme" };
+                var picker = new Microsoft.Windows.Storage.Pickers.FileSavePicker(Win32Interop.GetWindowIdFromWindow(owner)) { SuggestedFileName = "Aquarium-theme", DefaultFileExtension = ".json" };
                 picker.FileTypeChoices.Add("Aquarium theme", new List<string> { ".json" });
                 var file = await picker.PickSaveFileAsync();
                 if (file is not null)
