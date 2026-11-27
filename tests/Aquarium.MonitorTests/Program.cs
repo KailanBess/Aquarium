@@ -31,6 +31,11 @@ if (OperatingSystem.IsWindows())
     var observed = WindowsMeasurements.ReadProcess(own);
     Check(observed.Pid == own.Id && observed.StartedUtcTicks == own.StartTime.ToUniversalTime().Ticks && observed.WorkingSetBytes > 0,
         "Own fixture process identity/memory measurement failed");
+    var live = WindowsMeasurements.Capture(default);
+    Check(live.PhysicalBytes is > 0 && live.AvailableBytes <= live.PhysicalBytes, "Native physical memory observation unavailable or invalid");
+    Check(live.Cpu is not null && live.Cpu.Idle <= live.Cpu.Kernel, "Native system timing observation unavailable or invalid");
+    Check(live.Truncated || live.Processes.Any(p => p.Pid == own.Id && p.StartedUtcTicks == observed.StartedUtcTicks),
+        "Native process inventory omitted its own readable fixture identity");
     using var canceled = new CancellationTokenSource(); canceled.Cancel();
     try { WindowsMeasurements.Capture(canceled.Token); throw new Exception("Canceled sampling proceeded"); } catch (OperationCanceledException) { checks++; }
 }
