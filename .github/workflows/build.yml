@@ -28,17 +28,20 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishNet
-          ref: bfb6da9342ee7777d98876608e6f1d30b56a112c
+          ref: c0298f8a648707182ad8f9580aa6685aa4184380
           path: companion/FishNet
-      - name: Publish included FishNet 0.5.0 runtime
+      - name: Restore pinned shared Core for included FishNet
+        shell: pwsh
+        run: ./companion/FishNet/scripts/Restore-Core.ps1
+      - name: Publish included FishNet 0.6.0 runtime
         shell: pwsh
         run: ./scripts/Publish-Windows.ps1 -Project companion/FishNet/src/FishNet/FishNet.csproj -PublishDirectory artifacts/FishNet -LogName fishnet-build
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: KailanBess/FishTank
-          ref: 7240c17c29c8fe8f2da442f575089b1d66420617
+          ref: a284ccdcc4213a67df66b4e5e3fe5d74ce323276
           path: companion/FishTank
-      - name: Validate included FishTank 0.17.0 Windows source
+      - name: Validate included FishTank 0.18.0 Windows source
         shell: pwsh
         run: |
           $root=Join-Path $PWD 'companion/FishTank'
@@ -151,7 +154,7 @@ jobs:
           if ($coreLine -notmatch '^([a-f0-9]{64})  (Aquarium\.Core\.\d+\.\d+\.\d+\.nupkg)$') { throw 'Invalid Core checksum manifest.' }
           $coreName = $Matches[2]
           if ((Get-FileHash "release/$coreName" -Algorithm SHA256).Hash -ne $Matches[1]) { throw 'Core package checksum mismatch.' }
-          $notes="Aquarium 0.6.0 adds verified offline companion packages and portable Aquarium Core 0.2.0, including versioned JSON settings with unknown-field preservation, schema validation, prior-record recovery and conflicting-save rejection. Appearance Apply/Undo uses the Settings SDK. Encrypted app-record recovery includes FishNet radio stations. Includes FishTank 0.17.0 and FishNet 0.5.0 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
+          $notes="Aquarium 0.7.0 adds portable Aquarium Core 0.3.0 diagnostics probes with explicit unavailable/unsupported/unknown states, bounded background observations and safe error codes. Local support export uses the API without uploading data. Encrypted record recovery includes FishNet photo/PDF catalogs; custom media profile selectors block managed removal. Retains offline packages, versioned settings, appearance undo and previous-record recovery. Includes FishTank 0.18.0 and FishNet 0.6.0 from pinned source; FishBowl remains optional. $signature Extract the ZIP and run its single Aquarium.exe. Offline package checksums verify consistency, not independent publisher identity. Backups contain records only, not referenced games/media/saves or FishTank security data. Live UI/device acceptance and independent security review remain external checks. Standalone tools and the portable Core library package are attached. This is an initial release from the roadmap at https://chatgpt.com/share/6b08a8dd-e4a8-83e9-ab79-0f2360b34a3e ; the complete overhaul remains in progress. Tailscale is excluded."
           $notes | Set-Content release/notes.txt -Encoding utf8
           $tag = 'v' + (Get-Content release/BUILD-INFO.json -Raw | ConvertFrom-Json).version
           gh release view $tag *> $null
